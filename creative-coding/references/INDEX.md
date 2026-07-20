@@ -57,3 +57,17 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 **Confidence:** Patterns are **Shipped** or **Bench-verified** and tiered in place. Underlying vendor facts are cited across to `digital-video/references/resolume-control-interfaces.md` and not restated.
 
 **Open items:** whether the layer Speed-fader feedback gap persists in current 7.x; whether REST polling can fill OSC feedback gaps without costing frames; Companion behavior with a reachable REST endpoint and a wrong OSC port.
+
+---
+
+### `touchdesigner-arena-sequencer.md`
+**Added:** 2026-07-19
+**Covers:** A column sequencer for Resolume Arena 7 built in TouchDesigner with a browser/phone UI. The three-tier split and why the browser is deliberately dumb (TD owns clock, playhead, triggers, persistence and WebSocket broadcast; clients render and send commands, holding no authority — so multiple phones stay in sync for free with no client-side merge). TD component list: Web Server DAT with **both HTTP and WebSocket enabled**, frame-driven Execute DAT clock rather than a Timer CHOP, module Text DAT called via `mod()`. Startup ordering, and phone onboarding by printing a QR of the LAN URL to the console. **Column identity keyed off `resId` rather than index**, and the default-column-name trap that forces it. Two approaches to distinguishing our own triggers from a human's — a `selected` WebSocket message plus self-trigger timestamp, and the composition-poll-and-diff fallback that proved itself. Bugs and dead ends, including a never-root-caused WebSocket drop. A debugging technique: introspect live module state from the console rather than instrumenting and reloading.
+
+**Use for:** any sequencer, playhead or browser-UI-over-TouchDesigner build; deciding where authority lives in a multi-client control system; the `resId` identity pattern, which generalises past this project.
+
+**Confidence:** Tiered in place — architecture and column identity **Bench-verified** (ran end to end on the rig; no record of a show), the console-introspection habit **Shipped**, the poll-removal refactor **Designed**, the WebSocket drop **Abandoned / never root-caused**.
+
+**⚠️ Provenance caveat, stated in the document itself:** reconstructed from session records, **not** from the source files. `arena_sequencer.py`, `arena_web_callbacks.py`, `index.html` and `readme.txt` are not in hand. Code fragments are *descriptions of what the code did*, not verified transcriptions. If the originals exist locally they supersede this document entirely.
+
+**Open items:** the 1.5 s self-trigger window never re-tested off the original network; the 1 s composition poll superseded in principle but the refactor untried; the WebSocket drop unexplained; original source files to be recovered from local storage if they exist.
