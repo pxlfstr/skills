@@ -1,81 +1,37 @@
-# Storing Material in creative-coding
+# Storing a New Document — creative-coding
 
-Follow this when the user agrees to save something to this skill's library.
+Follow this when the user agrees to save a pattern or technique to this library.
 
-## Before anything else — where this is allowed to go
+## Screen it first — three questions
 
-This skill is **private**. Its canonical home is the user's private repository or a local archive — **never** `https://github.com/pxlfstr/skills`.
-
-Before writing a storage file, confirm:
-
-1. The destination is the private store, not the public repo.
-2. The material contains no client-identifying detail the user hasn't agreed to keep.
-3. Any IPs, hostnames, ports, credentials, or venue names are either intentional or stripped.
-
-If the user asks to "commit the skills," ask which. `digital-video` and `analog-video` go public; this one does not.
-
-## What belongs here
-
-- Working code and scripts, in full.
-- Architectural patterns we developed — how a system was structured and why.
-- Debugging techniques that worked, and dead ends that didn't.
-- Empirically tuned constants, with the conditions they were tuned under.
-- Bug reports and upstream issues we've traced.
-
-## What does not belong here
-
-- **Vendor and protocol facts.** Command syntax, endpoints, port numbers, parameter paths, timing requirements, device capabilities. These go in `digital-video`, which is the single source of truth for them. Cite across; never copy.
-- One-off questions and transient context.
-- Anything the user is only asking about once.
-
-When unsure, ask. The user curates the library.
+1. **Is it a fact or a pattern?** Vendor and protocol facts go to `digital-video/references/`, not here. If the document is mostly numbers from a manual, it is in the wrong skill.
+2. **Is it public-safe?** This repository is world-readable. Strip or never write: client names, venue detail, rig inventories, IP addresses, network topology, credentials, show files. If the pattern cannot be stated without the rig it ran on, it is not ready.
+3. **Is it reusable?** One-off debugging is not a reference document. Patterns worth keeping are ones that will be reached for again on different hardware.
 
 ## Steps
 
-1. **Write the file into `references/`.** Lowercase-with-hyphens, descriptive
-   (`touchdesigner-arena-sequencer.md`, not `notes2.md`). Group by project, not by language.
+1. **Write the file into `references/`.** Lowercase-with-hyphens, descriptive: `midi-for-show-control.md`, not `notes2.md`.
 
-2. **Assign a confidence tier to every pattern in the file.** Per SKILL.md:
-   **Shipped** / **Bench-verified** / **Designed** / **Abandoned**. Unmarked defaults to **Designed**.
-   Tier goes inline next to the claim, not just in a header — a reader skimming to one section
-   must be able to see the tier without scrolling back.
+2. **Tier every pattern in place** — Shipped / Bench-verified / Designed / Abandoned. Provenance travels with the pattern. Never present an empirically developed technique as a documented fact.
 
-3. **Record what was never established.** If a workaround works and we don't know why, that
-   sentence goes in the file. If a constant was tuned by feel, say so and give the conditions.
-   A file that reads as more certain than the work behind it is a defect.
+3. **Cite across, don't duplicate.** Where a pattern depends on a vendor fact, reference the `digital-video` document by filename rather than restating the number. One place per spec.
 
-4. **Add an entry to `INDEX.md`** capturing: project, what's covered, highest tier present,
-   what it depends on from `digital-video`, open questions, and the date added.
+4. **Add an entry to `INDEX.md`** capturing:
+   - **Covers** — what is actually in the file, specifically.
+   - **Use for** — the kinds of questions this should be consulted for. This is what future sessions match against.
+   - **Confidence** — the tier distribution, and which sections are weakest.
+   - **Open items** — what is untested or unknown, stated rather than filled.
+   - **Added** — today's date.
 
-5. **Confirm to the user** what was written and that it needs committing to the private store.
+5. **Deliver it as a download and say plainly that it must be committed.** Writing into the container is not storage. Never report a document as saved on the basis of a file write.
 
-## Updating an existing file (additive, never lossy)
+## Updating an existing document — additive, never lossy
 
-- **Merge, don't replace.** Keep correct detail a newer note happens to omit.
-- **Keep abandoned approaches.** The record of what failed prevents re-walking it. Never delete
-  a dead end just because a working path was found — demote it to **Abandoned** with the reason.
-- **Never silently promote a tier.** A pattern moves from Designed to Bench-verified to Shipped
-  only on evidence the user reports. Time passing is not evidence.
-- Only remove something shown to be **wrong**, not merely superseded.
+- **Merge, don't replace.** Keep correct detail a newer or narrower source happens to omit.
+- **Promote tiers, don't overwrite them.** When a Designed pattern gets bench-tested, change the tier and note what the test showed — including anything that turned out different from the design.
+- **Keep Abandoned entries.** Knowing what failed prevents re-attempting it in eighteen months.
+- Remove something only when it is shown to be **wrong**, not merely absent from the latest source.
 
-## Cross-references to digital-video
+## Open items are first-class
 
-When a file here depends on a device fact, link it rather than restating it:
-
-> Camera command syntax: see `digital-video/references/panasonic-ptz-aw-protocol.md` `[Official]`.
-
-If the referenced file doesn't exist in the public repo yet, say so in the INDEX entry under
-"depends on," and treat writing it as a separate deliverable for that skill.
-
-## Persistence — read this before saying anything is "stored"
-
-Writing a file into `references/` inside a session **does not persist**. The container is
-discarded at session end.
-
-Therefore:
-
-1. Say up front, *before* doing storage work, that the file will need to be committed.
-2. Never describe material as "stored" or "saved to the skill" on the basis of having written it to disk.
-3. Always deliver the file as a download via `present_files` so it can be committed.
-4. At session start, if the user is relying on stored material, check file dates against the
-   last known package/commit date and flag any gap.
+Every document ends with what is unknown. A gap stated is worth more than a gap filled with a plausible guess — in this domain a wrong number gets discovered live, with no undo.

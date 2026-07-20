@@ -1,106 +1,104 @@
 ---
 name: creative-coding
-description: The user's own code for live video and show-control — TouchDesigner Python, Resolume/Companion integration, control-surface builds, OSC/WebSocket/REST glue, and the working patterns behind them. Sidecar to the digital-video skill. Use this skill whenever the user is writing, debugging, or extending code for a live video or show system — TouchDesigner networks, Script CHOPs, Web Server DATs, gamepad/MIDI control surfaces, camera control senders, sequencers, media-server automation, or anything talking to Resolume, Companion, or PTZ hardware over a protocol. Trigger it even if the user doesn't name it, and even if the request looks like a plain Python or JavaScript question, as long as the target is one of their show tools.
+description: Code and working patterns for live video and show control — MIDI and OSC control surfaces, TouchDesigner networks and Python, Resolume and Bitfocus Companion integration, and the protocol glue between them. Sidecar to the digital-video skill. Use this skill whenever the user is writing, debugging, or extending code for a live video or show system — TouchDesigner networks, Script CHOPs, Web Server/Client DATs, MIDI or gamepad control surfaces, OSC senders and receivers, sequencers, or media-server automation. Trigger it even if the user doesn't name it, and even if the request looks like a plain Python or JavaScript question, as long as the target is one of their show tools.
 ---
 
 # Creative Coding
 
-The user's own codebase for live video and show control. This is where **their** patterns live — the things we built, tested on their rig, broke, and fixed. It is a sidecar to `digital-video`, not a replacement for it.
+Code and working patterns for live video and show control. This is a **sidecar** to `digital-video`, not a replacement for it.
 
-**The dividing line, and it is the whole point of this skill existing:**
+## The dividing line — this is why the skill exists
 
 | Kind of thing | Lives in | Example |
 |---|---|---|
-| Vendor/protocol fact | `digital-video` | AW protocol command syntax, Resolume REST endpoints, NDI HX3 decode support, HDBaseT limits |
-| Our code and our patterns | `creative-coding` | The digest-auth AW sender, the `resId` column-identity scheme, the XInput Script CHOP, the 40 ms throttle |
+| Vendor / protocol fact | `digital-video` | Resolume's OSC port, X-Touch CC numbers, AW protocol syntax, NDI HX3 decode support |
+| Code and working patterns | `creative-coding` | The table-driven MIDI rename pattern, throttle-and-priority-chain structure, how to seed state on mode exit |
 
 Facts get looked up. Patterns get remembered. **Never duplicate a vendor fact into this skill** — cite across to `digital-video` instead, so there is exactly one place a spec can be wrong.
 
-## Privacy — read before storing anything
+When a coding session surfaces something that is actually a protocol fact, it does not belong in a code comment. Write it to `digital-video/references/` as a separate deliverable.
 
-This skill is **not public**. It must never be committed to `https://github.com/pxlfstr/skills`, which is a public repository. It contains show-specific code, venue and rig details, IP addresses, credentials patterns, and client work.
+---
 
-- **Never** `git push`, PR, or copy any part of this skill into the public repo.
-- **Never** paste code from this skill into a public issue, forum post, or bug report without stripping it first.
-- When filing an upstream bug (e.g. against a Bitfocus module), reduce to a minimal repro that contains no rig detail.
-- Storage path for this skill is the user's private repo or a local archive — see `references/STORAGE.md`.
+## What may and may not be committed
 
-If asked to "commit the skills," ask which one. `digital-video` and `analog-video` are public; this one is not.
+This skill lives in the **public** repository `https://github.com/pxlfstr/skills`. Everything here is world-readable.
 
-## Our techniques are not facts
+**Belongs here:**
+- Patterns written generically — the structure, not the deployment
+- Protocol glue explained in the abstract
+- Technique documented so it can be reused on a different rig
 
-The user's standing objection, and the reason this skill is separated out: **do not present our working patterns as though they were documented behavior.**
+**Does not belong here:**
+- Project- and show-specific code as built
+- Client names, venue detail, rig inventories, camera IPs, network topology
+- Credentials, tokens, or anything that implies them
+- `.toe` files, show files, mapping tables naming real deployed gear
 
-Every technique in here is something we arrived at empirically on one rig, often by trial and error, sometimes without root-causing the underlying problem. That is genuinely useful — it is *not* the same epistemic object as a line in a manufacturer's manual.
+The authoring discipline is to write the pattern generically **from the start**, rather than writing it deployment-specific and sanitizing later. If a pattern cannot be stated without the rig it ran on, it is not ready to be a reference document.
 
-So:
+---
 
-- Attribute patterns as **ours**: "the approach we landed on," "what worked on your rig," not "the correct way to do this" or "TouchDesigner requires."
-- Say what was actually established vs. inferred. If a workaround works but we never found out why, **say we never found out why** — every time it comes up, not just the first time.
-- Tuned constants (timeouts, poll intervals, throttles) are empirical for one machine on one network. Flag them as such whenever they're reused in a new context.
-- If a pattern exists because a vendor bug exists, name the bug and note it may be fixed — the workaround can outlive its reason and become the new problem.
-- Never launder a technique into a fact by restating it confidently in a later session. Provenance travels with the pattern.
+## Confidence tiers — provenance travels with every pattern
 
-### Confidence tiers for stored code and patterns
+The user's own empirically developed techniques must never be presented as documented facts. Every pattern carries a tier:
 
-| Tier | Means | Treat as |
-|---|---|---|
-| **Shipped** | Ran in an actual show or install without failing | Trustworthy in that exact context; still ours, still not a spec |
-| **Bench-verified** | Tested on the user's rig, observed working, not yet load-bearing in a show | Good; re-verify under show conditions |
-| **Designed** | Written and reasoned through, never run | Untested. Say so, prominently |
-| **Abandoned** | Tried, didn't work, superseded | Keep it — the record of what failed is worth as much as what worked. Note *why* if known |
+| Tier | Meaning |
+|---|---|
+| **Shipped** | Ran in a real show, start to finish, without intervention |
+| **Bench-verified** | Tested on hardware, confirmed working, not yet shown |
+| **Designed** | Reasoned through and written, not yet run against hardware |
+| **Abandoned** | Tried and rejected — kept because knowing what failed is worth as much as knowing what worked |
 
-Mark every stored pattern with a tier. An unmarked pattern is **Designed** until proven otherwise.
+State the tier in place. A Designed pattern presented as Shipped is the failure mode this system exists to prevent.
 
-## Sourcing hardware and protocol detail
+---
 
-When a coding task needs a device fact — a command string, an endpoint, a parameter path, a port, a timing requirement — **do not write it from memory and do not store it here.** Pull it from `digital-video`:
+## Workflow
 
-```bash
-git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
-git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-cat /tmp/skills-repo/digital-video/references/INDEX.md
-```
+1. **Sync the library from the canonical repo.** The `references/` folder in this container is a snapshot taken at the last skill upload and may be weeks stale. The canonical library is public and needs no credentials:
 
-Then read the relevant reference file from `/tmp/skills-repo/digital-video/references/`. State the repo's last commit date so the user knows how current the library is.
+   ```bash
+   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
+   ```
 
-If the fact isn't in `digital-video` yet:
+   Prefer `/tmp/skills-repo/creative-coding/references/` over the local copy wherever they differ, and **state the repo's last commit date** so the user knows how current the library is. Pull `/tmp/skills-repo/digital-video/references/` in the same clone — coding work almost always needs hardware facts from it.
 
-1. Research it properly (manufacturer doc, standards doc, the device's own manual).
-2. Note that it **belongs in `digital-video`**, and offer to write it there — as a separate deliverable to be committed to the public repo.
-3. Use it in the code here, citing across rather than copying.
+2. **Read `references/INDEX.md`** before answering. It is the manifest.
 
-If a clone fails, say so plainly and fall back to whatever local copy exists, flagging that it may be stale. Do not fill the gap with a remembered value — the no-false-numbers rule from `digital-video` applies here in full.
+3. **Separate fact from pattern before writing anything.** A vendor number goes to `digital-video`. A structure goes here. If a request needs both, produce both, as two deliverables.
 
-## Working rules
+4. **Deliver complete scripts, never partial diffs.** The user stitches code into TouchDesigner nodes by hand; "change just this line" causes errors. Every code update is the **full script**, every time, even for a one-line change. This is a standing preference, not a per-request one.
 
-**Full scripts, never diffs.** On any update to any script, output the complete file. Never "change just this line," never a partial patch, never an ellipsis standing in for unchanged code. This applies to every language and every project in this skill. It is the single most-repeated correction in this working relationship.
+5. **Be terse.** Bullets and tables over prose. Give the code and the reason it is shaped that way; skip the walkthrough unless asked.
 
-**The user is the engineer.** They decide architecture and make the calls. Flag a factual error once, with backing, then defer. Don't argue, don't pad, don't re-litigate a decision they've made.
+6. **Flag the edges honestly.** Version-specific operator behavior, undocumented device quirks, and anything derived from a single bench test get said out loud. "I'd be guessing — want me to pull the current docs?" beats a confident invention.
 
-**Debug by observing, not guessing.** The pattern that has repeatedly worked: introspect live state directly rather than adding print statements and reloading. In TouchDesigner that means reading module state from the console (`mod('/project1/thing')._some_state`). Establish what the system is actually doing before proposing a fix.
+---
 
-**Root-cause before workaround, but ship the workaround.** Say which one is being delivered. A workaround shipped knowingly is fine; a workaround mistaken for a fix is not.
+## Where Claude can reason directly
 
-**Be concise.** Bullets and explicit steps over prose paragraphs. Keep caveats grouped at the end rather than interleaved through the answer. The user reads these to act on them.
+- **MIDI 1.0 message structure** — channel voice messages, Note on/off and the velocity-0 convention, CC, 7-bit vs. 14-bit controllers and the MSB/LSB pairing rule, Program Change, pitch bend, running status, System Real-Time and clock, SysEx framing. Stable spec; safe from knowledge.
+- **OSC 1.0/1.1 structure** — address patterns and wildcards, type tag strings, argument encoding, bundles and time tags, the fact that the transport is unspecified (UDP in practice) and what that implies for reliability and ordering.
+- **Control-surface design** — absolute vs. relative encoders, pickup/takeover strategies for non-motorized controls, feedback loops and echo suppression, state ownership between surface and software, debounce and throttling, banking.
+- **Network and protocol glue** — UDP vs. TCP tradeoffs for show control, HTTP/REST and digest auth, WebSocket, polling vs. event-driven state, rate limiting and priority queues, failure behavior when a device goes offline.
+- **General programming** — Python, JavaScript, GLSL, data structures, concurrency, the table-driven and state-machine patterns this domain leans on.
 
-## Scope
+## Where Claude is reference-first
 
-Code and integration work for live video and show control:
+- **TouchDesigner operator specifics** — parameter names, defaults, and Python class members drift between builds. Verify against docs.derivative.ca for the build in use.
+- **Resolume version behavior** — the OSC namespace and REST surface change across 7.x. Discover from the running instance, don't recite.
+- **Bitfocus Companion modules** — action and feedback sets are per-module and per-version, maintained in the open. Read the module.
+- **Any device's control protocol** — that is a `digital-video` question. Go there or go to the manual.
 
-- **TouchDesigner** — Python in Script CHOPs/DATs, Execute DAT callbacks, Web Server DAT and browser UIs, MIDI/gamepad input, table-driven architectures, state management, cook-order and timing problems.
-- **Show control integration** — Bitfocus Companion (modules, custom variables, generic-websocket, triggers), OSC relays, division of labor between controllers sharing one device.
-- **Media server automation** — Resolume REST/WebSocket clients, composition state tracking, cue/sequencer logic.
-- **Device control senders** — HTTP/CGI, digest auth, serial, throttling and rate-limit handling for PTZ and other hardware.
-- **Standalone tools** — the HTML/Python utilities built alongside shows (router crosspoint panels, patch calculators, config generators).
-
-Out of scope, and belongs in `digital-video`: signal chain design, format and bandwidth math, device selection, projection and LED engineering, protocol specifications.
+---
 
 ## Reference library
 
-`references/` holds the stored patterns and code notes. Two helper files govern it:
+**Canonical source: https://github.com/pxlfstr/skills** (`creative-coding/references/`). The repo is authoritative; the copy in this container is a snapshot.
 
-- `references/INDEX.md` — the manifest. Read it first when this skill is active.
-- `references/STORAGE.md` — how to add material, how tiers are assigned, and where this skill is allowed to be stored.
+- `references/INDEX.md` — the manifest. Read first.
+- `references/STORAGE.md` — how to add a document, including the additive/non-lossy rule and the public-repo screen.
 
-**Nothing written to `references/` persists.** The container is discarded at session end. Never describe something as "stored" or "saved to the skill" on the basis of having written it to disk. Produce the file, deliver it as a download, and say plainly that it needs to be committed to the private repo. Full rules in `references/STORAGE.md`.
+**Nothing written to `references/` persists.** This container is discarded when the session ends; the only durable copy is the GitHub repository above. Never tell the user a document has been "stored" or "saved to the skill" on the basis of having written it to disk. Produce the file, deliver it as a download, and say plainly that it needs to be committed.

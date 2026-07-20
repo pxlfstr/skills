@@ -1,49 +1,59 @@
 # creative-coding — Reference Library Index
 
-Manifest of stored code notes and working patterns. Read this first when the skill is active.
+Manifest of stored pattern documents. Read this first when the skill is active.
 
-**This skill is private.** It must never be committed to `https://github.com/pxlfstr/skills`.
-See `STORAGE.md`.
+**Sibling skill:** `digital-video` holds vendor and protocol facts. This library holds code and working patterns, and cites *into* that one rather than duplicating it. If you are looking for a port number, a CC map, or a device spec, you are in the wrong library.
 
-**Everything here is ours, not documented behavior.** Every pattern carries a confidence tier —
-Shipped / Bench-verified / Designed / Abandoned. An unmarked pattern is Designed. Vendor and
-protocol facts are *not* stored here; they live in `digital-video` and are cited across.
+Maintenance is **additive and never lossy** — merge rather than replace, promote confidence tiers rather than overwriting them, keep Abandoned patterns, remove only what is shown to be *wrong*. See `STORAGE.md`.
 
-Maintenance is **additive and never lossy** — merge rather than replace, keep abandoned approaches
-with their reasons, never silently promote a tier.
+**Confidence tiers used throughout:** Shipped (ran in a real show) · Bench-verified (tested on hardware) · Designed (reasoned, not run) · Abandoned (tried and rejected, kept deliberately).
 
 ---
 
 ## Documents
 
-### `touchdesigner-arena-sequencer.md`
+### `midi-for-show-control.md`
 **Added:** 2026-07-19
-**Project:** Arena Sequencer — column sequencer for Resolume Arena 7, TD + browser UI. Started 2026-05-01.
-**Covers:** Three-tier architecture (TD owns clock/state/triggers, browser is dumb, Resolume receives only); Web Server DAT + Execute DAT frame-driven clock; `arena-state.json` persistence; QR onboarding via `qrcode` in TD's Python; **`resId` column identity and the default-`Column N` name trap**; external trigger detection two ways (`selected` + 1.5 s self-trigger window; 1 s composition poll + state diff); console introspection as the debugging method.
-**Highest tier present:** Bench-verified. Nothing confirmed show-run.
-**Abandoned/unresolved:** WebSocket dropping immediately after subscribe — never root-caused; `Origin` header fix did not work.
-**Depends on `digital-video` for:** Resolume REST/WebSocket API behavior — endpoints, `by-id` addressing, structural-change push semantics, webserver port and enablement. **This reference does not exist in the public repo yet** and should be written there.
-**Provenance caveat:** reconstructed from session records, not from source. Original file set (`arena_sequencer.py`, `arena_web_callbacks.py`, `index.html`, `readme.txt`) not in hand.
+**Covers:** The MIDI 1.0 message model and why message type must match control type (Notes for buttons, CC for continuous); 7-bit resolution limits and the three ways around them; the 14-bit MSB/LSB pairing rule; absolute vs. relative encoders and why relative encodings must be determined empirically; feedback, state ownership, momentary-vs-toggle, echo suppression and motor re-seating; pickup/takeover strategies for non-motorized surfaces; banking and channel-as-index; the 0-based/1-based index trap and the capture-first rule; note-name convention ambiguity; MIDI clock and why it is the wrong video sync source.
+
+**Use for:** designing any control-surface integration; deciding how to map a physical control; debugging feedback loops, stepping, or off-by-one index problems.
+
+**Confidence:** Spec-level material is stable and safe from knowledge; the 14-bit pairing rule is `[Official]` from Derivative's documentation. Patterns are tiered in place — channel-as-index is **Shipped**, encoder and feedback behavior **Bench-verified**, takeover strategies **Designed**.
+
+**Open items:** per-device relative-encoder encodings (empirical, always); whether echo suppression is better at the sender or via a comparison cache under many-control load.
 
 ---
 
-## Queue — patterns identified, not yet written up
+### `osc-for-show-control.md`
+**Added:** 2026-07-19
+**Covers:** OSC message structure and how it compares to MIDI; the unspecified transport and what UDP costs you — drops, reordering, no connection — and the four design rules that follow (send state not events; idempotent triggers; heartbeat repeats; never accumulate on the receive side); address-space design when you own both ends and discovery when you don't; absolute vs. relative addressing; type tags as the first thing to check when a message does nothing; bundles and uneven time-tag support; the bidirectional two-port gotcha and listening-interface confusion; choosing between OSC, MIDI and REST; the throttle-plus-priority-chain rate limiting pattern.
 
-Material from past sessions that belongs here but hasn't been captured. Ordered roughly by value.
+**Use for:** building anything that talks OSC; deciding whether OSC is even the right protocol for a given link; debugging messages that appear to send but do nothing.
 
-| Project | What it covers | Notes |
-|---|---|---|
-| TouchDesigner PTZ control surface | Joystick CHOP focus-gating problem and the XInput-in-Script-CHOP workaround; GameSir G7 Pro specifics; table-driven mapping architecture (function-kinds, per-camera state, AF/AI coupling, wrap-select, camera registry); expression-pedal speed scaling; 40 ms throttle; digest-auth AW sender | Existed as a written doc, lost with the container. Highest-value recovery. |
-| Multi-controller integration | Division of labor between Companion, RP-150, TD and PTZ Control Center to avoid command collisions; Companion→OSC→TD relay for cross-controller preset awareness | Existed as a written doc, lost. **Split needed** — the connectionless-vs-notification/5-slot distinction is a vendor fact and belongs in `digital-video`; only the division-of-labor architecture belongs here. |
-| X-Touch Compact → TouchDesigner | `LayerA.bin` binary preset decode (91 records, 7 blocks) and the decoded CSV; MIDI In CHOP over MIDI In Map CHOP rationale; Table DAT + Rename CHOP naming pattern; capture-ground-truth-via-MIDI-In-DAT workflow | The 1-based index offset is a TD fact → `digital-video`. The decode and the workflow are ours. Block 7 unidentified. |
-| Companion + Resolume layer count | `generic-websocket` build; `length(jsonparse(...))` extraction; `layers.length` shortcut untested; abandoned `getVariable()` / `clip_name_l{}_c{}` approach | Includes an upstream bug to file against `bitfocus/companion-module-resolume-arena`. Strip rig detail before filing. |
-| Standalone tools | BNC router crosspoint HTML panel — Preview/Program/Take state model, conflict detection, drag-to-reorder; intended OSC bridge to an Evertz Quartz 3232N | Older; confirm still relevant before writing up. |
+**Confidence:** Protocol structure is stable. UDP transport in TouchDesigner and the connectionless-status point are `[Official]`. Rate limiting is **Shipped**; address design is **Designed / Bench-verified**.
 
-## Queue — belongs in `digital-video`, surfaced from coding sessions
+**Open items:** bundle time-tag support per receiver; practical minimum throttle interval (measure per device, no general figure).
 
-Not for this skill. Listed so the split doesn't get lost.
+---
 
-- Resolume REST/WebSocket API reference (endpoints, `by-id` addressing, structural-change push, OSC's inability to query structure).
-- Panasonic AW protocol / UE150 / RP150 device documentation.
-- TouchDesigner MIDI In DAT 1-based index behavior.
-- Companion Panasonic module landscape (which module to use, subscription slot limits).
+### `touchdesigner-integration.md`
+**Added:** 2026-07-19
+**Covers:** Which MIDI, OSC and HTTP operators to reach for and why; MIDI In CHOP vs. MIDI In Map CHOP and when the mapper's indirection is worth it; the **capture-first workflow** (register → MIDI In DAT with Bytes Column → hand-corrected table DAT → Rename CHOP → semantic names); MIDI Out CHOP channel naming as the feedback API; the Controller Format 14-bit parameter and its diagnostic signature when mismatched; the `.toe` value-restore trap and its mitigations; the general table-driven mapping pattern and the rules that keep it maintainable; Script CHOP for devices without good native operators; outbound throttling with a priority chain and offline skip-gate.
+
+**Use for:** any TouchDesigner control-integration build or debug; structuring a mapping so hardware changes cost one table edit.
+
+**Confidence:** Operator behavior tagged `[Official]` is read from docs.derivative.ca and should be re-verified against the build in use. The capture-first workflow, table-driven pattern, Script CHOP approach and throttling are **Shipped**.
+
+**Open items:** Map CHOP's value for interchangeable multi-surface setups; `.toe` restore vs. motorized refresh race; Script CHOP polling cost at high cook rates.
+
+---
+
+### `resolume-companion-glue.md`
+**Added:** 2026-07-19
+**Covers:** Choosing among Resolume's OSC/REST/MIDI interfaces by what feedback you need rather than by what control you want; discovering the OSC address space instead of hardcoding from tutorials, and the coupling that creates between a control system and composition layout; feedback as opt-in and invisible when absent; mapping a two-layer surface onto Resolume as control banks; where Bitfocus Companion earns its place and how its OSC/REST split behaves; a separation-of-concerns architecture with one state owner and independently survivable nodes.
+
+**Use for:** wiring Resolume into a larger control system; deciding whether a job belongs in Companion or TouchDesigner; debugging a control path that works while feedback silently doesn't.
+
+**Confidence:** Patterns are **Shipped** or **Bench-verified** and tiered in place. Underlying vendor facts are cited across to `digital-video/references/resolume-control-interfaces.md` and not restated.
+
+**Open items:** whether the layer Speed-fader feedback gap persists in current 7.x; whether REST polling can fill OSC feedback gaps without costing frames; Companion behavior with a reachable REST endpoint and a wrong OSC port.
