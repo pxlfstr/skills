@@ -1,46 +1,48 @@
-# Storing a New Document
+# Storage Protocol — `references/`
 
-Follow this when the user agrees to save a document to the skill's reference library.
+How to add or update a document in this library.
 
-## Steps
+## Adding a new document
 
-1. **Copy the file into `references/`.** Keep the original filename if it's descriptive; otherwise rename it to something searchable (e.g., `lzx-memory-palace-spec.pdf`, not `doc1.pdf`). Use lowercase-with-hyphens.
+1. **Name it functionally**, lowercase, hyphenated, by device/protocol/topic —
+   e.g. `behringer-xtouch-compact-resolume.md`, `orei-uhd88-exb230r.md`,
+   `st2110-bandwidth-tables.md`. Not by date or session.
+2. **Mark every fact's tier** inline using the skill's verification tiers:
+   **Verified** (manufacturer datasheet/manual, standards doc, device docs, or
+   a measurement), **Lead** (forum/Reddit/community/blog — a pointer, not a
+   fact), **Memory** (Claude's recall — fine for stable fundamentals, never for
+   current specs, ports, firmware, pricing, or protocol revisions).
+3. **Cite descriptor-style**, not APA/MLA: the title of the article, thread,
+   manual, or PDF (hyperlinked if online), tagged `[Official]` or `[Forum]`.
+   No years. In tables, add a **Source** column. In prose, name the source
+   inline with its tag.
+4. **No false, placeholder, or estimated numbers.** Every numeric claim must
+   come from a source actually read that session. If a figure isn't in hand,
+   state what was checked and what's missing — never substitute a plausible
+   value or round a remembered figure into a fake-precise one.
+5. **Close with a verification-status table** and an explicit
+   *"Not yet verified — open items"* list, so the next session knows exactly
+   where the soft spots are.
+6. **Update `INDEX.md`** — add a row (document, what it covers, tier summary,
+   date stored), and add any newly-identified gaps to the wanted-documents
+   list.
 
-2. **Add an entry to `INDEX.md`** under "Stored documents," using the format shown in the comment there. Capture:
-   - **Topic** — what the document actually covers, specifically.
-   - **Type** — spec sheet / manual / schematic / build notes / reading list / article / etc.
-   - **Use for** — the kinds of questions this doc should be consulted for. This is what future sessions match against.
-   - **Added** — today's date.
+## Updating an existing document
 
-3. **Confirm to the user** what was stored and how it'll be used next time.
+**Additive and never lossy.**
 
-## Updating an existing document (additive, never lossy)
+- **Merge, don't replace.** Fold new material into the existing structure.
+- **Keep correct detail that a newer or narrower source simply omits.**
+  Absence from the latest source is not evidence of error.
+- **Only remove something demonstrated to be wrong** — and when removing,
+  note what was corrected and on what authority.
+- **Promote tiers explicitly.** When a Lead is confirmed against a datasheet,
+  manual, standards doc, or measurement, upgrade it to Verified and record
+  which source did the confirming. Don't silently re-tag.
+- Update the verification-status table and the open-items list to match.
+- Update the document's row in `INDEX.md`.
 
-When refreshing a doc with new/verified data, **be additive — never drop correct detail.** The user's standing rule: keep as much correct data as possible. So:
+## Curation
 
-- **Merge, don't replace.** If a newer source is more authoritative on some fields (e.g. verified HP/MSRP/tags from a manufacturer page) but terser on others (e.g. functional/patching detail), keep the verified fields *and* retain the richer detail from the older source.
-- **Keep correct data that a narrower source omits.** A module that's real and confirmed (e.g. from the maker's own site or the user's rack) stays even if a specific catalog page doesn't list it — flag its provenance so the source labelling stays honest.
-- Only remove something if it's been shown to be **wrong**, not merely absent from the latest source.
-
-## What's worth storing
-
-Reusable, reference-grade material: schematics, manuals, spec sheets, build/mod notes, calibration data, curated reading lists, artist/technique references the user wants to keep.
-
-## What's not worth storing
-
-One-off questions, transient context, or anything the user is only asking about once. When unsure, ask the user — they curate the library, not Claude.
-
-## Note on file types
-
-The library can hold PDFs, images (schematics, scans), text/markdown, and similar. For large PDFs, consider also noting the key facts directly in the `INDEX.md` entry so quick answers don't require re-reading the whole file.
-
-## Persistence — read this before saying anything is "stored"
-
-Writing a file into `references/` inside a session **does not persist**. The container is discarded at session end. The canonical library lives at https://github.com/pxlfstr/skills
-
-Therefore:
-
-1. Say up front, *before* doing storage work, that the file will need to be committed.
-2. Never describe a document as "stored" or "saved to the skill" on the basis of having written it to disk.
-3. Always deliver the file as a download via `present_files` so it can be committed.
-4. At session start, compare installed-skill file timestamps against the repo's latest commit and flag any gap.
+The user curates this library. **Never store automatically** — offer, and
+store when they say yes.

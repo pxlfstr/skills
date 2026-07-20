@@ -23,29 +23,20 @@ Claude still needs the detail layer — port counts, bandwidth figures, protocol
 
 When this skill is active, follow this loop:
 
-1. **Sync the library from the canonical repo.** The `references/` folder in this container is a *snapshot* taken at the last skill upload and may be weeks stale. The canonical library is https://github.com/pxlfstr/skills — public, no credentials required. At the start of any session where stored material matters:
+1. **Gather all available references.** Check two places: (a) any documents the user has provided in this conversation, and (b) the stored library in `references/`. Read `references/INDEX.md` first — it's the manifest of what's been stored and why. Treat stored documents as more authoritative than memory for specifics (port counts, protocol versions, bandwidth figures, menu behavior, format tables, dates).
 
-   ```bash
-   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
-   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-   ```
+2. **Offer to store new documents.** If the user provided new material this turn that looks reusable (a manual, a spec sheet, a protocol doc, a network diagram, config notes, a comparison table they've verified), ask whether to save it — e.g., "Want me to store this in the skill so it's available next time?" Don't store automatically; the user curates their own library. When they say yes, follow `references/STORAGE.md`.
 
-   Prefer `/tmp/skills-repo/{skill}/references/` over the local copy wherever the two differ, and **state the repo's last commit date to the user** so they know how current the library is. If the clone fails, say so plainly and fall back to local `references/`, flagging that it may be stale.
+3. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). When a specific fact comes from a stored doc — or from a manufacturer/standards source pulled this session — say so, so the user can trace it. Never blend a verified number and a remembered one without marking which is which.
 
-2. **Gather all available references.** Check two places: (a) any documents the user has provided in this conversation, and (b) the stored library in `references/`. Read `references/INDEX.md` first — it's the manifest of what's been stored and why. Treat stored documents as more authoritative than memory for specifics (port counts, protocol versions, bandwidth figures, menu behavior, format tables, dates).
-
-3. **Offer to store new documents.** If the user provided new material this turn that looks reusable (a manual, a spec sheet, a protocol doc, a network diagram, config notes, a comparison table they've verified), ask whether to save it — e.g., "Want me to store this in the skill so it's available next time?" Don't store automatically; the user curates their own library. When they say yes, follow `references/STORAGE.md`.
-
-4. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). When a specific fact comes from a stored doc — or from a manufacturer/standards source pulled this session — say so, so the user can trace it. Never blend a verified number and a remembered one without marking which is which.
-
-5. **Be concise by default — but concise is not the same as dense.** This is a working tool: the user usually wants the answer, the number, the budget, the routing, not an essay. Lead with short answers. Expand into prose only when asked, or when something genuinely needs walking through (e.g., deriving a bandwidth budget or explaining why a handshake fails). On formatting, pick whatever is *easiest to read* for the kind of data:
+4. **Be concise by default — but concise is not the same as dense.** This is a working tool: the user usually wants the answer, the number, the budget, the routing, not an essay. Lead with short answers. Expand into prose only when asked, or when something genuinely needs walking through (e.g., deriving a bandwidth budget or explaining why a handshake fails). On formatting, pick whatever is *easiest to read* for the kind of data:
    - **Use a small table when each item has several attributes** — signal timings, resolution/frame-rate matrices, bandwidth figures, port/connector counts, codec parameters, color-pipeline values. A row per item with clean columns beats one bullet trying to hold a rate, a level, and a caveat at once.
    - **Default to a side-by-side table for comparisons** — comparing two standards, formats, codecs, transports, or devices (SDI vs NDI vs ST 2110, 4:2:2 vs 4:4:4, H.264 vs H.265, one switcher vs another) reads best as one column per option, one row per attribute, so differences line up at a glance. This is a frequent request in this domain; reach for it by default.
    - **Use bullets for lists of distinct points**, one idea per bullet. Don't cram multiple facts into a single bullet with middots (`·`), stacked dashes, or arrows — if a bullet holds three facts, it wants to be a table row or three bullets.
    - Keep units and labels consistent down a column so the eye can scan (Mbps vs MB/s, ms of latency, Gbps of link bandwidth — don't mix).
    The goal is that the user can read an answer at a glance and act on it, not decode it.
 
-6. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly and suggest the fix: provide a document, or let Claude search the web for the current manufacturer/standards source. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
+5. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly and suggest the fix: provide a document, or let Claude search the web for the current manufacturer/standards source. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
 
 ## Sourcing, vetting & citing data
 
@@ -103,13 +94,9 @@ When a request sits here, say something like: "This is model- and firmware-speci
 
 ## Reference library
 
-**Canonical source: https://github.com/pxlfstr/skills** (`digital-video/references/`). The repo is authoritative; the copy in this container is a snapshot.
-
 The `references/` folder holds the user's curated documents. Two helper files govern it:
 
 - `references/INDEX.md` — the manifest. Read it at the start of every session to know what's available.
 - `references/STORAGE.md` — how to add a new document to the library and update the index (including the additive/non-lossy update rule).
 
 If `references/` is empty except for those two files, that's expected for a fresh skill — the library grows as the user feeds it material.
-
-**Nothing written to `references/` persists.** This container is discarded when the session ends; the only durable copy is the GitHub repository above. Never tell the user a document has been "stored" or "saved to the skill" on the basis of having written it to disk. Produce the file, deliver it as a download, and say plainly that it needs to be committed. Full rules in `references/STORAGE.md`.
