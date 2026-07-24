@@ -154,3 +154,37 @@ def budget(h, v, rate, bpc):
 - 4:2:2 halves chroma and drops the per-pixel bit count by a third versus 4:4:4 — often the difference between fitting and not, and usually invisible on an LED wall.
 - A device's stated "maximum resolution" is a resolution/rate pair, not a clock budget. Two different rasters at the same clock may not both be accepted; gates on H active exist.
 - When a custom format is involved, the validator is the answer. Ten minutes with the format editor beats an hour of arithmetic.
+
+---
+
+## 8. Verification status
+
+| Claim area | Tier | Source |
+|---|---|---|
+| Three-rates distinction; active vs clock vs wire (§1) | **Method** | Definitional, not a sourced figure |
+| CVT-RB v1 constants — 160 px H blank, 460 µs min V blank, 0.25 MHz quantisation (§2) | **Unverified** | CVT 1.1 standard **not read**. Model reproduces the VIO manual's stated card ceilings correctly (see cross-check below), which is corroboration, not verification |
+| All pixel clocks, payloads, TMDS rates, utilisation figures (§4, §5) | **Computed** | Arithmetic in session from §2's model; reproducible from §6's code. Not manufacturer figures |
+| HDMI 2.0 = 600 MHz TMDS character rate | **Unverified** | No HDMI Forum document read. **Do not quote to a client** |
+| HDMI 2.0 = 18 Gbit/s wire | **Verified** | *VIO 4K User Manual* §15.2.2 `[Official]` |
+| DisplayPort 1.2 = 21.6 Gbit/s wire | **Verified** | *VIO 4K User Manual* §15.2.3 `[Official]` |
+| DP 1.2 = 4 lanes × 5.4 Gbit/s HBR2 | **Unverified** | No VESA document read; consistent with the 21.6 Gbit/s total above |
+| 8b/10b coding on both HDMI 2.0 and DP 1.2 | **Unverified** | No specification read |
+| SDI tier rates — 2.97 / 5.94 / 11.88 Gbit/s | **Unverified** | SMPTE ST 424 / 2081 / 2082 **not read**. Format ceilings per tier are corroborated by the VIO manual's plug tables `[Official]` |
+| SDI carries only standard rasters | **Verified** | *VIO 4K User Manual* §11.1 — custom formats defined as computer formats `[Official]` |
+| DP 1.2 caps at 4K60 4:4:4 10-bit; HDMI 2.0 at 4K60 4:4:4 8-bit | **Verified** | *VIO 4K User Manual* §15.2.2, §15.2.3 `[Official]` |
+
+### Cross-check on the model
+
+The computed figures independently reproduce two ceilings the VIO manual states directly: 3840×2160@60 4:4:4 **12-bit** comes out at 111.1% of DP 1.2's payload (fails), matching the manual's stated 10-bit ceiling for DP 1.2; and the same raster at 10-bit needs a 666.6 MHz HDMI character rate, exceeding 600 MHz, matching the manual's stated 8-bit ceiling for HDMI 2.0. Two independent agreements between the arithmetic and an `[Official]` source.
+
+This raises confidence in the model. It does **not** promote the underlying constants to Verified — agreement at two points is not proof of the constants, and the CVT and interface specifications remain unread.
+
+### Not yet verified — open items
+
+1. **Obtain CVT 1.1 (VESA)** — would promote the reduced-blanking constants from Unverified to Verified. Everything computed here rests on them.
+2. **Obtain the HDMI 2.0 specification** — needed for the 600 MHz character-rate limit, currently the single most load-bearing unsourced number in this document.
+3. **Obtain VESA DisplayPort 1.2** — for lane count, HBR2 rate, and the 8b/10b overhead assumption.
+4. **Obtain SMPTE ST 424 / ST 2081 / ST 2082** — for the SDI tier rates.
+5. **Add DP 1.4 (HBR3) and DSC** — cannot be attempted until a VESA source is in hand; nothing about DP 1.4 should be asserted from memory.
+6. **Add 4:2:2 and 4:2:0 rows** to §5's comparison tables. Straightforward arithmetic once the 4:4:4 rows are trusted, and often the difference between fitting and not.
+7. **Confirm HDMI 2.1 FRL behaviour** is out of scope here — this document covers TMDS-era links only, and should say so once an FRL source exists to contrast against.

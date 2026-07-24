@@ -282,3 +282,106 @@ Flagged honestly rather than filled in. Each of these is a bench test.
 **No copper SDI redundancy on the SDI card if optical is ruled out.** Without the 12G-SFP, the card's only single-cable SDI output is the 12G-SDI BNC; Quad-Link is one signal on four cables. A backup copper leg needs an external DA, or accept HDMI for the backup.
 
 **4K60 has exactly one path.** Native output caps at 4K@30 on every plug. Any 60 Hz 2160-line output must come off a 4K60P card.
+
+---
+
+## 12. Input numbering and the compositing stack
+
+Added 2026-07-23. Both were previously implicit in the section tables; stated explicitly here because they are what a patch drawing and a show-file build actually need.
+
+### Input numbering (§6.4 framelock reference list, corroborated by the §12 audio-source list)
+
+| # | Plug | Physical | Version / ceiling |
+|---|---|---|---|
+| 1 | DisplayPort | DP, rear | DP 1.2, 4K@30 |
+| 2 | HDMI | HDMI Type A, rear | HDMI 1.4, 4K@30 |
+| 3 | Universal Analog | HD-15, rear | — |
+| 4 | Video Optical | SFP cage, rear | 3G-SDI |
+| 5 | SDI | BNC, rear | **3G only** (Level A & B) |
+| 6 | DVI Dual-Link | DVI-D DL, rear | 2560×1600@60 |
+| 7 | HDMI | HDMI Type A, **front panel** | 2K / 1080p |
+| OPT 1 | option card slot 1 | — | per card |
+| OPT 2 | option card slot 2 | — | per card |
+
+`INPUT GENLOCK` also appears in the framelock list — reference only, not a video source. Analog HD Black / Black Burst with loopthrough.
+
+⚠️ **The menu numbering is not the order §1.4 prints the plugs in.** §1.4 lists DP, HDMI, SDI, Universal Analog, DVI, Optical, front HDMI. The numbered order is DP, HDMI, HD-15, Optical, SDI, DVI-D, front HDMI. Use the numbered order for control work and patch drawings.
+
+⚠️ **The native SDI input is 3G; the native SDI output is 3G/6G.** The asymmetry is easy to miss — there is no 4K path into the built-in SDI at any rate. Confirmed by the §7.2 input format table, whose SDI columns are headed 3G-SDI and 3G-SDI SFP Slot with no 6G column.
+
+### Input plug versions (§7.2 table headers)
+
+DisplayPort 1.2 · HDMI 1.4 · 3G-SDI · 3G-SDI SFP Slot · Dual-Link DVI-D · HD-15.
+
+Note the output side is HDMI **1.4a** (§6.2) against HDMI **1.4** on the input — as printed in the source. Whether that reflects a real difference or loose editing is not established.
+
+The `DisplayPort Standard` setting (DEFAULT = 1.2 / 1.1 for legacy sources) is documented as **expansion interfaces only** (§7.5.2.9). The built-in DP has no such control.
+
+### The compositing stack
+
+Bottom to top:
+
+1. **Screen background colour** — customizable per screen (§9.1). The front-panel `BLACK` button and the Web RCS `CLEAR` button both output it.
+2. **One live input** — the single active source, carrying its full view: pan, zoom, mask, flip, **alpha/transparency** (§7.5.4, reset value 255), colour effects.
+3. **Quick Frame** — a still displayed in the screen **foreground** (§8.6).
+
+Background-plus-layer is achievable by zooming the input's view below screen size; the background colour fills the remainder, and view alpha can blend the input against it.
+
+What is **not** available: a still or second source *behind* a live layer. §8.1 lists frame uses as capture, foreground quick-frame, transitions, and "display a background when no input source is selected (black frame)" — that last case applies only when **no** input is selected. There is no second video layer.
+
+⚠️ **Parsing note on §8.6.** The sentence reads: *"display a frame in the screen foreground, for example to cover underneath layers in case of emergency."* "Underneath" modifies "layers" — i.e. cover the layers beneath it. The Quick Frame is **on top**. The §9.4 restatement drops "in the screen foreground" and is genuinely ambiguous in isolation; §8.6 is the governing text. The plural "layers" is Analog Way house phrasing carried from their layered products (Ascender, NeXtage) and does not indicate multiple live layers on the VIO.
+
+### Frames (§1.6, §8.1–8.2)
+
+- 24-bit RGB still, maximum 8192×4320
+- BMP, JPEG, PNG
+- Up to 50 frame memories, fully resizable; memory space for 2 uncompressed 4K frames
+- Import/export via USB key (front-panel USB HOST) or Web RCS → Setup → LIBRARY
+- Capture from live inputs or outputs
+- `Fade Through Frame` transition uses preset frames PF1/PF2 with adjustable duration
+
+---
+
+## 13. Verification status
+
+| Claim area | Tier | Source |
+|---|---|---|
+| Chassis, slot counts, weight (§2) | **Verified** | VIO 4K Manual §1.2, §15 `[Official]` |
+| Output = group of plugs (§3) | **Verified** | Manual §6.1 `[Official]` |
+| SDI Level A/B as mapping scheme (§3) | **Verified** | Manual §7.5.2 `[Official]` |
+| Plug status enumeration (§3) | **Verified** | Manual §6.3 `[Official]` |
+| Native input list and ceilings (§4) | **Verified** | Manual §1.4, §7.2 `[Official]` |
+| Native output list and ceilings (§4) | **Verified** | Manual §1.5, §6.2 `[Official]` |
+| Option card refs, connectivity, ceilings (§5) | **Verified** | Manual §15.1, §15.2.2, §15.2.3 `[Official]` |
+| Per-plug output format tables (§6) | **Verified** | Manual §6.2, §6.2.1 `[Official]` |
+| 6G-SDI adds UHD + DCI 4K at ≤30 Hz and BT.2020 only (§6) | **Verified** | Manual §6.2 `[Official]` |
+| ST2036/ST2048 labels appear transposed (§6) | **Lead** | Reasoning against SMPTE ST 2036-1 / ST 2048-1 scope; **neither standard read** |
+| AOI definition and parameters (§7) | **Verified** | Manual §6.4.4 `[Official]` |
+| Screen model, sizing modes, Clone (§7) | **Verified** | Manual §9.1, §15.3, §15.3.1 `[Official]` |
+| Pitch compensation incl. 133.3% worked example (§7) | **Verified** | Manual §15.3.2 `[Official]` |
+| View parameters and menu location (§7) | **Verified** | Manual §7.5.4, §9.2 `[Official]` |
+| Custom formats, 64 slots, Check error strings (§8) | **Verified** | Manual §11 `[Official]` |
+| Custom formats do not apply to SDI (§8) | **Verified** | Manual §11.1 — defined as computer formats on CVT 1.1 / DMT 1.0 `[Official]` |
+| Framelock references and rate restriction (§9) | **Verified** | Manual §6.3, §6.4 `[Official]` |
+| Input numbering 1–7 (§12) | **Verified** | Manual §6.4 framelock list, corroborated §12 audio-source list `[Official]` |
+| Input plug versions (§12) | **Verified** | Manual §7.2 table headers `[Official]` |
+| Native SDI in = 3G, out = 3G/6G (§12) | **Verified** | Manual §7.2 vs §6.2 `[Official]` |
+| Compositing stack and Quick Frame position (§12) | **Verified** | Manual §8.1, §8.6, §9.1, §9.4 `[Official]` |
+| Frame specs and formats (§12) | **Verified** | Manual §1.6, §8.1, §8.2 `[Official]` |
+| HDMI 1.4 in vs 1.4a out is a real difference (§12) | **Open** | As printed in the source; not established either way |
+| Design patterns (§11) | **Working practice** | Derived from the Verified rows above; not doc-sourced as recommendations |
+
+**No figure in this document is Memory tier.** Every number was read from the manual in session. Where the manual is silent, §10 says so rather than filling the gap.
+
+### Not yet verified — open items
+
+Restated from §10 so this table is self-contained. All are bench tests against the actual unit and firmware:
+
+1. **Per-screen views** — whether pan/zoom/mask can differ per screen. Highest value; determines independently-scaled crops vs AOI windows on one canvas.
+2. **Simultaneous input and output on one option card** — implied by the 9-in/3-out claim and the `INPUT OPT 1/2` framelock entries, never stated.
+3. **Input count** — the manual contradicts itself: §1.3 says 9, §7.1 says 8, the framelock list enumerates 7 native + 2 option. §7.2's format table shows only 6 native plug columns (no front HDMI). Four figures, no reconciliation in the source.
+4. **Quad-Link 3G at non-2160p rasters** — undocumented.
+5. **Sub-30 Hz rate options per SDI plug** — tables state only "up to 30Hz" / "up to 60Hz".
+6. **Rasters wider than 4096** — whether the custom-format engine gates H active independently of pixel clock.
+7. **PNG alpha on a foreground Quick Frame** — frames are specified as 24-bit RGB, which implies no alpha channel, but the manual does not state whether an alpha channel in a PNG is honoured or discarded. Relevant to any keyed logo bug.
+8. **HDCP versions on the built-in plugs** — §7.5.2.6 states DVI/HDMI/DP inputs are HDCP-compliant but gives no version. The cards specify HDCP 1.4/2.2 on HDMI 2.0 and 1.3 on DP 1.2; the native plugs have no equivalent statement.
