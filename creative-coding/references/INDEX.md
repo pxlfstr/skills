@@ -71,3 +71,20 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 **⚠️ Provenance caveat, stated in the document itself:** reconstructed from session records, **not** from the source files. `arena_sequencer.py`, `arena_web_callbacks.py`, `index.html` and `readme.txt` are not in hand. Code fragments are *descriptions of what the code did*, not verified transcriptions. If the originals exist locally they supersede this document entirely.
 
 **Open items:** the 1.5 s self-trigger window never re-tested off the original network; the 1 s composition poll superseded in principle but the refactor untried; the WebSocket drop unexplained; original source files to be recovered from local storage if they exist.
+
+---
+
+### `atem-supersource-simulator.md`
+**Added:** 2026-07-28
+**Covers:** A single-file HTML tool that reproduces the ATEM SuperSource palette and renders the composite, for building a layout and reading its numbers off before load-in. Architecture: one flat state object, render-on-change rather than a frame loop (which is what makes per-pixel keying affordable), a `syncers` array so direct manipulation and numeric fields never disagree, `bindSlider` pairing a range and a text input over one state property, and a canvas at output resolution so the PNG export is a real frame. The **border ring drawn as one path with a reverse-wound inner rectangle** to punch the hole under the nonzero fill rule, with the image clipped to the interior. Foreground keying via offscreen `getImageData` / alpha write / `putImageData`. **The assumption-surface pattern** — every unverifiable constant collected into one named block (`RANGES`, `keyAlpha()`) with its provenance stated inline, so correcting the tool later is one edit rather than an archaeology exercise. Pixel readout for arbitrary output rasters. ATEM XML import and `<SuperSources>` export.
+
+**Use for:** planning a SuperSource layout, or converting between ATEM's unit values and pixels. More generally: **the canvas-verification method** — driving a page in headless Chrome via Playwright, calling the tool's own top-level functions through `page.evaluate()`, and sampling `getImageData` in *unit* coordinates rather than pixels so assertions stay readable. Reach for this whenever visual output has to be checked programmatically.
+
+**Confidence:** Tiered in place. Position, size, border rendering, XML round-trip and the pixel readout are **Bench-verified** (probed numerically in headless Chrome, and matching the one preset Blackmagic published). The **crop model, the clip/gain key curve and every control range are Designed** — invented, plausible, untested. The tool has **never been compared against a real switcher's output**, which is the single test that would move most of it.
+
+**Open items:** the side-by-side switcher comparison; the crop-model test; the key curve; the invented `RANGES`; presets 1–3 traced from a thumbnail rather than measured; stills only, no video or NDI; one SuperSource; the bevelled border model not implemented.
+
+**Depends on `digital-video` for:** `atem-supersource.md` — the unit space, parameter names, the two border models, and the saved-state XML schema. No vendor number is restated in this document.
+
+**A lesson worth keeping, recorded in the document:** three separate "bugs" during verification were all bad test isolation — sampling outside the canvas, sampling a point covered by an adjacent box's border, and testing a border while art was in foreground where it is correctly suppressed. Before probing a canvas: disable everything else, move the object under test off the raster edge, and write down the expected value *before* sampling.
+

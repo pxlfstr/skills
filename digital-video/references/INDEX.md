@@ -5,10 +5,11 @@ Read this first in every session to know what is available.
 
 Maintenance is **additive and non-lossy** — see `STORAGE.md`.
 
-**Seven documents stored.** A prior index revision listed only one; the other
-six were present in `references/` but unlisted, and therefore invisible to any
+**Eight documents stored.** A prior index revision listed only one; six others
+were present in `references/` but unlisted, and therefore invisible to any
 session that trusted this file. Restored 2026-07-23 from the documents
-themselves and from `archive/INDEX.md`. Nothing was removed.
+themselves and from `archive/INDEX.md`. Nothing was removed. `atem-supersource.md`
+added 2026-07-28.
 
 ---
 
@@ -17,6 +18,7 @@ themselves and from `archive/INDEX.md`. Nothing was removed.
 | Document | Covers | Tier summary | Stored |
 |---|---|---|---|
 | `analog-way-vio-4k.md` | Analog Way VIO 4K converter/scaler. The output-as-group-of-plugs model and why output count ≠ connector count; SDI "Level A & B" as an ST 425 mapping scheme, not two ports; native I/O ceilings (DP and HDMI both cap at 4K@30; native SDI **in** is 3G-only while **out** is 6G); all five option cards; per-plug format tables for native and expansion outputs; what 6G-SDI adds over 3G and what it does not; the screen/AOI canvas model, screen sizing, AOI windowing, pitch compensation; the input "view" (pan/zoom/mask/alpha/crop) and its menu location; the compositing stack (background colour → one live input → foreground Quick Frame); custom formats (CVT 1.1 / DMT 1.0, 64 slots, Check validator error strings, computer-formats-only so no SDI path); framelock/genlock references and the 23.97–120 Hz rate restriction; input numbering 1–7 + OPT 1/2 | **Verified [Official]** throughout §1–§9 — *VIO 4K User Manual / Programmer's Guide*, user-supplied PDF read in full. No remembered or estimated figures. §10 lists six unresolved items, incl. a self-contradiction in the source's own input count | 2026-07-19, rev. 2026-07-23 |
+| `atem-supersource.md` | Blackmagic ATEM SuperSource: per-model SuperSource counts; the four-box model and box source options; the complete ATEM Software Control palette inventory (Presets/Art/Copy) and the Advanced Panel menu-page equivalents; every numeric value readable from the manual screenshots and a switcher's own saved state (quad preset **X -8.00 / Y 4.80 / Size 0.50**, border defaults 0.40 on all six widths, hue 0° / sat 0% / lum 100%, art clip 50% / gain 70%); a **derived** 32 × 18 unit space with the px-per-unit table and conversion formulas for HD/UHD/DCI, including the quad preset's 0.30-unit top and bottom overflow; the complete SDK interface and method inventory; **the two distinct border models** (`SuperSourceBorder`, bevelled and SuperSource-wide, vs `SuperSourceBoxBorder`, flat and per-box) and the `SupportsBorder` capability query; the SDK/palette/XML naming drift table; the `<SuperSources>` saved-state schema with its encoding traps (0–1 vs 0–100 scales for border saturation and luma, per-box border elements under a single palette control) | §1–§3, §5–§6 **Verified [Official]** — *ATEM Constellation Switchers Manual* pp. 68–70 and *Blackmagic Switchers SDK* §6 read directly, plus a switcher's own state export; border and art values corroborated across two independent sources. §4 unit space and all pixel conversion is **Derived** — arithmetic from one verified preset, internally consistent, never checked against a switcher. Preset 1–3 shapes are **Lead** (low-resolution thumbnail). **§5.3 records a verified negative: the SDK declares every SuperSource parameter as a bare double with no units, minima, maxima or defaults, and the manual gives no end-stops either** | 2026-07-28 |
 | `behringer-x-touch-compact.md` | Behringer X-Touch Compact device facts: hardware table (encoders, buttons, faders, foot jacks, USB hub, power, dimensions), USB vs stand-alone routing behaviour, MC/Standard mode switching, status LEDs, complete factory MIDI maps for Layer A and Layer B, the receive-side (feedback) map, and a reverse-engineered decode of the Layer A `.bin` preset format | §1–§5 **Verified [Official]** — *X-Touch Compact Quick Start Guide, V 6.0* (Music Tribe) read directly. §7 `.bin` decode is **Lead** — reverse-engineered from a 723-byte export, no format spec | 2026-07-20 |
 | `behringer-xtouch-compact-resolume.md` | X-Touch Compact as a Resolume (Avenue/Arena) control surface: Standard vs MC mode selection and why Standard is required, X-Touch Editor settings, full TX Note/CC maps for layers A/B, the RX/LED feedback map and why button LEDs ignore a naive note echo (§4a), Resolume MIDI In/Out config, Layer A/B banking, CC127 on-the-fly mode toggle | Mode procedure, TX maps, RX/LED map + velocity gate, and Resolume MIDI docs **Verified [Official]** (manual read first-hand). Fader-touch CC collision and the Layer Speed feedback gap remain **Leads [Forum]**. Contains an explicit correction notice for a prior over-stated claim about note echo lighting LEDs | 2026-07-18, rev. 2026-07-20 |
 | `film-projection-geometry-and-light.md` | Film gate dimensions (IMAX 15/70, 70mm 5-perf, 35mm scope and flat); camera-side lens coverage as a constraint on usable aspect ratio; projection lens focal-length families (Isco UltraStar HD, Schneider Super-Cinelux / Cinelux-Première) and derived throw ratios; SMPTE 196M / SMPTE 431-1 screen luminance targets and the Harkness lumens-vs-screen-width table; flux density at the film plane and the thermal ceiling on gate illumination; cross-gauge magnification asymmetry running 35mm and 70mm to one screen width. **Filed here rather than `analog-video` deliberately** — the subject is photochemical but the reasoning is the throw-ratio / foot-lambert / magnification math shared with digital projector specification | Mostly **Lead**. No standards document was purchased or read; ISO 2467:2004, SMPTE 196M and SMPTE PH22.106 were identified but not obtained. The Harkness/ICTA deck is the strongest source present. §5 (thermal ceiling) is mechanism-only with **no sourced number**, flagged in place. §7 exhibition context is explicitly perishable | 2026-07-18 |
@@ -32,6 +34,7 @@ themselves and from `archive/INDEX.md`. Nothing was removed.
 - `behringer-x-touch-compact.md` ↔ `behringer-xtouch-compact-resolume.md` — device facts and factory maps in the first, Resolume-specific application and failure modes in the second.
 - `resolume-control-interfaces.md` → `behringer-x-touch-compact.md` §6 for device-specific MIDI mapping notes.
 - `panasonic-ptz-sources.md` is depended on by `creative-coding/references/` for AW protocol facts. **Protocol facts live here, code lives there — do not duplicate.**
+- `atem-supersource.md` is depended on by `creative-coding/references/atem-supersource-simulator.md` for the unit space, parameter names and XML schema. Same split: the numbers live here, the tool and the method live there.
 
 ---
 
@@ -64,3 +67,15 @@ Material that would strengthen the library if the user has it:
 - Analog Way firmware release notes for the VIO 4K — would settle the input-count
   contradiction (§1.3 vs §7.1) and confirm whether one option card can run an
   input and an output simultaneously.
+- **ATEM SuperSource control ranges, read off a switcher** — X, Y, Size, crop and
+  border-width end-stops. Neither the manual nor the SDK states any of them, so
+  the whole §4 conversion in `atem-supersource.md` rests on a single published
+  preset. This is the highest-value missing measurement in the library.
+- **ATEM Ethernet protocol description** for the SuperSource command family — a
+  wire-level document would almost certainly settle both the unit space and the
+  value ranges, since wire encodings have to be bounded.
+- **ATEM Software Control / ATEM Setup documentation**, if it exists separately
+  from the switcher manual — may state ranges the switcher manual omits.
+- **A measured answer to what ATEM crop actually means** — whether it is in the
+  same unit space and whether it scales with box size. The test is in
+  `atem-supersource.md` §8 item 2 and takes under a minute on a live switcher.
