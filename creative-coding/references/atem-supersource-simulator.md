@@ -20,7 +20,8 @@ and what we learned doing it.
 | Border ring rendering | **Bench-verified** | Ring bounds probed on all four sides |
 | Foreground art keying | **Bench-verified** | Composites and suppresses correctly; the *curve* is Designed, see below |
 | XML import / export | **Bench-verified** | Round-tripped against a real switcher's saved state; export matches the source schema attribute for attribute |
-| Pixel conversion readout | **Bench-verified** | Checked at 1080p, 720p, UHD, DCI 4K and a custom raster |
+| Pixel-domain editing | **Bench-verified** | Typed values land exactly where reachable, and snap predictably where not; checked at 1080p, 720p, UHD, DCI 2K/4K, 8K and a custom raster |
+| ATEM-step quantisation | **Bench-verified** as behaviour, **Designed** as a premise | Rounds to the palette's two decimals. That the switcher accepts nothing finer is an assumption |
 | **Crop model** | **Designed** | Our assumption about what crop means. Never tested against a switcher |
 | **Clip/gain key curve** | **Designed** | A soft threshold we invented. Not ATEM's math |
 | **Control ranges** (`RANGES`) | **Designed** | Invented end-stops; the vendor documents none |
@@ -40,15 +41,27 @@ Chosen because these tools get emailed to people and opened on show laptops that
 will not have a toolchain.
 
 - **One flat `state` object** — four box records, an art record, a border record,
-  a selection index. Every control reads and writes it; nothing else holds state.
+  a selection index. **State is held in ATEM units, not pixels**, because units
+  are what the switcher and the saved XML speak; keeping the file format's own
+  representation canonical means no drift accumulates through repeated edits.
+- **Pixels are the editing surface, units are the readout.** Every spatial
+  control converts px → units on the way in and units → px on the way out, at
+  the control rather than in the model. Raster origin top-left, and Position is
+  the box's *top-left corner* — the corner that maps 1:1 onto the ATEM X/Y
+  parameters — with the post-crop visible rectangle reported separately.
 - **Render on change, not on a frame clock.** A compositor with no motion has no
   reason to run a `requestAnimationFrame` loop. Every mutation calls `render()`.
   This is what makes the per-pixel keying affordable.
 - **`syncers` array.** Each control registers a closure that pushes state back
   into the DOM. `syncAll()` runs them all. Avoids the usual mess where dragging
   a box updates the canvas but not the number field beside it.
-- **`bindSlider(range, number, cfg, get, set)`** pairs a range input with a text
-  input over one state property, so every parameter is two lines to add.
+- **`bindPxSlider(range, number, get, set, bounds)`** pairs a range input with a
+  text input over a *derived* pixel quantity. Bounds are a callback rather than a
+  constant because they depend on the current raster and box size, and are
+  recomputed on every sync.
+- **Resizing anchors the top-left corner.** Type a width and the box grows to the
+  right. ATEM's Size is centre-anchored, so the binder re-applies the stored
+  top-left afterwards.
 - **Canvas at output resolution** (1920 × 1080 internally), CSS-scaled to fit.
   Means the exported PNG is a real 1080p frame, not a screenshot of a widget.
 
@@ -78,6 +91,23 @@ fourth byte, `putImageData`, then `drawImage` the result over the composite.
 A full-raster pixel loop is roughly two million iterations — completely fine
 because it only runs when something changes. If this ever needs to animate, it
 becomes a shader.
+
+### Quantisation, and admitting what is unreachable
+
+ATEM's palette shows two decimals, so a "Quantize to ATEM steps" toggle rounds
+every derived unit value to 0.01. At 1080p that is a **0.6 px grid for position
+and a 19.2 × 10.8 px grid for size** — so a great many pixel values simply cannot
+be reached, and a typed 137 comes back as 136.8.
+
+Rather than hide that, fields turn amber when a value cannot land on a whole
+pixel, and the toggle can be switched off to see ideal geometry instead of
+reachable geometry. **That the switcher accepts nothing finer than 0.01 is an
+assumption** — the displayed precision is all we have. If it turns out to accept
+more, one constant in `RANGES` changes and the whole grid loosens.
+
+The general point: when a tool sits on top of hardware with a coarser input
+resolution than the units the user thinks in, showing the *requested* value is a
+lie. Show what you will actually get, and mark it.
 
 ### The assumption surface
 
@@ -153,10 +183,12 @@ checked programmatically.
   and clip/gain keying, invert, the per-box border model, box-to-box copy.
 - Direct manipulation on the preview — drag to move, wheel to size, number keys
   to select, arrows to nudge, shift to snap to centre.
-- **Pixel readout** for any output raster including custom, giving top-left,
-  centre, width, height, crop in both screen and source pixels, border widths,
-  and the step-size conversions. Fractional values are flagged so it is obvious
-  when a setting cannot land on a whole pixel.
+- **Pixel-first editing** against any output raster including custom: Position as
+  Left/Top in pixels from the raster's top-left, Size as Width/Height in pixels,
+  Crop in **source** pixels removed from the incoming feed. The ATEM values to
+  type into the palette are the reference readout, with a copy button.
+- **Drawn-rectangle readout** giving the post-crop rectangle, screen-space crop,
+  border extents and any off-raster overhang.
 - Loads a real ATEM saved-state XML: takes the source names and the SuperSource
   block. Exports a `<SuperSources>` block that can be pasted back.
 - Exports the composite as a PNG at output resolution, and the whole state as
@@ -186,3 +218,5 @@ doc for the distinction.
    judging motion or a moving key.
 7. **One SuperSource.** Switchers with two are not represented.
 8. **No bevel/softness border model.**
+9. **The 0.01 quantisation step is assumed from displayed precision**, not from
+   anything documented or measured. It sets the entire reachable grid.
