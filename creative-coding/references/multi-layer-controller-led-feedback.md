@@ -101,7 +101,8 @@ Some things worth checking before assuming REST covers everything:
   a REST/WebSocket equivalent, or whether those specific capabilities are the actual reason to
   keep an OSC leg at all.
 
-The only reliable way to establish the actual gap is a **live diff against a running instance** —
+The only reliable way to establish the actual gap is to **check both interfaces against a running
+instance** —
 comparing the REST/WebSocket API's actual endpoint list against the OSC address space the running
 composition/session exposes — rather than reading documentation for both and assuming coverage
 lines up. Static docs (especially auto-rendered API references) may not reflect runtime-dependent
@@ -131,7 +132,7 @@ Two further generalisable notes from that case:
 - That same exclusion list **contradicted** the OpenAPI spec on one object, which the spec exposes
   and the wrapper page says is unreachable. Neither source is automatically right; flag and test.
 
-**Open items:** methodology for a fully automated live diff — walking an OpenAPI spec
+**Open items:** methodology for automating the comparison — walking an OpenAPI spec
 programmatically against a captured address list from the other protocol — still untried; the case
 above was resolved by reading the spec and the protocol docs, not by querying a running instance.
 Nothing here has been confirmed against live software.
