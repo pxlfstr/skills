@@ -73,17 +73,16 @@ full page read" in this file has meant *the operator page only*. That is now sta
 assumed.
 
 **Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
-`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07) · `webclientDAT_Class` (⚠️ 2022-05-23)
+`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07) · `webclientDAT_Class` (⚠️ 2022-05-23) · `webserverDAT_Class` (⚠️ 2021-01-20)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
 | Class page | Why it likely matters |
 |---|---|
-| `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client. **Next in value order** |
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
-| `midiinCHOP_Class` | Unverified; expected thin |
+| `midiinCHOP_Class` · `midiinmapCHOP_Class` | Unverified; expected thin. **Next in value order** — both were requested on the ninth pass and did not fit |
 | `abletonlinkCHOP_Class` | Unverified |
-| `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
+| `abletonlinkCHOP_Class` · `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
 
 ⚠️ Note the pattern: the three class pages read so far were all last edited **2018**, while their
 operator pages are current. Class pages appear to be maintained on a much slower cycle. Weigh
@@ -363,6 +362,68 @@ entirely the user's responsibility.
 
 **`server_running`** · **`websocket_connections`**, plus `num_rows` / `num_cols` and the common
 operator channels. Unlike WebSocket DAT, the *server* side does expose a live connection count.
+
+### `webserverDAT_Class` *(Tier A — full page read, ⚠️ page edited **2021-01-20**, oldest class page here)*
+
+**Member:** `webSocketConnections` (read only) — *"a string list of all the Web Socket connections in
+the server."* Note this is a **list of client addresses**, while the Info CHOP only gives a count
+(`websocket_connections`). The list is what you'd use to broadcast.
+
+**Methods — all keyed by client address:**
+
+```python
+authenticateBasic(token, userPasswords) -> bool
+webSocketSendText(client, data) -> None
+webSocketSendBinary(client, data) -> None
+webSocketSendPing(client, data=None) -> None
+webSocketSendPong(client, data=None) -> None
+webSocketClose(client) -> None
+```
+
+- **`authenticateBasic`** takes the token from an HTTP Basic Authorization header plus a
+  **dictionary of accepted username/passwords**, and returns True/False. That's the whole auth story
+  — a dict of credentials living in the network (see the §3 warning about putting the Web Server DAT
+  in a private component).
+- **Every send is per-client.** There is no broadcast method — iterate `webSocketConnections`.
+
+**⚠️ The callback signatures here contradict the operator page (§3 above).** The operator page lists
+`onWebSocketOpen(client address)`; the class page gives **`onWebSocketOpen(dat, client, uri)`** — with
+a `uri` argument the operator page never mentions. The class page's callbacks are fully type-annotated
+and clearly newer in style despite being the older page:
+
+```python
+def onHTTPRequest(dat, request: Dict, response: Dict) -> Dict
+def onWebSocketOpen(dat, client: str, uri: str)
+def onWebSocketClose(dat, client: str)
+def onWebSocketReceiveText(dat, client: str, data: str)
+def onWebSocketReceiveBinary(dat, client: str, data: bytes)
+def onWebSocketReceivePing(dat, client: str, data: bytes)
+def onWebSocketReceivePong(dat, client: str, data: bytes)
+def onServerStart(dat)
+def onServerStop(dat)
+```
+
+**`onWebSocketReceivePing` and `onWebSocketReceivePong` are not on the operator page at all** — §3's
+callback list was incomplete. The documented default for the ping handler auto-replies:
+`dat.webSocketSendPong(client, data=data)`.
+
+**The `request` dict is documented in full**, and this is the useful part:
+
+| Key | Contents |
+|---|---|
+| `'method'` | HTTP method — `'GET'`, `'PUT'`, … |
+| `'uri'` | Requested URI path. **Query parameters are stripped out into `'pars'`, not left in the URI** |
+| `'pars'` | The query parameters |
+| `'clientAddress'` / `'serverAddress'` | Both ends of the connection |
+| `'data'` | The request body |
+
+**The `response` dict:** `'statusCode'` (integer — **default is 404**, so an un-filled response is a
+Not Found), `'statusReason'`, `'data'`. **Arbitrary extra keys become response headers** —
+`response['content-type'] = 'application/json'` is the documented example. The response dict must be
+returned from the callback.
+
+⚠️ **`statusCode` defaulting to 404** is worth designing around: any request path your callback
+doesn't explicitly handle silently returns Not Found rather than erroring visibly.
 
 **This is what the Arena Sequencer used** — for its phone/browser UI, not for talking to Resolume.
 Don't reach for it to connect *to* Resolume; that's WebSocket DAT.
@@ -1537,6 +1598,11 @@ between two TouchDesigner machines.
 - ⚠️ **Whether `onResponse` actually receives a request id.** `webclientDAT_Class` says `request()` returns an id corresponding to "the id passed to onResponse callbacks", but the documented `onResponse` signature has no id argument (§2). Without one, concurrent REST calls cannot be correlated to their responses. Check the running build.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the tenth pass (2026-08-01):*
+
+- ⚠️ **§3's Web Server DAT callback list is incomplete and its signatures disagree with the class page.** The class page gives `onWebSocketOpen(dat, client, uri)` — the operator page omits `uri` — and adds `onWebSocketReceivePing` / `onWebSocketReceivePong`, which the operator page does not list at all. Verify against the running build.
+- Whether an unhandled request path really returns 404 by default, as the `response['statusCode']` default implies (§3).
 
 *Added on the seventh pass (2026-08-01):*
 
