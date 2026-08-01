@@ -73,14 +73,13 @@ full page read" in this file has meant *the operator page only*. That is now sta
 assumed.
 
 **Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
-`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07)
+`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07) · `webclientDAT_Class` (⚠️ 2022-05-23)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
 | Class page | Why it likely matters |
 |---|---|
-| `webclientDAT_Class` | The request method — how §2 is actually driven from Python. **Next in value order** |
-| `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client |
+| `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client. **Next in value order** |
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
 | `midiinCHOP_Class` | Unverified; expected thin |
 | `abletonlinkCHOP_Class` | Unverified |
@@ -268,6 +267,55 @@ username and password encrypted with a hashing function — a more secure Basic.
 **This is a real asymmetry and it matters for hub design:** the REST leg exposes connection state as
 CHOP channels; the WebSocket leg does not (§10). If the hub needs a connection-health readout without
 hand-built Python state, the REST leg can supply one and the WebSocket leg cannot.
+
+### `webclientDAT_Class` — driving §2 from Python
+*(Tier A — full page read, ⚠️ page edited **2022-05-23**)*
+
+**Member:** `connections` → list **(read only)** — *"a list of active connection identifiers."*
+
+**Methods:**
+
+```python
+request(url, method, header=None, data=None, pars=None,
+        authType=None, username=None, password=None,
+        appKey=None, appSecret=None, oauth1Token=None, oauth1Secret=None,
+        oauth2Token=None, uploadFile=None, timeout=60000) -> int
+closeConnection(id) -> None
+```
+
+- **`request()` returns a connection identifier.** Every keyword mirrors a parameter on the operator,
+  so a single Web Client DAT can serve many differently-configured calls without touching its
+  parameters — the useful property for a hub that talks to several endpoints.
+- `method` must be one of `"GET"`, `"POST"`, `"PUT"`, `"DELETE"`, `"HEAD"`, `"OPTIONS"`, `"PATCH"` —
+  **as a string**.
+- `pars` are **URL-encoded and appended to the URL**; `data` goes in the body; `header` is a dict.
+- ⚠️ **`uploadFile` is only valid with a PUT request method.**
+- `timeout` defaults to **60000 ms** — a full minute. Far too long for a show cue that should fail
+  fast; set it down explicitly.
+
+**Callbacks:**
+
+```python
+def onConnect(webClientDAT): return
+def onDisconnect(webClientDAT): return
+def onResponse(webClientDAT, statusCode, headerDict, data): return
+```
+
+- `statusCode` is a **dict with two keys, `'code'` and `'message'`** — not a bare integer.
+- `headerDict` is **only sent once when streaming.**
+
+**⚠️ The page contradicts itself, and this one has consequences.** `request()` is documented as
+returning an identifier that *"will correspond with the id passed to onResponse callbacks"* — but the
+documented `onResponse` signature **has no `id` argument at all**. Taken literally there is no way to
+correlate a response with the request that caused it, which is exactly what a hub firing several
+concurrent REST calls needs. Either the signature is stale or the return-value description is
+aspirational. **Check `onResponse`'s actual arguments in the running build before designing around
+request/response correlation.** The page is from 2022; the operator page is from 2025.
+
+**This also bears on the §10 supervision question.** The existence of `connections` (plural, a list)
+and `closeConnection(id)` shows the operator tracks **multiple concurrent connections by id** — which
+makes it likely that the `connected` Info CHOP channel is an aggregate rather than a per-request
+flag. Likely, not stated. Still worth confirming before treating it as a health signal.
 
 ---
 
@@ -1485,7 +1533,8 @@ between two TouchDesigner machines.
 - Whether OSC In CHOP still has a **Pulse Mode** toggle and Min/Max Target parameters. The page's summary describes both; the page's own parameter list does not contain either, while the Info CHOP channel names still reference min/max targets. Unresolved from the docs alone — check the operator in the running build.
 - Whether OSC Out DAT's parameter names are still accurate. The page has not been edited since 2022-05-21 and still labels an output operator's second page "Received Messages."
 - Whether `total_bumped` on OSC In CHOP counts dropped messages or dropped samples. The page names the channel but does not define it; "Incoming samples will be dropped if the maximum queue is reached" is the nearest statement.
-- Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. It is grouped with `communicating` and `download_progress`, which suggests per-request, but the page does not say. **This matters before treating the REST leg as a health signal** — see §10.
+- Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. **Partly answered on the ninth pass:** `webclientDAT_Class` exposes a `connections` *list* and `closeConnection(id)`, so the operator tracks several concurrent connections by id — `connected` is therefore probably an aggregate. Still not stated outright. **This matters before treating the REST leg as a health signal** — see §10 and §2.
+- ⚠️ **Whether `onResponse` actually receives a request id.** `webclientDAT_Class` says `request()` returns an id corresponding to "the id passed to onResponse callbacks", but the documented `onResponse` signature has no id argument (§2). Without one, concurrent REST calls cannot be correlated to their responses. Check the running build.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
 
