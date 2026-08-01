@@ -73,7 +73,7 @@ full page read" in this file has meant *the operator page only*. That is now sta
 assumed.
 
 **Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
-`midioutCHOP_Class` (page edited 2024-08-15 — the only class page here that is not from 2018)
+`midioutCHOP_Class` · `timerCHOP_Class` (both edited 2024-08-15)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
@@ -81,11 +81,10 @@ assumed.
 |---|---|
 | `webclientDAT_Class` | The request method — how §2 is actually driven from Python |
 | `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client |
-| `oscoutDAT_Class` | Full `sendOSC()` signature; §4b only has the `asBundle` kwarg |
 | `oscinDAT_Class` | Receive callback signature |
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
 | `midiinCHOP_Class` | Unverified; expected thin |
-| `timerCHOP_Class` | `goTo()`, pause, start — the state-machine control surface for §11's Timer. **Next in value order** |
+| `oscoutDAT_Class` | Full `sendOSC()` signature. **Next in value order** |
 | `abletonlinkCHOP_Class` | Unverified |
 | `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
 
@@ -1009,12 +1008,67 @@ able to **operate as a state machine**.
 time driven by a timecode CHOP/DAT/Object). The External modes mean a Timer can be slaved to
 incoming LTC.
 
-**Callbacks:** `onInitialize()`, `onStart()`, `onTimerActive()` (every running frame with no delay
-and Play on), `onCycleStart()`, `onCycleEndAlert()` (fires N units before a cycle/segment/done —
-set by `cycleendalert`, so you can prepare the next step), `onSegmentEnter()` / `onSegmentExit()`
-(when driven by a Segments DAT; the `segment` argument is an object carrying your custom columns —
-`print(help(segment))` to inspect), `onDone()`. `.masterSeconds` in `onInitialize()` initializes at
-a specific time.
+**Callbacks — corrected and completed from `timerCHOP_Class`** *(class page edited 2024-08-15)*.
+⚠️ **The pass-one list was wrong and incomplete.** There is no `onTimerActive()`; the actual name is
+**`whileTimerActive()`**, and there are eleven callbacks, not seven:
+
+```python
+def onInitialize(timerOp, callCount): return 0
+def onReady(timerOp): return
+def onStart(timerOp): return
+def onTimerPulse(timerOp, segment): return
+def whileTimerActive(timerOp, segment, cycle, fraction): return
+def onSegmentEnter(timerOp, segment, interrupt): return
+def onSegmentExit(timerOp, segment, interrupt): return
+def onCycleStart(timerOp, segment, cycle): return
+def onCycleEndAlert(timerOp, segment, cycle, alertSegment, alertDone, interrupt): return
+def onCycle(timerOp, segment, cycle): return
+def onDone(timerOp, segment, interrupt): return
+def onSubrangeStart(timerOp): return
+```
+
+**Three things in there worth building on:**
+
+1. **`onInitialize()` can initialize asynchronously.** If it returns a value **greater than 0**, it is
+   called again after that many frames. `callCount` increments per attempt, **starting at 1**. That is
+   a documented retry loop — hold off Start until something external is ready (a connection, a media
+   scan) without blocking a frame.
+2. **`onTimerPulse()` fires when the timer starts counting up; `onSegmentEnter()` fires when the
+   segment starts, which is when the *delay* starts.** Different moments when a segment has a delay.
+   The docs call this out explicitly.
+3. **`interrupt`** is passed to `onSegmentEnter`, `onSegmentExit`, `onCycleEndAlert` and `onDone` —
+   **True if the user ended it prematurely, False on a normal timeout.** A clean way to tell a cue
+   that finished from a cue that was cut.
+
+**The `segment` object** casts to its index (`segment+3`, `segment==2` both work) and carries:
+`index`, `owner`, `lengthSeconds/Samples/Frames`, `delaySeconds/Samples/Frames`,
+`beginSeconds/Samples/Frames`, `speed`, `cycle`, `cycleLimit`, `maxCycles`,
+`cycleEndAlertSeconds/Samples/Frames`, `row`, and **`custom` — a dictionary of every Segments DAT
+column that doesn't map to a built-in feature.** That last one is the hook for arbitrary per-cue
+metadata.
+
+**Python control surface** *(`timerCHOP_Class`)*:
+
+| Call | Behaviour |
+|---|---|
+| `goTo(segment=0, cycle=0, endOfCycle=?, seconds=0, frame=0, sample=0, fraction=0)` | Jump to a time index. **Only one time unit may be given** — passing both `seconds` and `frame` is an error. With a time unit alone it jumps to the *running* time index; add `segment` and/or `cycle` and it jumps to the *local* index. Fifteen valid argument combinations |
+| `goToNextSegment()` / `goToPrevSegment()` | Same as pulsing the Segments page parameters |
+| `goToCycleEnd()` | Same as pulsing Go to End of Cycle |
+| `lastCycle()` | Makes the current cycle the last one — same as Exit at End of Cycle |
+
+⚠️ **The page contradicts itself on `endOfCycle`:** the signature shows `endOfCycle=True`, the
+argument description says "**False by default**." Don't rely on the default — pass it explicitly.
+When True, `goTo()` is re-called at the end of the cycle so the jump happens only then.
+
+**Time members, all settable except where noted** — `masterSeconds` is the main clock and can be set
+directly (`OP.masterSeconds = val`), with `masterFrames`, `masterSamples`, `masterFraction` and
+`masterTimecode` as equivalents. Read-only counterparts exist for cumulative, playing and running.
+Every one has a `tdu.Timecode` form. `segment` and `cycle` are both get/set; `segments` returns the
+list.
+
+⚠️ A 2019 forum thread reports `goTo(seconds=)` breaking parallel timers — marked **FIXED** in that
+thread. `[Forum]`, unverified, and old enough that it should not apply, but noted since parallel
+timers plus `goTo()` is exactly the combination a cue system would use.
 
 **Segments DAT columns** (`segdat`): `delay` or `begin`, `length`, `cycle`, `cyclelimit`,
 `maxcycles`, `cycleendalert` — these override the equivalent parameters. `begin` replaces `delay`
@@ -1342,6 +1396,11 @@ between two TouchDesigner machines.
 - Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. It is grouped with `communicating` and `download_progress`, which suggests per-request, but the page does not say. **This matters before treating the REST leg as a health signal** — see §10.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the sixth pass (2026-08-01):*
+
+- ⚠️ **The pass-one Timer CHOP callback list in §11 was wrong** (`onTimerActive` does not exist; it is `whileTimerActive`) **and missed four callbacks**. Now corrected from the class page. Worth asking what else from pass one was taken from the operator page's prose rather than a callback listing.
+- Whether `goTo()`'s `endOfCycle` actually defaults True or False — the class page states both (§11).
 
 *Added on the fifth pass (2026-08-01):*
 
