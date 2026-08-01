@@ -6,6 +6,22 @@ USB/MIDI control surface. Device facts, complete factory MIDI maps, and the rece
 
 ---
 
+## Provenance
+
+**Primary source:** *X-Touch Compact Quick Start Guide, V 6.0* (Music Tribe, 2024) `[Official]` — read directly. §1–§5 are **Verified** from that document.
+
+**§7 `.bin` preset format decode is `[Lead]`** — reverse-engineered from a 723-byte export with no format specification. Field meanings for channel, message type, index, min and max are unambiguous from comparing two exports; trailing bytes remain unexplained.
+
+**Not read:** no firmware release notes, no X-Touch Editor documentation beyond the Quick Start Guide, no MIDI Implementation Chart (Behringer does not publish one for this device as far as this session established).
+
+**Open items, left in place:**
+- The RX button-LED table is printed as fixed notes 0–38 on the global channel with no per-layer variant shown. **Unverified** whether that holds in Layer B.
+- The layer Speed fader does not receive feedback on clip change. Suspected bug; **unconfirmed.**
+
+**Stored 2026-07-20.** See `xtouch-compact-midi-map.md` for the user's own decoded map, which supersedes the factory maps here for their rig.
+
+---
+
 ## 1. Hardware
 
 | Item | Spec |

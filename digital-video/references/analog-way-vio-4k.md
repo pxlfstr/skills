@@ -6,6 +6,18 @@
 
 ---
 
+## Provenance
+
+**Sourcing:** `[Official]` throughout §1–§9 — *VIO 4K User Manual / Programmer's Guide* (Analog Way), user-supplied PDF, read in full 2026-07-19. Section numbers in this document refer to that manual. Revised 2026-07-23.
+
+**Not read:** no Analog Way firmware release notes, no ST 425 standard, no third-party review or bench measurement. Nothing here was checked against a physical unit.
+
+**Open items:** §10 lists six, including a self-contradiction in the manual's own input count. Left unresolved rather than reconciled.
+
+**Standing caveat:** no figure here is remembered or estimated. If a number is not in the manual it is not in this document.
+
+---
+
 ## 1. What it is, functionally
 
 A single-source multi-format converter/scaler with a **canvas-and-window** multi-output architecture. It is *not* a switcher: it processes **one input at a time**. Fully loaded it drives three outputs, but those are three independently-framed renderings of the **same source** — the manual states plainly that even when equipped with expansion interfaces the device cannot output three different sources (§15.2).

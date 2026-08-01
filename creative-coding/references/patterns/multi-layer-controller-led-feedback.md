@@ -13,6 +13,23 @@ Confirmed against a specific manufacturer's official documentation for one contr
 (channel-agnostic RX table, single-LED-per-button architecture) — pattern is described generically
 here since it's a common controller-design shape, not vendor-specific reasoning.
 
+## Provenance
+
+**Tier: Designed throughout. Nothing in this document has been built or run against hardware or software.** The single exception is the TX/RX asymmetry itself, which is **Bench-verified** against one manufacturer's official documentation — deliberately not named here, since this document is written as a generic pattern.
+
+**Not read:** nothing was verified against running software. The protocol-scoping section was resolved by reading specifications, not by querying a live system, and says so.
+
+**Open items, carried:**
+- Whether "currently active layer" is inferable without an explicit resync mechanism on cold start.
+- Whether a native-protocol-direct leg still needs an intermediary for fan-out even without translation.
+- Automating the comparison between a structured API spec and a fixed-address protocol — still untried.
+
+**A contradiction observed and kept:** a vendor's wrapper-integration limitations page contradicted their own OpenAPI spec on one object. Both sources were `[Official]`. Recorded as a sourcing lesson rather than resolved.
+
+**Vendor specifics deliberately excluded** — they live in `protocols/resolume-control-interfaces.md`.
+
+---
+
 **The consequence:** if a layer switch is invisible to the host (the surface sends nothing when
 the operator flips layers locally), naively relaying software-side feedback straight to the
 device will show whichever layer's state was written *last*, not whichever layer is *currently
@@ -117,7 +134,7 @@ specific application/version has to be established live, not assumed from docs.
 **Update — gap established for one case (2026-08-01):** for Resolume Arena/Avenue specifically, the
 gap was resolved by reading the vendor's OpenAPI spec directly rather than the rendered API
 reference page (which is JS-rendered and yields nothing to a plain fetch). Findings, now filed as
-vendor facts in `digital-video/references/resolume-control-interfaces.md` rather than restated here:
+vendor facts in `creative-coding/references/protocols/resolume-control-interfaces.md` rather than restated here:
 the structured interface reaches deep effect parameters after all, so the gap is *not* parameter
 coverage; it is a small set of value-semantics and addressing features. This is worth generalising:
 **the likely gap between a structured API and a fixed-address protocol is semantics and addressing

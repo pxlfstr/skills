@@ -7,6 +7,25 @@
 
 ---
 
+## Provenance
+
+**Sourcing:** mostly `[Lead]`. This is the weakest-sourced document in either library and should be treated accordingly.
+
+**No standards document was purchased or read.** ISO 2467:2004 (65mm/5-perf), SMPTE 196M (screen luminance) and SMPTE PH22.106 were identified by name and **not obtained**. The strongest source actually present is the Harkness/ICTA deck.
+
+**Not read:** all three standards above; no manufacturer lens datasheet was read end to end; no measurement was taken.
+
+**Open items, left in place:**
+- §5 thermal ceiling is **mechanism only, with no sourced number.** Flagged in the section itself.
+- No authoritative source found for the IMAX GT projector's actual lens options.
+- The claim that The Odyssey's 35mm engagements run at 2.39:1 is **Unverified** — asserted in session, plausible from format convention, not confirmed.
+
+**Perishable:** §7 exhibition context dates quickly and is marked as such in place.
+
+**Filed in `digital-video` deliberately** — the subject is photochemical, but the reasoning is the throw-ratio, foot-lambert and magnification math shared with digital projector specification.
+
+---
+
 ## 1. Gate dimensions
 
 | Format | Projected aperture (mm) | Area (mm²) | AR | Source | Tier |

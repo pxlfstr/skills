@@ -6,6 +6,20 @@ Operator parameter names and defaults drift between builds — everything tagged
 
 ---
 
+## Provenance
+
+**Sourcing:** everything tagged `[Official]` was read from docs.derivative.ca. **Operator parameter names and defaults drift between builds** — verify against the build in use before relying on any of them.
+
+**⚠️ Page dates and oldids are not recorded in this document.** It predates the provenance standard, so the `[Official]` tags here are weaker than the same tag in `protocols/touchdesigner-resolume-operators.md`, which records both. **Where the two documents disagree, prefer the operators file.**
+
+**Patterns are tiered Shipped in place** — these have been run.
+
+**Bench-verified and worth keeping visible:** MIDI In DAT reports 1-based indices (1–128), so raw CC *n* appears as index *n+1*. Since confirmed against Derivative's own documentation — see `protocols/touchdesigner-resolume-operators.md` §5d.
+
+**Not read:** Python class pages for the operators discussed. Those were read later and live in the operators document.
+
+---
+
 ## 1. The operators, and which to reach for
 
 ### MIDI

@@ -2,7 +2,19 @@
 
 The parts of MIDI 1.0 that matter when a control surface drives live video, and the patterns for making a surface behave.
 
-Device-specific numbers are **not** here — see `digital-video/references/` for per-device maps (e.g. `behringer-x-touch-compact.md`).
+Device-specific numbers are **not** here — see `protocols/` in this same library for per-device maps (e.g. `behringer-x-touch-compact.md`).
+
+---
+
+## Provenance
+
+**Document type:** patterns, with a small `[Official]` spine. MIDI 1.0 message-model facts are `[Official]`; everything framed as a way of doing things is tiered in place as Shipped / Bench-verified / Designed.
+
+**Not read:** the MIDI 1.0 Detailed Specification was not obtained. Message-model statements here are the widely documented subset, not a specification extraction.
+
+**Deliberate exclusion:** no device-specific numbers. Per-device maps live in `protocols/` in this same library — `behringer-x-touch-compact.md`, `xtouch-compact-midi-map.md`. If a CC number appears in this file, it is in the wrong place.
+
+**Open items:** not separately tracked in this document. Where a pattern has not been run against hardware it carries the **Designed** tier in place, and that tier is the open item.
 
 ---
 

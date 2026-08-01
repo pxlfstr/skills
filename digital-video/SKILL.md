@@ -1,6 +1,6 @@
 ---
 name: digital-video
-description: Digital & IP video: live switchers/routing, SDI/HDMI/NDI/ST 2110/SRT, sync, codecs, color, LED, projection, TouchDesigner, Resolume. Trigger on 'digital video skill' or work in this domain.
+description: Digital & IP video signal and devices: live switchers/routing, SDI/HDMI/NDI/ST 2110/SRT, sync and genlock, pixel clock and link bandwidth, codecs, color, LED processors, projection optics. Control protocols, TouchDesigner operators and media-server APIs live in the sibling creative-coding skill. Trigger on 'digital video skill' or work in this domain.
 ---
 
 # Digital & IP Video Engineering
@@ -8,6 +8,71 @@ description: Digital & IP video: live switchers/routing, SDI/HDMI/NDI/ST 2110/SR
 A working companion for the digital video field — live event production, broadcast-style signal flow, IP video transport, and the creative pipelines (TouchDesigner, Resolume, media servers) that feed them. This skill does two things: it pulls in the user's own reference documents (which keep Claude current and correct on device-specific, version-specific, and fast-moving details), and it routes questions toward the parts of the domain Claude knows well while being honest about the parts it doesn't.
 
 **Use this skill** whenever the user says "digital video skill," or whenever a conversation turns to: designing or troubleshooting a live signal chain; switchers, routers, multiviewers, scan converters, scalers, or frame syncs; signal transport (SDI, HDMI, DisplayPort, HDBaseT, fiber); IP video (NDI, SMPTE ST 2110, ST 2022-6, SRT, RTMP/RTSP); sync and genlock (black burst, tri-level, PTP/2059); codecs and containers (H.264/265, AV1, ProRes, DNxHR, JPEG2000, MXF); color and formats (Rec.601/709/2020, DCI-P3, HDR/PQ/HLG, chroma subsampling, bit depth, frame rates, scan formats); LED walls and processors; projection (lumens, throw, blending, warping, mapping); or media-server / TouchDesigner / Resolume pipelines. Trigger it even when the user doesn't say the magic phrase but is clearly working in this domain.
+
+## The dividing line with `creative-coding` — revised 2026-08-01
+
+This skill has a sibling: **`creative-coding`**, in the same repository. The boundary was redrawn on 2026-08-01 because the old one ("facts here, code there") had pulled TouchDesigner operator reference, MIDI maps and media-server control APIs into this skill, none of which are about video signal.
+
+**The test — one question:**
+
+> Would this still be true if TouchDesigner, Resolume and every control surface disappeared?
+
+| Answer | Skill |
+|---|---|
+| **Yes** — the video signal, or a video device's own behaviour | **`digital-video`** — this one |
+| **No** — a control protocol, a data protocol, or software integration | **`creative-coding`** |
+
+**Stays here:** signal transport and IP video, pixel clocks and link bandwidth, sync and genlock, codecs, colour and formats, LED walls and processors, projection optics and geometry, switcher/scaler/converter behaviour.
+
+**Goes to `creative-coding`:** TouchDesigner operators and Python, Resolume REST/WebSocket/OSC/MIDI, MIDI generally, **DMX/Art-Net/sACN in full**, timecode used as control, Companion, control-surface maps, and all show-control code.
+
+⚠️ **Do not write protocol or operator reference into this skill.** If a session surfaces a control-protocol fact, produce it as a `creative-coding/references/` deliverable instead. When a question needs both — "which TD operator drives this LED processor" — produce two documents and cite across, so no spec exists in two places.
+
+**Moved out on 2026-08-01** (look for them in `creative-coding/references/`): `touchdesigner-resolume-operators.md`, `resolume-control-interfaces.md`, `behringer-x-touch-compact.md`, `behringer-xtouch-compact-resolume.md`.
+
+
+---
+
+## Two structural rules — added 2026-08-01
+
+**Rule 1 does not apply to this skill** — everything here is a fact document, so there is no `protocols/` / `patterns/` split to maintain. Rules 2 and 3 apply in full.
+
+These exist because a behavioural rule ("be careful about sourcing") has repeatedly failed. Both of these are checkable by looking, not by trusting judgement.
+
+### Rule 1 — folder split *(creative-coding only)*
+
+See `creative-coding/SKILL.md`. Not relevant here.
+
+### Rule 2 — every reference document opens with a provenance block
+
+Not just the ones that happen to get one. No exceptions, including short documents. The block states, at minimum:
+
+```
+## Provenance
+- Sourcing tier(s) present in this document, and which sections carry which
+- For each web source: the page's own last-edited date, and its oldid or revision
+  identifier where the source exposes one
+- What was NOT read, listed explicitly
+- Open contradictions, in place — never silently resolved
+```
+
+A document without this block is not finished. The provenance block is what caught the errors that careful reading did not.
+
+### Rule 3 — claim vocabulary is load-bearing
+
+Never write any of these without the concrete evidence attached in the same sentence:
+
+| Word | Requires |
+|---|---|
+| **"full page read"** | The page's last-edited date, and an oldid where available |
+| **"verified"** | Named source, read directly this session or an earlier one that is cited |
+| **"unreachable" / "not available"** | An actual attempt that failed, and the failure mode. A tool refusing a URL for lack of provenance is **not** unreachability — say what actually happened |
+| **"confirmed"** | Two independent sources, or one source plus a bench test. Name both |
+| **"the docs say"** | Which page. If the claim came from another page *mentioning* the parameter, that is second-hand — say so |
+
+**No evidence, weaker word.** "Appears to", "reportedly", "second-hand from X", "inferred". Downgrading a claim costs nothing; an overstated one gets discovered live.
+
+When a fact arrives from a page that merely *references* another page's parameter, it is **second-hand until the owning page is read.** Mark it and move on — do not launder it into a flat assertion.
 
 ## Why this skill exists
 

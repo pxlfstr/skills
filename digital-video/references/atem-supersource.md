@@ -5,6 +5,24 @@ what the values mean, how the saved-state XML encodes them, and — importantly 
 which parts of the parameter space the vendor documentation simply does not
 describe.
 
+## Provenance
+
+**Sourcing, by section:**
+
+| Sections | Tier | Source |
+|---|---|---|
+| §1–§3, §5–§6 | `[Official]` | *ATEM Constellation Switchers Manual* pp. 68–70 and *Blackmagic Switchers SDK* §6, read directly; plus a switcher's own saved-state export |
+| §4 unit space and all pixel conversion | **Derived** | Arithmetic performed in session from one verified preset. Internally consistent; **never checked against a switcher** |
+| Preset 1–3 shapes | `[Lead]` | Read off a low-resolution manual thumbnail |
+
+**Not read:** no ATEM firmware release notes, no per-model verification beyond the manual's own table, no bench test of any parameter end-stop.
+
+**Open contradictions and gaps, left in place:**
+- Which switcher models expose which of the two border models is **unresolved** (§ border discussion).
+- **A verified negative worth keeping:** the SDK declares every SuperSource parameter as a bare double — no units, minima, maxima or defaults — and the manual gives no end-stops either. The absence is confirmed, not an oversight in this document.
+
+---
+
 ## Sources read this session
 
 | Source | Tag | What was read |

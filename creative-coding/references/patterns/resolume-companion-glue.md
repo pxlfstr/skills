@@ -2,7 +2,19 @@
 
 Patterns for wiring Resolume and Bitfocus Companion into a control system.
 
-**Vendor facts — ports, address discovery, the OSC/REST capability split — are in `digital-video/references/resolume-control-interfaces.md`.** They are deliberately not repeated here.
+**Vendor facts — ports, address discovery, the OSC/REST capability split — are in `creative-coding/references/protocols/resolume-control-interfaces.md`.** They are deliberately not repeated here.
+
+---
+
+## Provenance
+
+**Document type:** patterns only. Tiers run **Shipped** and **Bench-verified** throughout — these have been run, which makes this one of the stronger pattern documents here.
+
+**Vendor facts deliberately excluded** — ports, address discovery and the OSC/REST capability split live in `protocols/resolume-control-interfaces.md` and are not repeated. Surface-specific mapping detail is in `protocols/behringer-xtouch-compact-resolume.md`.
+
+**Carried `[Lead]`, unresolved:** deck-switch emitting `0` for connected clips is *understood* to be the release of the outgoing deck rather than a state report — understood, not confirmed.
+
+**Not read:** no Companion source or module documentation beyond the module README cited in the protocols document.
 
 ---
 
@@ -65,7 +77,7 @@ Mapping a two-layer control surface (an A/B preset surface, for instance) onto R
 - On flip, the surface re-seats its motors and rings — which is only true if feedback is enabled and a **full state refresh** is sent on the change.
 - Keep the *meaning* of a given physical control consistent across banks where possible. Fader 1 being "layer opacity" in bank A and "master speed" in bank B is legal and is a mistake you make once.
 
-Surface-specific mapping detail for the X-Touch Compact is in `digital-video/references/behringer-x-touch-compact.md` §6.
+Surface-specific mapping detail for the X-Touch Compact is in `creative-coding/references/protocols/behringer-x-touch-compact.md` §6.
 
 ---
 
@@ -110,7 +122,7 @@ Principles behind it:
 ## 7. Known gaps
 
 - **Layer Speed fader receives no feedback on clip change.** Observed with a motorized surface; suspected Resolume bug, unconfirmed. Practical effect: that one control drifts out of sync while everything else re-seats correctly. **Tier: Bench-verified** as an observation, **unverified** as a cause.
-- **Deck-switch emits `0` for connected clips.** Understood to be the release of the outgoing deck's clips rather than a state error — reported behavior, developer participating in the discussion, but not documented as a spec. Don't build state tracking that treats it as a genuine disconnect. See `digital-video/references/resolume-control-interfaces.md`.
+- **Deck-switch emits `0` for connected clips.** Understood to be the release of the outgoing deck's clips rather than a state error — reported behavior, developer participating in the discussion, but not documented as a spec. Don't build state tracking that treats it as a genuine disconnect. See `creative-coding/references/protocols/resolume-control-interfaces.md`.
 
 ---
 

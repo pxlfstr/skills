@@ -2,7 +2,36 @@
 
 Manifest of stored pattern documents. Read this first when the skill is active.
 
-**Sibling skill:** `digital-video` holds vendor and protocol facts. This library holds code and working patterns, and cites *into* that one rather than duplicating it. If you are looking for a port number, a CC map, or a device spec, you are in the wrong library.
+**Sibling skill:** `digital-video` holds **video-signal and device** facts — bandwidth, genlock, codecs, colour, LED processors, projector optics, switcher behaviour. Cite into it rather than duplicating it.
+
+⚠️ **Boundary revised 2026-08-01.** The split is no longer "facts there, patterns here." It is now **domain**: video signal and devices in `digital-video`, **control protocols and software integration here**. The test is *"would this still be true if TouchDesigner, Resolume and every control surface disappeared?"* — no means it belongs here.
+
+**This library now holds protocol facts as well as patterns.** Keep them distinct with the confidence tiers below; a vendor number is `[Official]`, a developed structure is `Bench-verified` or `Designed`. **DMX, Art-Net and sACN live here in full**, packet level included.
+
+### Library layout — `protocols/` and `patterns/`
+
+**Added 2026-08-01.** Documents live in one folder or the other, never both, and never mixed inside one file:
+
+| Folder | Holds | Tiers |
+|---|---|---|
+| `protocols/` | Vendor and protocol facts — operator parameters, MIDI maps, API endpoints, ports, packet structure | `[Official]` / `[Forum]` / `[Lead]` |
+| `patterns/` | Structures the user developed | Shipped / Bench-verified / Designed / Abandoned |
+
+`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md`
+
+`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md`
+
+**Every document opens with a provenance block.** Sourcing tiers, each web source's own last-edited date and oldid, what was *not* read, and open contradictions left unresolved rather than tidied away. A document without one is not finished. See `STORAGE.md`.
+
+**Received from `digital-video` on 2026-08-01** — moved, not copied; the source index no longer lists them:
+
+| Document | Covers |
+|---|---|
+| `touchdesigner-resolume-operators.md` | Which TouchDesigner operator speaks each protocol Resolume exposes. **Read its provenance block first** — it has two sourcing tiers and they are not equal. 20 operator pages and 11 Python class pages at Tier A (full page read, dated, most with oldid); Tier B is explicitly incomplete |
+| `resolume-control-interfaces.md` | All 13 Resolume control/sync/media protocols, capability matrix, ports, and all 295 REST operations |
+| `behringer-x-touch-compact.md` | X-Touch Compact device facts, factory MIDI maps, `.bin` preset format decode |
+| `behringer-xtouch-compact-resolume.md` | X-Touch as a Resolume control surface — TX/RX maps, LED feedback gate, mode selection |
+| `xtouch-compact-midi-map.md` | **New 2026-08-01.** The user's own X-Touch Compact map decoded from their Layer A/B `.bin` exports — 91 assignments, note names at C3=60, the expression-pedal channel exception, and an unresolved off-by-one on fader touch |
 
 Maintenance is **additive and never lossy** — merge rather than replace, promote confidence tiers rather than overwriting them, keep Abandoned patterns, remove only what is shown to be *wrong*. See `STORAGE.md`.
 
@@ -23,7 +52,7 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **Open items:** whether "currently active layer" is inferable without an explicit resync mechanism on cold start; whether a native-protocol-direct leg still needs an intermediary for fan-out even without translation; automating the comparison between a structured API spec and a fixed-address protocol (still untried — the one worked case was resolved by reading specs, not by querying running software).
 
-**Updated 2026-08-01:** protocol-scoping section revised after the gap was established for one real case. Adds the generalisation that the gap between a structured API and a fixed-address protocol is usually *semantics and addressing modes, not reach*, plus two sourcing lessons: a vendor's wrapper-integration limitations page can be better boundary documentation than their API reference, and those two sources can contradict each other. Vendor specifics deliberately not restated — they live in `digital-video/references/resolume-control-interfaces.md`.
+**Updated 2026-08-01:** protocol-scoping section revised after the gap was established for one real case. Adds the generalisation that the gap between a structured API and a fixed-address protocol is usually *semantics and addressing modes, not reach*, plus two sourcing lessons: a vendor's wrapper-integration limitations page can be better boundary documentation than their API reference, and those two sources can contradict each other. Vendor specifics deliberately not restated — they live in `creative-coding/references/protocols/resolume-control-interfaces.md`.
 
 ---
 
@@ -69,7 +98,7 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **Use for:** wiring Resolume into a larger control system; deciding whether a job belongs in Companion or TouchDesigner; debugging a control path that works while feedback silently doesn't.
 
-**Confidence:** Patterns are **Shipped** or **Bench-verified** and tiered in place. Underlying vendor facts are cited across to `digital-video/references/resolume-control-interfaces.md` and not restated.
+**Confidence:** Patterns are **Shipped** or **Bench-verified** and tiered in place. Underlying vendor facts are cited across to `creative-coding/references/protocols/resolume-control-interfaces.md` and not restated.
 
 **Open items:** whether the layer Speed-fader feedback gap persists in current 7.x; whether REST polling can fill OSC feedback gaps without costing frames; Companion behavior with a reachable REST endpoint and a wrong OSC port.
 

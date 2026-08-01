@@ -9,7 +9,7 @@ edit date, not a build number. Nothing below is confirmed *specifically* against
 pages read were current as of the dates noted. Re-verify anything load-bearing against the running
 build's own Python help.
 
-## ⚠️ PROVENANCE — READ FIRST
+## Provenance — ⚠️ READ THIS FIRST
 
 This document has **two tiers of sourcing** and they are not equal.
 

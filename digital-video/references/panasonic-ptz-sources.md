@@ -9,6 +9,20 @@ under "Facts read" must be pulled from the linked document before use — do not
 
 ---
 
+## Provenance
+
+**This is a source registry, not a full extraction.** The distinction is the whole point of the document and must not be forgotten when reading it.
+
+**`[Official]` and confirmed 2026-07-19:** every URL listed — interface specifications, operating manuals, spec pages and FAQs for AW-UE150, AW-HE145 and AW-RP150.
+
+**Verified facts are only those under "Facts read this session"** — the two-command-set structure, STX/ETX framing, the HTTP-over-TCP and RS-422 control paths, the **40 ms inter-command gap** that is the documented origin of the TD control surface's throttle, the update-notification mechanism, RP150 camera-count ceilings, and the Ver 2.00 ROP/switcher linkage menu paths.
+
+**Not read:** the PDFs were **not read end to end.** Anything not in that section must be pulled from the linked document. It is explicitly **not** answerable from memory, and a plausible-sounding answer about this gear that is not in this file is a fabrication risk.
+
+**Boundary note:** this document is mostly a control protocol, which by the 2026-08-01 boundary test argues for `creative-coding`. It is also a camera source registry for video hardware. Left here; revisit if PTZ control code grows.
+
+---
+
 ## Documents
 
 | Document | Covers | Tag | URL |

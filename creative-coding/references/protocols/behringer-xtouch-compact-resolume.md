@@ -6,6 +6,22 @@ settings, Resolume-side MIDI setup, and known failure modes.
 
 ---
 
+## Provenance
+
+**Sourcing:** `[Official]` for the mode-selection procedure, the TX Note/CC maps, the RX/LED map with its velocity gate, and the Resolume MIDI configuration — manual read first-hand. `[Forum]` for the remainder.
+
+**⚠️ This document contains a bench observation that contradicts the manual, and the bench wins.** Button LED velocity values are **1 = off, 2 = on, 3 = blink** as observed on hardware; the manual's table does not match. Recorded as **Bench-observed — CONTRADICTS the manual**, and it must stay that way rather than being reconciled toward the printed table.
+
+**It also carries an explicit correction notice** for a prior over-stated claim that a naive note echo lights button LEDs. That notice stays; the error is more useful visible than deleted.
+
+**Still `[Lead]`, not resolved:** the fader-touch CC collision, and the Layer Speed feedback gap.
+
+**Not read:** Resolume version-specific release notes; no verification against Arena versions other than the one tested.
+
+**Stored 2026-07-18, revised 2026-07-20.**
+
+---
+
 ## 1. Operating mode — the decision that gates everything
 
 Run the unit in **Standard MIDI mode**, not MC (Mackie Control) mode.

@@ -21,6 +21,22 @@ is undated beyond `0.0.1`. Re-verify anything version-sensitive against the buil
 
 ---
 
+## Provenance
+
+**Sourcing:** protocol behaviour, ports, REST/WebSocket/OSC/MIDI/DMX/SMPTE/Link/MCP mechanics and the full endpoint list are `[Official]` — from a user-supplied `swagger.yaml` (OpenAPI 3.0.1, `info.version 0.0.1`) plus Resolume Support pages for restapi, websocket-api, osc, midi-shortcuts, dmx-shortcuts, dmx, smpte, link and mcp-servers, the Bitfocus module README, and the TouchOSC manual.
+
+**Still `[Forum]`:** the fixed-input-address claim, listening-interface behaviour, and deck-switch `0` emission.
+
+**Listed but NOT read:** Pro DJ Link and StageLinQ. They appear in the support index and are unverified here.
+
+**⚠️ Unresolved contradiction, left in place:** the MCP documentation says REST cannot read or modify Dashboard dials, while the spec exposes `dashboard: ParameterCollection`. **Test before relying on either.**
+
+**⚠️ Version ambiguity:** the documentation pages span v7.0.4–v7.26.0 and the OpenAPI spec carries no product version. Confirm against the running build.
+
+**Expanded 2026-08-01.** Integration *patterns* are deliberately excluded — they live in `creative-coding/references/patterns/resolume-companion-glue.md`.
+
+---
+
 ## 1. Protocol inventory
 
 Everything Resolume speaks. "Control" = drives parameters/actions. "Sync" = clock/time only.

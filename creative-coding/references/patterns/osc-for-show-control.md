@@ -2,7 +2,19 @@
 
 What OSC actually guarantees, what it doesn't, and the patterns for building on it.
 
-Vendor-specific address spaces and ports are **not** here — see `digital-video/references/resolume-control-interfaces.md` and equivalents.
+Vendor-specific address spaces and ports are **not** here — see `creative-coding/references/protocols/resolume-control-interfaces.md` and equivalents.
+
+---
+
+## Provenance
+
+**Document type:** patterns, with an `[Official]` spine on what OSC does and does not guarantee.
+
+**Not read:** the OSC 1.0 and 1.1 specifications were not obtained this session. Statements about guarantees are the widely documented behaviour, not a specification extraction — treat "OSC does not specify X" as reliable in direction and unverified in letter.
+
+**Deliberate exclusion:** vendor address spaces and ports. Those live in `protocols/resolume-control-interfaces.md` and equivalents.
+
+**Open items:** carried as tiers in place. Anything **Designed** has not been run.
 
 ---
 

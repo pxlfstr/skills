@@ -12,6 +12,21 @@ The distinction matters because the *active* pixel rate and the *link* rate diff
 
 ---
 
+## Provenance
+
+**Sourcing:** all clocks and bandwidths are `[Computed]` — arithmetic performed in session from the stated CVT-RB model, reproducible from the Python included in this document. These are **explicitly not manufacturer figures.**
+
+**Not read, and marked `Unverified` in place:**
+- **CVT 1.1 standard** — the constants in §2 (160 px H blanking, 460 µs minimum V blanking, 0.25 MHz quantisation) come from the model, not the standard.
+- **SMPTE ST 424 / 2081 / 2082** — SDI tier rates are corroborated by the VIO manual's plug tables `[Official]` but the standards were not read.
+- **HDMI Forum and VESA documents** — the HDMI 2.0 and DP 1.2 ceilings are the figures the VIO 4K manual's card descriptions are consistent with, not figures read from a specification.
+
+⚠️ **The 600 MHz HDMI 2.0 character-rate limit must not be quoted to a client until sourced.** Stated here so it cannot be quietly promoted to fact.
+
+**Stored 2026-07-19, revised 2026-07-23.**
+
+---
+
 ## 1. The three rates, kept separate
 
 | Rate | What it is | Formula |

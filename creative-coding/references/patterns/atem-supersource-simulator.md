@@ -12,6 +12,18 @@ and what we learned doing it.
 
 ---
 
+## Provenance
+
+**Document type:** a build record for a tool, plus the patterns that came out of building it. Tiers run **Bench-verified** and **Designed** in place.
+
+**The underlying parameter facts are not here.** They live in `digital-video/references/atem-supersource.md`, including the caveat that its unit space is **Derived** arithmetic never checked against a switcher. **The simulator inherits that uncertainty** — it renders what the derived model predicts, not what a switcher was observed to do.
+
+**Not read / not done:** the simulator's output has never been compared side by side against a real ATEM's program output. Until it has, treat it as a planning aid, not a preview.
+
+**Worth keeping:** the "probe the canvas, don't look at it" verification technique in this document is **Bench-verified** and generalises beyond this tool.
+
+---
+
 ## Confidence
 
 | Component | Tier | Note |
