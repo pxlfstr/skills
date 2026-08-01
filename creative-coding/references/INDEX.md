@@ -12,7 +12,20 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 ## Documents
 
-### `midi-for-show-control.md`
+### `multi-layer-controller-led-feedback.md`
+**Added:** 2026-08-01
+
+**Covers:** Three related patterns from a control-surface + media-server integration project. (1) The TX/RX asymmetry pattern — control surfaces that expose more layers on transmit (channel-discriminated) than they can represent on receive (single LED per button, channel-agnostic), and the gate/cache/replay fix that lives upstream in software rather than in the MIDI map. (2) Splitting protocol legs by requirement instead of brokering everything through one hub — translate only where the destination can't receive the source's native protocol, and let destinations with their own multi-device feedback logic own that logic rather than re-deriving it in a broker. (3) A scoping rule for media-server control when two overlapping protocols are both available (REST/WebSocket vs. OSC): default to the structured/discoverable interface, use the second protocol only for the specific parameters the first doesn't expose, and confirm the actual gap by live diff rather than doc comparison.
+
+**Use for:** any control-surface integration where software-side layers/banks sit on top of a receiver that doesn't natively support them; deciding whether a project needs a central broker or can split legs by protocol requirement; scoping which control protocol owns which parameters when a target app exposes more than one.
+
+**Confidence:** Designed throughout. The TX/RX asymmetry itself is Bench-verified against one manufacturer's official documentation (not named here — generic pattern only). Nothing in this document has been built or run against real hardware/software yet.
+
+**Open items:** whether "currently active layer" is inferable without an explicit resync mechanism on cold start; whether a native-protocol-direct leg still needs an intermediary for fan-out even without translation; methodology for a live REST-vs-OSC parameter diff (walking an OpenAPI spec against a captured OSC address list, untried).
+
+---
+
+
 **Added:** 2026-07-19
 **Covers:** The MIDI 1.0 message model and why message type must match control type (Notes for buttons, CC for continuous); 7-bit resolution limits and the three ways around them; the 14-bit MSB/LSB pairing rule; absolute vs. relative encoders and why relative encodings must be determined empirically; feedback, state ownership, momentary-vs-toggle, echo suppression and motor re-seating; pickup/takeover strategies for non-motorized surfaces; banking and channel-as-index; the 0-based/1-based index trap and the capture-first rule; note-name convention ambiguity; MIDI clock and why it is the wrong video sync source.
 
