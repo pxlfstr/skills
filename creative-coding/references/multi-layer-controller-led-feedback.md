@@ -113,6 +113,25 @@ deciding which protocol owns which slice of control.
 **Confidence:** Designed. The scoping principle itself is straightforward; the actual gap for any
 specific application/version has to be established live, not assumed from docs.
 
-**Open items:** methodology for the live diff itself — walking a REST API's OpenAPI/Swagger spec
-programmatically against a captured OSC address list would be more reliable than manual
-comparison, but hasn't been tried.
+**Update — gap established for one case (2026-08-01):** for Resolume Arena/Avenue specifically, the
+gap was resolved by reading the vendor's OpenAPI spec directly rather than the rendered API
+reference page (which is JS-rendered and yields nothing to a plain fetch). Findings, now filed as
+vendor facts in `digital-video/references/resolume-control-interfaces.md` rather than restated here:
+the structured interface reaches deep effect parameters after all, so the gap is *not* parameter
+coverage; it is a small set of value-semantics and addressing features. This is worth generalising:
+**the likely gap between a structured API and a fixed-address protocol is semantics and addressing
+modes, not reach** — check what the structured API can't *express* before assuming it can't *reach*.
+
+Two further generalisable notes from that case:
+- The vendor's own documentation for a *third* surface (an agentic/MCP integration) published an
+  explicit list of what it could not do "because it is limited to what the REST API can do" — which
+  turned out to be the clearest published statement of the REST boundary anywhere in their docs.
+  When a vendor ships a wrapper over their own API, its limitations page is often better boundary
+  documentation than the API reference itself.
+- That same exclusion list **contradicted** the OpenAPI spec on one object, which the spec exposes
+  and the wrapper page says is unreachable. Neither source is automatically right; flag and test.
+
+**Open items:** methodology for a fully automated live diff — walking an OpenAPI spec
+programmatically against a captured address list from the other protocol — still untried; the case
+above was resolved by reading the spec and the protocol docs, not by querying a running instance.
+Nothing here has been confirmed against live software.

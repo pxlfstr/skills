@@ -21,7 +21,9 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **Confidence:** Designed throughout. The TX/RX asymmetry itself is Bench-verified against one manufacturer's official documentation (not named here — generic pattern only). Nothing in this document has been built or run against real hardware/software yet.
 
-**Open items:** whether "currently active layer" is inferable without an explicit resync mechanism on cold start; whether a native-protocol-direct leg still needs an intermediary for fan-out even without translation; methodology for a live REST-vs-OSC parameter diff (walking an OpenAPI spec against a captured OSC address list, untried).
+**Open items:** whether "currently active layer" is inferable without an explicit resync mechanism on cold start; whether a native-protocol-direct leg still needs an intermediary for fan-out even without translation; a fully automated live diff between a structured API spec and a fixed-address protocol (still untried — the one worked case was resolved by reading specs, not by querying running software).
+
+**Updated 2026-08-01:** protocol-scoping section revised after the gap was established for one real case. Adds the generalisation that the gap between a structured API and a fixed-address protocol is usually *semantics and addressing modes, not reach*, plus two sourcing lessons: a vendor's wrapper-integration limitations page can be better boundary documentation than their API reference, and those two sources can contradict each other. Vendor specifics deliberately not restated — they live in `digital-video/references/resolume-control-interfaces.md`.
 
 ---
 
