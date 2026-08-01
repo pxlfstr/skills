@@ -37,27 +37,66 @@ as published. Trustworthy to the limits noted per section.
 - `Perform_CHOP` (page edited 2025-06-04)
 - `Trigger_CHOP` (page edited 2025-12-11)
 
-**TIER B — assembled from search-result snippets, NOT full page reads.** Snippets are truncated
-excerpts. **Parameters are certainly missing, and nothing here should be treated as a complete
-list.** Verify against the page itself before building on any of it:
+*Third pass, 2026-08-01 — promoted out of Tier B and C:*
 
-SocketIO_DAT · DMX_In_CHOP · DMX_Out_CHOP · LTC_In_CHOP · LTC_Out_CHOP · Timecode_CHOP ·
-Beat_CHOP · Speed_CHOP · Count_CHOP · Event_CHOP · Logic_CHOP · Sync_In_CHOP · Sync_Out_CHOP ·
-Touch_Out_CHOP · MIDI_In_Map_CHOP
+- `Clock_CHOP` (page edited 2026-01-21)
+- `Timeline_CHOP` (page edited 2023-12-04)
+- `Beat_CHOP` (page edited 2024-11-06)
+- `Speed_CHOP` (page edited 2025-10-28)
+- `Count_CHOP` (page edited 2026-01-23)
+- `Event_CHOP` (⚠️ page edited **2021-11-16**, and self-contradictory on channel count — see §11)
+- `Logic_CHOP` (⚠️ page edited **2021-11-16**; Derivative marks the operator superseded — see §11)
+- `MIDI_In_DAT` (page edited 2026-03-10)
+- `MIDI_In_Map_CHOP` (⚠️ page edited 2023-11-02 but carries an unresolved 2009 "needs updating"
+  note — see §5e; treat as the weakest Tier A entry here)
 
-Next in line, in the order they matter for a Resolume hub: **Count_CHOP** and **Logic_CHOP**
-(they finish §11's event-detection block), then **SocketIO_DAT**, then the DMX and timecode
-groups.
+**TIER B — everything not yet given a full page read.** Two kinds, and the difference matters:
+
+*Snippet-sourced (some detail below, certainly incomplete):*
+DMX_In_CHOP · DMX_Out_CHOP · LTC_In_CHOP · LTC_Out_CHOP · Timecode_CHOP · Sync_In_CHOP ·
+Sync_Out_CHOP · Touch_Out_CHOP
+
+*Not consulted at all (no detail below, listed so the gap is visible):*
+Art-Net_DAT · Touch_In_CHOP
+
+*Fourth pass, 2026-08-01 — cleared the outstanding item and opened a new category:*
+
+- `MIDI_Event_DAT` (page edited 2026-03-10) — §5f
+- `midiinDAT_Class` (⚠️ page edited **2018-05-25**) — §5g
+- `midieventDAT_Class` (⚠️ page edited **2018-05-25**) — §5g
+
+## ⚠️ PYTHON CLASS PAGES — a category that was silently skipped
+
+Every operator page links to a Python class page carrying members, methods and **callback
+signatures**. Through passes one to three these were **not read and not tracked**, so "Tier A —
+full page read" in this file has meant *the operator page only*. That is now stated rather than
+assumed.
+
+**Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class`
+
+**Class pages NOT read, for operators that are otherwise Tier A:**
+
+| Class page | Why it likely matters |
+|---|---|
+| `webclientDAT_Class` | The request method — how §2 is actually driven from Python |
+| `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client |
+| `oscoutDAT_Class` | Full `sendOSC()` signature; §4b only has the `asBundle` kwarg |
+| `oscinDAT_Class` | Receive callback signature |
+| `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
+| `midiinCHOP_Class` / `midioutCHOP_Class` | **`midioutCHOP_Class` is the documented way to send arbitrary MIDI from Python** — the LED/motor feedback path. Highest-value unread class page in this file |
+| `timerCHOP_Class` | `goTo()`, pause, start — the state-machine control surface for §11's Timer |
+| `abletonlinkCHOP_Class` | Unverified |
+| `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
+
+⚠️ Note the pattern: the three class pages read so far were all last edited **2018**, while their
+operator pages are current. Class pages appear to be maintained on a much slower cycle. Weigh
+accordingly.
 
 Some Tier B snippets came from the `derivative.ca/UserGuide/` mirror rather than
 `docs.derivative.ca`. Content appears to match, but that is an assumption, not a check.
 
-**TIER C — not consulted at all.** Clock_CHOP, Timeline_CHOP, Art-Net_DAT, MIDI_Event_DAT,
-MIDI_In_DAT, Touch_In_CHOP.
-
-*(OSC_In_DAT and OSC_Out_DAT were listed here on the first pass; both were read in full on the
-second pass and are now Tier A — see §4. MIDI_In_Map_CHOP was listed in both B and C on the first
-pass; it is Tier B.)*
+*(Tier C has been folded into Tier B. Socket.IO / SocketIO_DAT has been removed from the tracking
+list entirely — see §8 for why it is out of scope rather than pending.)*
 
 **Every Tier B section below is marked inline.** Tier A sections are unmarked.
 
@@ -504,20 +543,163 @@ DAT with a timecode string, or a Timecode Class object; `notenorm` (None or 0-to
 `controlnorm` (None / 0-to-1 / -1-to-1 / **On-Off**); `barname` + `barticks` for MIDI clock output
 from a 0–1 bar ramp (**default 96 = 4 beats × 24 ticks per beat**).
 
-### 5c. Other MIDI operators  ⚠️ TIER B / C — not read this session
+### 5c. The MIDI family at a glance
 
-| Operator | Use |
+| Operator | Use | Tier |
+|---|---|---|
+| MIDI In CHOP | Continuous values as channels — working input for a mapped surface | A (§5a) |
+| MIDI Out CHOP | Feedback — motors, LED rings, button LEDs | A (§5b) |
+| MIDI In DAT | Raw message inspection — the ground-truth capture tool | A (§5d) |
+| MIDI In Map CHOP | Mapper-based indirection | A (§5e) |
+| MIDI Event DAT | Logs **both directions**, all devices | A (§5f) |
+
+### 5d. MIDI In DAT *(Tier A — full page read, page edited 2026-03-10)*
+
+Logs every MIDI message from a device into a table: **message, type, channel, index, value**.
+
+**⚠️ The line that matters most, quoted in substance:** the page states that the controller indices
+the MIDI In DAT reports are **always converted to the 1-based range 1–128**.
+
+That is the documented basis for the −1 correction we arrived at empirically on the X-Touch bench
+test. The behaviour is documented, not a quirk of that device — which means the correction belongs
+wherever MIDI In DAT indices are consumed, not just in the X-Touch path. The bench observation and
+the doc now agree; previously we only had the observation.
+
+*Connect page:*
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Active | `active` | Logs MIDI events when on |
+| Device Table | `device` | Path to the MIDI device Table DAT |
+| Device ID | `id` | Which device |
+| 14 Bit Values | `value14` | Consolidates MSB/LSB pairs into a single 14-bit value |
+
+**14-bit mode has a strict spec, and it silently does nothing if the device doesn't follow it:**
+
+- MSB must be in controller range **0–31**; LSB in **32–63**, at **MSB index + 32** (MSB 12 → LSB 44)
+- Index pairs **98/99** and **100/101** also work as MSB/LSB
+- **If only an MSB arrives, nothing is output at all**
+- If several LSBs arrive with no intervening MSB, the last MSB value is reused
+- Controller range **64–95 is reserved for 7-bit** and passes through as 7-bit even in this mode
+- **MIDI Event DAT differs here** — the page says it outputs both messages separately rather than
+  consolidating
+
+*Filter page — worth using instead of filtering in Python:*
+
+`skipsense` (drop active-sense messages) · `skiptiming` (drop timing messages) · `filter` (enable the
+rest) · `message` (e.g. "Control Change") · `channel` (1–16) · `index` (1–128) · `value` (0–127).
+
+Dropping sense and timing at the operator keeps the FIFO table from filling with traffic that isn't
+control data — relevant on any surface that sends active sensing.
+
+*Received Messages page:* `callbacks` (runs once per row added, i.e. per event), `executeloc`,
+`fromop`, `clamp` (100-message default), `maxlines`, `clear`, `bytes`. Info CHOP: `num_rows`,
+`num_cols` and the common operator channels — **no MIDI-specific status channel.**
+
+The page also notes that once MIDI is configured in the MIDI Device Mapper, Select CHOPs pointing at
+`/local/maps/map1` (device 1) are the simpler general path.
+
+### 5e. MIDI In Map CHOP *(Tier A — full page read, page edited 2023-11-02)*
+
+Reads channels prepared by the **MIDI Device Mapper Dialog**, which names sliders `s1`, `s2`, … and
+buttons `b1`, `b2`, …. The CHOP then selects from those.
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Device Table / Device ID | `device` `id` | Which device |
+| Sliders | `sliders` | Pattern syntax, e.g. `s[1-16] s20 s[32-40]` |
+| Buttons | `buttons` | e.g. `b[1-16] b20 b[32-40]` |
+| Include Velocity in Buttons | `bvelocity` | Velocity on button inputs where available |
+| Queue Slider Events | `squeue` | (no description on the page) |
+
+*Channel page:* `rate`, `left` / `right` extend conditions (`hold` / `slope` / `cycle` / `mirror` /
+`default`), `defval`.
+
+**The trade-off the page states directly:** MIDI In CHOP addresses channel, note and controller
+numbers *inside the CHOP*, so remapping means editing TouchDesigner. MIDI In Map CHOP pushes that
+into the Device Mapper dialog, so a user can remap without touching the network. More portable,
+one more layer of indirection.
+
+⚠️ **This page carries its own staleness warning** — an editor's note dated **April 12, 2009** saying
+the page needs updating from the release notes, still present on a page last edited 2023-11-02. The
+`squeue` parameter has no description at all. Treat the parameter list here as the least trustworthy
+Tier A entry in this file, and check the operator in the running build before relying on it.
+
+### 5g. MIDI callback signatures — `midiinDAT_Class` and `midieventDAT_Class`
+*(Tier A — full page reads. ⚠️ Both class pages edited **2018-05-25**.)*
+
+**Both operators use the identical callback, same name and same 8 positional arguments:**
+
+```python
+def onReceiveMIDI(dat, rowIndex, message, channel, index, value, input, bytes):
+    return
+```
+
+| Argument | Documented meaning |
 |---|---|
-| MIDI In CHOP | Continuous values as channels — working input for a mapped surface |
-| MIDI In DAT | Raw message inspection — the ground-truth capture tool |
-| MIDI In Map CHOP | Mapper-based indirection |
-| MIDI Out CHOP | Feedback — motors, LED rings, button LEDs |
-| MIDI Event DAT | Event-driven handling in Python |
+| `dat` | The DAT that received the event |
+| `rowIndex` | The row number that was added |
+| `message` | A readable description of the event |
+| `channel` | Numeric event channel |
+| `index` | Numeric event index |
+| `value` | Numeric event value |
+| `input` | **True when the event was received** |
+| `bytes` | Byte array of the event |
 
-Detail, plus the bench-confirmed 8-argument MIDI In DAT callback, the 1-based index offset, and the
-raw-`send()`-bypasses-normalize finding, are in
-`creative-coding/references/touchdesigner-integration.md` and
-`behringer-xtouch-compact-resolume.md`. Not restated here.
+Documented example row: `Note On`, channel `1`, index `63`, value `127`, bytes `90 2f 127`.
+
+**Two things this settles, and one it doesn't:**
+
+- **Arity confirmed at 8.** That matches the bench observation from the X-Touch session exactly. What
+  we established empirically is now documented — though note the doc pages predate that test by
+  years, so this is confirmation, not a source we should have consulted instead.
+- **The last argument is named `bytes` in the docs**, where our own notes call it `byteData`. Args
+  are positional so nothing breaks, but the stored pattern should say which name is ours and which
+  is Derivative's.
+- **`input` is a direction flag, and it matters on MIDI Event DAT.** On MIDI In DAT everything is
+  inbound, so it is always true and effectively dead. On MIDI Event DAT — which sees both directions
+  (§5f) — it is how a callback tells an incoming control message from outgoing LED feedback, in
+  Python rather than via the `dir` parameter.
+
+Both classes report **no operator-specific members and no operator-specific methods** — everything
+else is inherited DAT Class and OP Class.
+
+---
+
+### 5f. MIDI Event DAT *(Tier A — full page read, page edited 2026-03-10)*
+
+Logs MIDI **coming into or out of** TouchDesigner, from **all** MIDI In/Out operators at once.
+Columns: message, type, channel, index, value. FIFO, line-limited.
+
+**Two properties make this the debug tool, not an input operator:**
+
+1. **It has no device selection.** The Connect page contains only `active`. It taps whatever the
+   existing MIDI operators are already doing.
+2. **⚠️ It logs nothing if no MIDI In or Out operator is active.** It is a monitor on other
+   operators' traffic, not an independent listener. If it looks dead, check that something else is
+   actually running.
+
+*Filter page* — same as MIDI In DAT (`skipsense`, `skiptiming`, `filter`, `message`, `channel`,
+`index`, `value`) **plus one it doesn't have:**
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Dir | `dir` | Filter by direction — **"input" or "output"** |
+
+**That is the operator to reach for on the X-Touch bridge.** It shows incoming control messages and
+outgoing LED/motor feedback in one table, with `dir` to separate them. Neither MIDI In DAT nor MIDI
+Out CHOP can show you the other half of the conversation.
+
+**The 1-based index conversion applies here too** — the page states it in the same terms as MIDI In
+DAT (§5d). Consistent across both DATs, so the −1 correction is not operator-specific.
+
+⚠️ **14-bit differs from MIDI In DAT.** This operator has no `value14` parameter, and the MIDI In DAT
+page states that MIDI Event DAT **outputs both MSB and LSB messages separately** rather than
+consolidating them. If a device sends 14-bit CC, the two DATs will show different row counts for the
+same physical move.
+
+*Received Messages page:* `callbacks`, `executeloc`, `fromop`, `clamp`, `maxlines`, `clear`, `bytes`.
+Info CHOP: `num_rows`, `num_cols`, common operator channels only.
 
 ---
 
@@ -615,6 +797,7 @@ what WebSocket DAT does **not** provide (see §10).
 
 - **Resolume MCP servers** — an AI-desktop-app integration, not a TD-facing protocol. No operator path.
 - **Pro DJ Link / StageLinQ** — no TD operator identified in the CHOP or DAT family lists; not researched further.
+- **Socket.IO** — ruled out for this rig, not pending research. Socket.IO is **not a WebSocket implementation**; per its own documentation a Socket.IO client cannot connect to a plain WebSocket server and vice versa. Resolume's API is a plain WebSocket server, so SocketIO DAT can never reach it. TD's Web Server DAT is likewise a plain HTTP/WebSocket server, so it cannot serve a browser running socket.io-client, and SocketIO DAT is client-only — both ends fail. It would apply only if some other service in the rig already ran a Socket.IO server. *(Its reconnect/heartbeat/buffering feature set is a good model for the hand-built supervision the §10 gap requires — worth copying the shape of, not the component.)*
 
 ---
 
@@ -803,17 +986,114 @@ indefinitely and be signalled to stop immediately or at end of cycle.
 
 This is the strongest candidate for the hub's reconnect backoff and for layer-switch replay timing.
 
-**Beat CHOP** — ramps, pulses and counters timed to BPM. Channels: `ramp`, `pulse`, `sine`,
-`count`, `countramp`, `bar`, `beat`, `sixteenths`, `rampbar`, `rampbeat`, and **`bpm`**. Note the
-channel set is nearly identical to Ableton Link CHOP's, minus Link's status channels and with `bpm`
-in place of `tempo` — so a hub can swap between local beat and network-synced Link with little
-rewiring. `$MASTER_BEAT` is set to whichever Beat CHOP has that option enabled.
+**Beat CHOP** *(Tier A — full page read, page edited 2024-11-06)* — ramps, pulses and counters timed
+to the BPM and sync set by the **Beat Dialog**, which is where you manually tap tempo. The CHOP keeps
+time after you stop tapping. Global tempo is settable from Python: `op('/local/time').tempo = 140`.
 
-**Speed CHOP** — integrates a rate into a cumulative value (speed → distance). Feed it a constant 1
-and the output rises by 1 per second; negative values decrease it; 0 holds. Resettable via the Reset
-parameter or by sending a channel >0 into the second input. Useful for time-since-last-event
-counters — e.g. seconds since the last `parameter_update`, which is the inferred-health signal §10
-calls for.
+*Output page — each toggle is one output channel:* `ramp` (0–1 per period) · `pulse` · `sine` ·
+`count` · `countramp` (continuously rising, equal to cycles since start) · `bar` · `beat` ·
+`sixteenths` · `rampbar` · `rampbeat` · **`bpm`**.
+
+The channel set is nearly identical to Ableton Link CHOP's, minus Link's status channels and with
+`bpm` in place of `tempo` — so a hub can swap between local beat and network-synced Link with little
+rewiring.
+
+*Beat page — the parameters that matter for a hub:*
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Reference Operator | `op` | Which Time COMP defines the timing. **Blank = the Beat CHOP's own location**, default `/local/time` |
+| Play Mode | `playmode` | `locked` (to local timeline — **resets when the timeline loops**) / `global` (follows the master Beat CHOP) / `local` (continuous, ignores timeline position) |
+| Period | `period` | Beats per ramp cycle. Fractional values allowed — 3.33 beats per ramp works |
+| Multiples | `multiples` | Number of channels to create |
+| Shift Offset / Shift Step | `shiftoffset` `shiftstep` | Stagger the channels — Step 1 with Multiples 5 puts each channel 1/5 cycle after the last |
+| Random Offset / Seed | `randoffset` `randseed` | Random time-shift per ramp |
+| Reset Condition | `resetcondition` | `offtoon` / `on` / `ontooff` / `off` |
+| Reset Bar Value | `resetbarvalue` | Which bar to jump to on reset; beat comes from the fractional part |
+| Wait after Reset | `resetwait` | With **While On**, holds at zero until the next bar starts |
+| Update Global | `updateglobal` | Makes this the master beat source |
+
+⚠️ **Three things to know before wiring this into a show:**
+
+1. **Play Mode `locked` resets when the local timeline loops.** For long improvised playing the docs
+   point at **Local Sequential** instead. A hub running for hours wants `local`.
+2. **`updateglobal` creates `/local/master_beat`** if it doesn't exist, and every other Beat CHOP set
+   to `Locked to Global` follows it. The docs say plainly: **exactly one master Beat CHOP per `.toe`.**
+   `$MASTER_BEAT` points at whichever one has the flag.
+3. **A "bar" is 4 beats** for this operator's purposes, and the "period" is whatever Period is set to —
+   the two are not the same unit.
+
+**Speed CHOP** *(Tier A — full page read, page edited 2025-10-28)* — integrates a rate into a
+cumulative value (speed → distance); mathematically the area under the input curve. Feed it a
+constant 1 and the output rises by 1 per second; negative values decrease it; 0 holds. Output is the
+sum of input samples divided by the CHOP's sample rate (typically 60), starting at the Start index.
+Time-sliced by default, so it accumulates every frame it cooks.
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Order | `order` | `first` / `second` / `third` — velocity→position, acceleration→position, etc. |
+| Speed | `speed` | Generates values with no input connected; **disabled as soon as an input is wired** |
+| First/Second/Third Constant | `constant1..3` | Added after each integration |
+| Limit Type | `limittype` | `off` / `clamp` / `loop` / `zigzag`, bounded by `min` and `max` |
+| Speed per Sample | `speedsamples` | Applies speed per sample rather than across the whole channel |
+| Reset Condition | `resetcondition` | `offtoon` / `on` / `ontooff` / `off` |
+| Reset Value | `resetvalue` | What the channel is set to on reset — **not necessarily 0** |
+| Reset / Reset Pulse | `reset` `resetpulse` | Manual reset |
+| Reset on Start | `resetonstart` | Reset every time the `.toe` restarts |
+
+Reset also works from the **second input**: while that input is greater than 0, the value is reset
+*and held* at the reset value.
+
+⚠️ **The one that matters for a long-running install:** the docs warn that if the accumulated value
+gets large enough, **the output starts stepping** as it hits the limit of CHOP numeric resolution.
+`resetonstart` exists specifically for projects that run a long time. A seconds-since-last-message
+counter that never resets will eventually go coarse — reset it on every message rather than letting
+it climb.
+
+Useful for time-since-last-event counters — e.g. seconds since the last `parameter_update`, which is
+the inferred-health signal §10 calls for.
+
+**Clock CHOP** *(Tier A — full page read, page edited 2026-01-21)* — wall-clock time as channels:
+year, month, week, day, hour, minute, second, millisecond, plus moon phase and sun position.
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Output | `output` | `units` (integers — hour 0–23) / `fractions` (0–1 ramps) / **`countdown`** |
+| Hour Format | `hourformat` | `12` or `24`; also affects the AM/PM channel |
+| Hour Adjust | `houradjust` | Offsets the clock — **pretends the time is different from actual** |
+| Start Reference | `startref` | `jan1` (since Jan 1 2000) or `program` (since the TD process started) |
+
+Channel toggles: `msec` `sec` `min` `hour` `ampm` `wday` `day` `yday` `week` `month` `year`.
+Solar page: `latitude` `longitude` (with N/S and E/W), `moonphase`, `sunphase`, `sunrise`, `sunset`,
+`declination`. Latitude defaults to Toronto.
+
+**Countdown mode is the show-relevant one.** First input carries channels named `year`, `month`,
+`day`, `hour`, `min`, `sec`, `msec` for the target; missing values default to midnight January 1 of
+the specified year; **year values are two-digit — 25 means 2025**. The second input is optional and
+fills missing values from the current time. That is a countdown-to-doors or countdown-to-showtime
+without any Python.
+
+⚠️ Watch the conventions, they are not uniform: `wday` starts at **0 for Monday**, `yday` starts at
+**0 for January 1**, but `month` starts at **1 for January**. And in Units mode `year` is relative
+to Start Reference — 2009 reads as 9 by default, not 2009.
+
+**Timeline CHOP** *(Tier A — full page read, page edited 2023-12-04)* — outputs the time state of a
+component's Time COMP as channels. With no Reference Operator set it uses the time at its own
+location (`me.time`).
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Reference Operator | `op` | Which node's time to read |
+| Use Timecode | `usetimecode` | **Take time from a timecode reference instead of the Reference Operator** |
+| Timecode Object/CHOP/DAT | `timecodeop` | A CHOP with `hour`/`minute`/`second`/`frame` channels, a DAT with a timecode string in its first cell, or a Timecode Class object |
+
+Channel toggles: `frame` `rate` `start` `end` `rangestart` `rangeend` `signature1` `signature2`
+`bpm` `play`.
+
+**`usetimecode` is the interesting one for a timecode-driven show:** it lets the Timeline CHOP be
+driven by incoming timecode while **still** taking bpm, time signature, start and end from the
+Reference Operator. So the tempo grid and the transport can come from different places. The `play`
+channel is a transport-state readout with no Python needed.
 
 ### Event detection
 
@@ -855,21 +1135,96 @@ For jittery inputs, Derivative's own OP Snippet "trigger after a time threshold"
 Count CHOP. ⚠️ To see the whole waveform, the page says to turn **off Time Slice** on the Common page
 and leave the input disconnected.
 
-**Count CHOP** — counts threshold crossings, in static or realtime ("Cook to Current Frame") mode.
-Default trigger value is 0: a count occurs when input goes from ≤0 to >0. Crossing the trigger level
-upward is a *trigger event*; crossing the release level downward is a *release event*. On each event
-the count can increment, decrement, add time, or reset to zero. Operations can also run while the
-input stays above or below a level.
+**Count CHOP** *(Tier A — full page read, page edited 2026-01-23)* — counts threshold crossings, in
+static or realtime ("Cook to Current Frame") mode. Default trigger value is 0: a count occurs when
+input goes from ≤0 to >0.
 
-**Event CHOP** — outputs **seven channels** describing events, each with a unique `id` (sequence
-number from 0) and `index` (the channel index of the incoming CHOP that caused it). First input is
-event triggers, second resets them, third optionally samples values per event. Designed for
-overlapping, individually-tracked events — worth considering if per-control state needs to survive
-concurrently rather than as one global value.
+*Trigger page:* `threshold` (release = trigger), `threshup`, `threshdown`, `retrigger` (+ unit),
+`triggeron` (`increase` / `decrease`).
 
-**Logic CHOP** — logic operations on samples. With one input, inverts values; can also reduce N
-channels to one via `or`/`and`/etc. With two or more inputs, combines channels across CHOPs,
-reducing N CHOPs to 1. For arithmetic between channels use the **Math CHOP** instead.
+*Count page — four independent operation menus,* one per input state. **This is the part worth
+knowing:** `offtoon`, `on` (while on), `ontooff`, and `off` (while off) each independently choose
+from `none` / `inc` / `dec` / **`inctime`** / **`dectime`** / `reset`. So one Count CHOP can, for
+example, increment on press and accumulate *time* while held.
+
+| Parameter | Name | Behaviour |
+|---|---|---|
+| Limit | `output` | `off` / `loop` / `min` (clamp) / `lc` (loop min, clamp max) / `cl` / `zigzag` |
+| Limit Minimum / Maximum | `limitmin` `limitmax` | Bounds for the above |
+| Reset Condition | `resetcondition` | `offtoon` / `on` / `ontooff` / `off` |
+| Reset Value | `resetvalue` | Value on reset |
+| Reset / Reset Pulse | `reset` `resetpulse` | ⚠️ **While `reset` is On the CHOP does not count** — it only resumes when Reset goes Off |
+
+**Three inputs, and the third is easy to miss:**
+
+- Input 0 — the channels to count
+- Input 1 — reset pulses. **Any non-zero value resets the count for *all* channels**
+- Input 2 — **Increment Value.** Feed it a channel of 5 and it counts by fives, or by 5 per second in
+  the time modes. Removes the need for a Math CHOP after the count
+
+`inctime` / `dectime` work in the CHOP's own time-per-sample — at 100 samples/second each sample is
+1/100 s. That, plus the loop/clamp limits, makes this a cleaner dwell-time counter than a Speed CHOP
+for anything that needs bounds.
+
+**Event CHOP** *(Tier A — full page read, ⚠️ page edited 2021-11-16)* — manages the birth and life of
+**overlapping** events; the docs describe it as a simple particle system designed for MIDI keyboards.
+One sample per off-to-on event, living until its ADSR completes, then disappearing like particle
+death. Documented as lightweight even with an 88-key keyboard and heavy playing.
+
+*Seven channels:*
+
+| Channel | Meaning |
+|---|---|
+| `id` | Sequence number, from 0, +1 per event. **Unique per event** |
+| `index` | Channel index of the incoming CHOP that caused it |
+| `active` | 1 while the input is greater than 0 |
+| `input` | **The input value at the moment of birth, preserved until the event ends** — velocity, typically |
+| `time` | Seconds since the event started |
+| `adsr` | Envelope value per the ADSR page |
+| `state` | 0→1 attack, 1→2 repeating through sustain, 2→3 release. Fractional, for indexing movies |
+
+*ADSR page:* `attacktime` `attacklevel` `decaytime` `sustaintime` `sustainmin` `sustainmax`
+`releasetime` `releaselevel`, each time with its own Samples/Frames/Seconds unit, plus `speed` and
+`globalspeed` to stretch or shorten an event's whole life.
+
+*Three inputs:* triggers, reset, and an optional third that **samples values per event**.
+`resetcondition` only becomes active when something is wired to the second input.
+
+**`callbacks` is the part the earlier snippet-sourced entry missed:** the Event CHOP takes a
+Callbacks DAT with **`onCreate()` and `onDestroy()` per event**. That makes it a per-event Python
+dispatch, not just a channel generator — the closest thing in the CHOP family to per-control state
+that survives concurrently.
+
+⚠️ The page contradicts itself on channel count: the summary says "up to 8 channels," the Channels
+page lists seven. Seven are named. And it hasn't been edited since 2021.
+
+**Logic CHOP** *(Tier A — full page read, ⚠️ page edited 2021-11-16)* — converts all input channels to
+binary (0/1) and then combines them. For arithmetic between channels use the **Math CHOP** instead.
+
+⚠️ **Derivative's own page says this operator is superseded** by the CHOP Execute DAT or a Text DAT,
+which run scripts when channel values change. Worth weighing before building logic trees out of it.
+
+| Parameter | Name | Options |
+|---|---|---|
+| Convert Input | `convert` | `nonzero` (off when zero) / `pos` (off when ≤0) / `bound` (off outside Bounds) / **`valchange`** (on when the value changed) / `namechange` (on when the channel name changed) |
+| Channel Pre OP | `preop` | `off` / `invert` / **`toggle`** / **`radio`** / `radio2` / **`rise`** / `fall` |
+| Combine Channels | `chanop` | `off` / `and` / `or` / `xor` / `nand` / `nor` / `eqv` / `lowest` / `highest` |
+| Combine CHOPs | `chopop` | Same set, applied across inputs rather than within one |
+| Match by | `match` | `index` or `name` |
+| Align | `align` | Nine options for inputs that don't start on the same frame |
+| Bounds | `bound` | `boundmin` / `boundmax`, used by `bound` convert mode |
+
+**The Pre OP menu is the useful part for a control surface:**
+
+- **`toggle`** — each 0→1 transition flips a held state. Latching buttons without Python
+- **`radio`** — only one channel on at a time; turning one on turns the previous one off. That is
+  exclusive layer or bank selection, done in a CHOP
+- **`radio2`** ("Last Two On") — keeps up to two on; the docs suggest following it with a Lag CHOP to
+  blend between pairs
+- **`rise`** / **`fall`** — on for exactly one sample at each edge. Edge detection without a Trigger CHOP
+
+`lowest` / `highest` return the index of the lowest or highest channel that is on, **or −1 when none
+are** — a ready-made "which button is selected" readout.
 
 ### Multi-machine
 
@@ -909,7 +1264,18 @@ between two TouchDesigner machines.
 - Whether `total_bumped` on OSC In CHOP counts dropped messages or dropped samples. The page names the channel but does not define it; "Incoming samples will be dropped if the maximum queue is reached" is the nearest statement.
 - Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. It is grouped with `communicating` and `download_progress`, which suggests per-request, but the page does not say. **This matters before treating the REST leg as a health signal** — see §10.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
-- Count CHOP, Logic CHOP, Event CHOP, Beat CHOP, Speed CHOP, Sync In/Out CHOP, Touch Out CHOP, SocketIO DAT, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+- Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the fourth pass (2026-08-01) — supporting pages referenced by operators already read, none of them consulted:*
+
+- **`Peer Class`** — linked from OSC In DAT. Presumably how a callback identifies the *sender* of a message. Relevant to any hub taking OSC from more than one source; unread.
+- **`Network Protocols`** — linked from all four OSC operators. Defines what Messaging / Multi-Cast / Reliable (UDT) actually guarantee, and what **Shared Connection** does when several DATs share a port. §4 states the menu options without the semantics behind them.
+- **`Pattern Matching`** — the syntax for every `addscope` / `oscaddressscope` / `scope` / `sliders` / `buttons` parameter in this file. Used throughout, never read.
+- **`MIDI Device Mapper Dialog`** — MIDI In Map CHOP (§5e) is only meaningful in terms of this dialog, and MIDI In DAT points at it as the simpler setup path. Unread.
+- **`Beat Dialog`** — Beat CHOP (§11) gets its BPM and sync from it. Unread.
+- **`Timecode` page / `Timecode Class`** — referenced by Info CHOP's Timecode info type, Timeline CHOP's `timecodeop`, and MIDI Out CHOP's MTC output. Unread.
+- **Common-page parameters were deliberately omitted** from every entry in this file (Time Slice, Scope, Sample Rate Match, Export Method, Rename). They are near-identical across the CHOP family. This is an editorial choice, not a gap — but it means "complete parameter list" in the Tier A definition excludes them.
+- **`Experimental:` namespace pages exist for some operators** (an Experimental Timer CHOP page was seen in search results). Whether they carry newer information than the main pages is unknown; none were checked.
 
 
 ---
