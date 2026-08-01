@@ -73,18 +73,16 @@ full page read" in this file has meant *the operator page only*. That is now sta
 assumed.
 
 **Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
-`midioutCHOP_Class` · `timerCHOP_Class` (both edited 2024-08-15)
+`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
 | Class page | Why it likely matters |
 |---|---|
-| `webclientDAT_Class` | The request method — how §2 is actually driven from Python |
+| `webclientDAT_Class` | The request method — how §2 is actually driven from Python. **Next in value order** |
 | `webserverDAT_Class` | `authenticateBasic`, and whatever sends to a connected WebSocket client |
-| `oscinDAT_Class` | Receive callback signature |
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
 | `midiinCHOP_Class` | Unverified; expected thin |
-| `oscoutDAT_Class` | Full `sendOSC()` signature. **Next in value order** |
 | `abletonlinkCHOP_Class` | Unverified |
 | `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
 
@@ -372,6 +370,52 @@ Info CHOP: **`messages_pending`**.
 `splitmessage` is worth knowing about — with it on, dispatch can read a column instead of parsing a
 string.
 
+#### `oscinDAT_Class` *(Tier A — full page read, page edited 2024-11-07)*
+
+**⚠️ Confirmed: the OSC *In* DAT can also send.** The lead from the previous pass is right. This class
+carries **exactly the same `sendOSC()`, `sendBytes()` and `send()` methods as `oscoutDAT_Class`** —
+same signatures, same defaults, same type-conversion rules (see §4b; not repeated here).
+
+**One operator can therefore serve a full bidirectional OSC leg** — receive on its port, reply from
+the same socket, no separate OSC Out DAT. Whether replies go back to the sender's address or to
+something configured is not stated on this page; the `peer` object below is the obvious route.
+
+**Callback — 8 positional arguments:**
+
+```python
+def onReceiveOSC(dat, rowIndex, message, bytes, timeStamp, address, args, peer):
+    return
+```
+
+| Argument | Documented meaning |
+|---|---|
+| `message` | **ASCII representation only.** ⚠️ **Unprintable and unicode characters are not preserved** — the docs say to use `bytes` for the raw data |
+| `bytes` | Byte array of the message |
+| `timeStamp` | The arrival time component of the OSC message |
+| `address` | The address component, **already split out** |
+| `args` | The values, **already a list** |
+| `peer` | A Peer object describing the sender |
+
+**`address` and `args` arrive pre-split**, so a Python dispatcher never has to parse the message
+string — the `splitmessage` parameter above is the table-side equivalent of the same thing.
+
+**⚠️ The `message` argument is lossy.** Anything non-ASCII in an incoming address or string argument
+will not survive into `message`. For a hub that might see unicode clip names coming back, `bytes` is
+the trustworthy field.
+
+**The `peer` object** — this is the `Peer Class` the open items list flagged as unread, documented
+inline here:
+
+| Member | Meaning |
+|---|---|
+| `peer.address` | Network address associated with the peer |
+| `peer.port` | Network port associated with the peer |
+| `peer.owner` | The operator the peer belongs to |
+| `peer.close()` | Closes the connection |
+
+That answers "how does a callback identify the sender" — the sender's address and port arrive with
+every message. Multi-source OSC routing is possible without any extra plumbing.
+
 ### 4b. OSC Out DAT *(⚠️ page edited 2022-05-21 — oldest page in this section)*
 
 Sending is done from Python, not from parameters: **`.sendOSC()`** on `oscoutDAT_Class`. It accepts a
@@ -385,6 +429,54 @@ Parameters mirror OSC In DAT — `active`, `protocol` (UDP / multicast / **UDT r
 
 ⚠️ The page still labels its second parameter page "Received Messages" on an *output* operator, and
 it has not been edited in four years. Treat parameter names here as the least current in the file.
+
+#### `oscoutDAT_Class` — the actual send API *(Tier A — full page read, page edited 2024-11-07)*
+
+**No operator-specific members.** Three send methods, all returning **the number of bytes sent**:
+
+```python
+sendOSC(address, *values, asBundle=False, useNonStandardTypes=True, use64BitPrecision=False) -> int
+sendBytes(*messages) -> int          # raw bytes, no terminators, not OSC formatted
+send(*messages, terminator='') -> int # strings, not OSC formatted
+```
+
+**⚠️ `useNonStandardTypes` defaults to True, and that is an interop hazard.** With the default, TD
+sends Python types as *non-standard OSC types*: `True`/`False` become OSC **boolean T/F types**, and
+`None` becomes the **OSC nil type** — not integers. A receiver expecting plain OSC 1.0 int 1/0 will
+not see what you think you sent. **Pass `useNonStandardTypes=False` for a strict receiver.**
+
+Documented conversion, which is worth having in full because nothing else states it:
+
+| Python value | `useNonStandardTypes=True` (default) | `useNonStandardTypes=False` |
+|---|---|---|
+| int | 32- or 64-bit, **by magnitude** | 32-bit, or **an exception if too large** |
+| float | 32-bit (64-bit only if `use64BitPrecision`) | 32-bit |
+| `float("infinity")` | OSC **Infinitum** type | 32-bit float |
+| `True` / `False` | OSC **boolean T / F** | 32-bit int 1 / 0 |
+| `None` | OSC **nil** | 32-bit int 0 |
+| str | OSC string | OSC string |
+| bytes / bytearray | OSC blob | OSC blob |
+
+- **`use64BitPrecision=True` requires `useNonStandardTypes=True` as well** — stated on this page.
+- Both keywords are marked **available in 099.2018.21730 or later**.
+- ⚠️ **Blob trap, documented:** a bytes/bytearray object **must be inside a list**. Passed directly to
+  `sendOSC` it is treated as a list of individual integer values and does not go out as a blob.
+
+Documented call shape, showing mixed types in one message:
+
+```python
+vals = [1, b'abc', 'apple', [6,7,8], True, None, float("infinity")]
+n.sendOSC('/abc', vals)
+```
+
+⚠️ **`send()`'s terminator behaviour reads ambiguously.** The signature shows `terminator=''`, while
+the description says a null character is appended automatically "if no append terminator is
+specified" and that `terminator=''` means send no terminator. Those two readings of the default
+conflict. Pass it explicitly.
+
+*(A search snippet suggests `oscinDAT_Class` carries the same `sendOSC` / `send` methods — i.e. the
+OSC **In** DAT can also transmit on its socket. `[Lead]` — not confirmed, that class page is still
+unread. If true it matters: one operator could serve a bidirectional OSC leg.)*
 
 ### 4c. OSC In CHOP *(⚠️ page edited 2022-07-19, and internally inconsistent)*
 
@@ -1396,6 +1488,13 @@ between two TouchDesigner machines.
 - Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. It is grouped with `communicating` and `download_progress`, which suggests per-request, but the page does not say. **This matters before treating the REST leg as a health signal** — see §10.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the seventh pass (2026-08-01):*
+
+- ⚠️ **What `useNonStandardTypes` should be set to for each OSC receiver in the rig.** It defaults True, which sends booleans and None as OSC T/F/nil rather than ints (§4b). Resolume's tolerance for this is not established — worth a bench check on any OSC leg that sends booleans.
+- Whether `send()`'s `terminator` default appends a null or nothing — the page states both (§4b).
+- ~~Whether `oscinDAT_Class` really exposes `sendOSC`~~ — **resolved on the eighth pass: it does.** OSC In DAT is bidirectional (§4a). Still open: whether its replies go to the originating peer automatically or need `peer.address` / `peer.port` supplied explicitly.
+- ⚠️ **`Peer Class` is now partly covered** — its four members are documented inline on `oscinDAT_Class` (§4a). The standalone page is still unread, so anything beyond `address`, `port`, `owner` and `close()` is unknown.
 
 *Added on the sixth pass (2026-08-01):*
 
