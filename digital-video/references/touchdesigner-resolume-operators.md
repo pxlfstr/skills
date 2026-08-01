@@ -72,7 +72,8 @@ signatures**. Through passes one to three these were **not read and not tracked*
 full page read" in this file has meant *the operator page only*. That is now stated rather than
 assumed.
 
-**Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class`
+**Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
+`midioutCHOP_Class` (page edited 2024-08-15 — the only class page here that is not from 2018)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
@@ -83,8 +84,8 @@ assumed.
 | `oscoutDAT_Class` | Full `sendOSC()` signature; §4b only has the `asBundle` kwarg |
 | `oscinDAT_Class` | Receive callback signature |
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
-| `midiinCHOP_Class` / `midioutCHOP_Class` | **`midioutCHOP_Class` is the documented way to send arbitrary MIDI from Python** — the LED/motor feedback path. Highest-value unread class page in this file |
-| `timerCHOP_Class` | `goTo()`, pause, start — the state-machine control surface for §11's Timer |
+| `midiinCHOP_Class` | Unverified; expected thin |
+| `timerCHOP_Class` | `goTo()`, pause, start — the state-machine control surface for §11's Timer. **Next in value order** |
 | `abletonlinkCHOP_Class` | Unverified |
 | `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
 
@@ -624,6 +625,82 @@ one more layer of indirection.
 the page needs updating from the release notes, still present on a page last edited 2023-11-02. The
 `squeue` parameter has no description at all. Treat the parameter list here as the least trustworthy
 Tier A entry in this file, and check the operator in the running build before relying on it.
+
+### 5h. `midioutCHOP_Class` — sending MIDI from Python
+*(Tier A — full page read, page edited 2024-08-15. The most current class page in this file.)*
+
+The documented way to send arbitrary MIDI to a device: call methods on an existing MIDI Out CHOP.
+**No operator-specific members**; a large method set.
+
+**The header line on the Methods section matters:** the event-generation methods **do not require any
+CHOP inputs connected** to the MIDI Out CHOP. The node can exist purely as a Python send handle with
+nothing wired into it.
+
+#### The three that matter for a control surface
+
+| Method | Signature | Notes |
+|---|---|---|
+| `sendNoteOn` | `(channel, index, value)` | channel 1–16. **index 0–127 *or* 1–128 depending on the One Based Index parameter.** `value` optional — **maximum when omitted** |
+| `sendNoteOff` | `(channel, index, value)` | Same, but `value` is **minimum when omitted** |
+| `sendControl` | `(channel, index, value)` | channel 1–16. index 0–127 or 1–128 per One Based Index. **`value` range set by the CHOP's Controller Normalize *and* Controller Format parameters** |
+
+#### ⚠️ This narrows a stored bench finding — read before reusing it
+
+Our note from the X-Touch session says raw `send()` **bypasses all normalize and index parameters
+entirely.** The documentation supports that for `send()` specifically, and **contradicts it for the
+named send methods**:
+
+- **`send(*messages)`** takes raw bytes — nothing to normalize, nothing to index. Bypass is expected.
+- **`sendNoteOn` / `sendNoteOff` / `sendControl` / `sendPolyKeyPressure` / `sendChannelPressure` /
+  `sendProgram`** are each documented as honouring **One Based Index**, **Note Normalize**,
+  **Controller Normalize** or **Controller Format**.
+
+So the finding is correct *as scoped to `send()`* and over-general as written. **Which method the
+bench test actually used decides whether this is a scoping fix or a real conflict between our
+observation and the docs — that is not recorded, and it should be re-tested before the pattern is
+reused.** Flagging rather than resolving: the docs are Verified, our observation is Bench-verified,
+and they are not talking about the same call unless the test used a named method.
+
+#### ⚠️ There is a One Based Index parameter — the offset may be configurable
+
+MIDI In DAT and MIDI Event DAT both **always** convert to 1-based (§5d, §5f) — no parameter. MIDI Out
+CHOP has a **One Based Index parameter** that switches its send methods between 0–127 and 1–128.
+
+That means the in/out offset asymmetry behind our −1 correction is **a setting on the output side,
+not a fixed law of the operator pair**. Worth checking what it is set to on the rig before assuming
+the correction is needed. *(A forum post reports MIDI In as 1-based and MIDI Out as 0-based —
+`[Forum]`, unverified, but consistent with the parameter defaulting off.)*
+
+**A documented example shows the offset directly:** the page gives
+`n.send(0xb0, 0x2f, 0x40)` and comments it as *Control Change : Channel 1, Index 48, Value 64*.
+`0x2f` is 47 and `0x40` is 64 — so the value passes through raw while **the index is described one
+higher than the byte on the wire**. That is the ±1 relationship, stated by Derivative, in an example.
+
+#### Other methods worth knowing
+
+- **`panic()`** — sends a volume-off for every channel and a note-off for every note. The show-shutdown
+  and all-LEDs-dark call, already built.
+- **`sendExclusive(*messages)`** — SysEx. **Start and end bytes are added automatically.** Accepts any
+  mix of strings, byte arrays and single-byte numeric values.
+- **`sendPitchBend(channel, value)`** — value range **0 to 16384**, i.e. the full 14-bit range, unlike
+  everything else here.
+- **`sendTimecode(timecode)`** — full MTC message. Requires a `tdu.Timecode` object, and the **rate must
+  be 24, 25, 29.97 drop-frame, or 30**. Nothing else is accepted.
+- **`sendAllNotesOff`**, **`sendResetAllControllers`**, **`sendLocalControl`** — the MIDI housekeeping
+  messages, each `(channel, value)`.
+- Indexed controller families: `sendEffectsDepth` (index 1–5), `sendSoundController` (1–10),
+  `sendGeneralPurposeController` (1–8), `sendEffectControl` (1–2).
+- The rest are one-per-CC-function conveniences — `sendModulationWheel`, `sendMainVolume`, `sendPan`,
+  `sendBalance`, `sendBankSelect`, `sendBreathController`, `sendFootController`, `sendPortamento` and
+  `sendPortamentoTime` and `sendPortamentoControl`, `sendDamperPedal`, `sendSoftPedal`, `sendSostenuto`,
+  `sendHold2`, `sendLegatoFootswitch`, `sendDataIncrement` / `sendDataDecrement`, `sendMonoOn` /
+  `sendPolyOn`, `sendOmniOn` / `sendOmniOff` — all `(channel, value)` in 0–127 unless indexed above.
+
+⚠️ Two apparent doc slips on this page: `sendEffectControl` is described as "Sends a Main Volume
+event," and `sendLegatoFootswitch`'s example passes `07`. Neither is load-bearing, but they suggest
+the page was assembled by template.
+
+---
 
 ### 5g. MIDI callback signatures — `midiinDAT_Class` and `midieventDAT_Class`
 *(Tier A — full page reads. ⚠️ Both class pages edited **2018-05-25**.)*
@@ -1265,6 +1342,12 @@ between two TouchDesigner machines.
 - Whether Web Client DAT's `connected` channel tracks a persistent connection or only the in-flight request. It is grouped with `communicating` and `download_progress`, which suggests per-request, but the page does not say. **This matters before treating the REST leg as a health signal** — see §10.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the fifth pass (2026-08-01):*
+
+- ⚠️ **Which MIDI Out send method the X-Touch bench test used is not recorded.** The stored "raw `send()` bypasses normalize and index" pattern is correct for `send()` and contradicted by the docs for the named send methods (§5h). Re-test before reuse.
+- **What One Based Index is set to on the rig.** It decides whether the −1 correction is needed on the output side at all (§5h).
+- Whether MIDI Out CHOP's **Controller Format** parameter (referenced by `sendControl`) is the 7-bit/14-bit switch. The MIDI Out CHOP page was read in pass one but this parameter is not captured in §5b.
 
 *Added on the fourth pass (2026-08-01) — supporting pages referenced by operators already read, none of them consulted:*
 
