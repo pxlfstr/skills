@@ -73,14 +73,15 @@ full page read" in this file has meant *the operator page only*. That is now sta
 assumed.
 
 **Class pages read:** `websocketDAT_Class` (pass 1) · `midiinDAT_Class` · `midieventDAT_Class` ·
-`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07) · `webclientDAT_Class` (⚠️ 2022-05-23) · `webserverDAT_Class` (⚠️ 2021-01-20)
+`midioutCHOP_Class` · `timerCHOP_Class` (both 2024-08-15) · `oscoutDAT_Class` · `oscinDAT_Class` (both 2024-11-07) · `webclientDAT_Class` (⚠️ 2022-05-23) · `webserverDAT_Class` (⚠️ 2021-01-20) ·
+`midiinCHOP_Class` (2023-12-19 — **read on both `docs` and the mirror; they match verbatim**, see §5i) ·
+`midiinmapCHOP_Class` (⚠️ 2018-05-25 — empty, see §5j)
 
 **Class pages NOT read, for operators that are otherwise Tier A:**
 
 | Class page | Why it likely matters |
 |---|---|
 | `oscinCHOP_Class` / `oscoutCHOP_Class` | Likely thin, unverified |
-| `midiinCHOP_Class` · `midiinmapCHOP_Class` | Unverified; expected thin. **Next in value order** — both were requested on the ninth pass and did not fit |
 | `abletonlinkCHOP_Class` | Unverified |
 | `abletonlinkCHOP_Class` · `infoCHOP_Class` · `performCHOP_Class` · `triggerCHOP_Class` · `countCHOP_Class` · `eventCHOP_Class` · `logicCHOP_Class` · `speedCHOP_Class` · `beatCHOP_Class` · `clockCHOP_Class` · `timelineCHOP_Class` · `midiinmapCHOP_Class` | Most CHOP classes report no operator-specific members or methods; expected to be thin, **but that is an expectation, not a check** |
 
@@ -91,8 +92,7 @@ accordingly.
 Some Tier B snippets came from the `derivative.ca/UserGuide/` mirror rather than
 `docs.derivative.ca`. Content appears to match, but that is an assumption, not a check.
 
-*(Tier C has been folded into Tier B. Socket.IO / SocketIO_DAT has been removed from the tracking
-list entirely — see §8 for why it is out of scope rather than pending.)*
+*(Tier C has been folded into Tier B.)*
 
 **Every Tier B section below is marked inline.** Tier A sections are unmarked.
 
@@ -187,10 +187,9 @@ building on them** — the no-false-numbers rule applies with force here.
 ### Findings that matter for hub design
 
 **No reconnect parameter exists on this operator.** The Connect page has Active, Network Address,
-Network Port, Connection Timeout — and nothing else. By contrast the **SocketIO DAT** *does* expose
-`reset` (disconnect then reconnect) and `delay` (Reconnect Delay in ms). The absence on WebSocket DAT
-is from reading the full parameter list, but "no documented parameter" is not the same as "no
-reconnect behaviour" — the operator may reconnect internally without exposing it. **Untested.**
+Network Port, Connection Timeout — and nothing else. That absence is from reading the full parameter
+list, but "no documented parameter" is not the same as "no reconnect behaviour" — the operator may
+reconnect internally without exposing it. **Untested.**
 
 Practical consequence either way: **reconnect logic has to be built, not assumed.** The available
 hooks are `onDisconnect`, `onMonitorMessage`, and toggling `par.active` off/on. Given the
@@ -205,10 +204,6 @@ checks.
 **FIFO table is a debugging aid, not a data path.** With Resolume's `parameter_update` pushing on
 every subscribed change, the table will churn constantly. Drive logic from `onReceiveText`; keep
 `maxlines` low or use Clear Output to stop the table becoming a performance drag.
-
-**SocketIO DAT is the wrong operator here** — Resolume speaks plain WebSocket, not socket.io.
-
----
 
 ## 2. Web Client DAT — REST
 
@@ -705,7 +700,9 @@ it's a design constraint, not a bug to chase. Mitigations are `Reset Channels` /
 - Timer page captures beat pulses, ramps, period, start, ticks-per-beat, bar ramp/period/start/message, song position.
 - Info CHOP channels are the common CHOP and operator sets only — **no MIDI-specific info channels.**
 
-### 5b. MIDI Out CHOP *(Tier A — full page read, page edited 2026-03-10)*
+### 5b. MIDI Out CHOP
+*(Tier A — full page read. **Re-verified from `docs.derivative.ca` 2026-08-01**, page last edited
+2026-03-10, oldid 37548. Everything below matched the earlier read; the additions are marked.)*
 
 Sends MIDI events **when its input channels change**, evaluated over the last time slice. The
 Python `midioutCHOP Class` can send any event type through an existing MIDI Out CHOP without CHOP
@@ -730,12 +727,27 @@ feedback leg *does* expose a supervision signal, while the WebSocket leg exposes
 
 **Time Slice mode works for note and controller events — but NOT for Program Change or Sysex.**
 
-**14-bit output has a different constraint from 14-bit input:** controller indices must be in
-**0–31**, because **32–63 is reserved for the paired messages and is not user-accessible** in this
-mode. Range **64–95 is always sent as a single 7-bit message.**
+**14-bit output has a different constraint from 14-bit input.** The switch is **`controlformat`**
+(Control page): `7bit` sends a single 7-bit controller message, `14bit` pairs two 7-bit messages.
+In 14-bit mode controller indices must be in **0–31**, because **32–63 is reserved for the paired
+messages and is not user-accessible**. Range **64–95 is always sent as a single 7-bit message.**
+
+**Two Normalize parameters, on different pages, with different option sets** — this matters because
+`midioutCHOP_Class` (§5h) cites them by different names:
+
+| Page | Parameter | Options |
+|---|---|---|
+| Note | `notenorm` | None / 0 to 1 |
+| Control | `controlnorm` | None / 0 to 1 / −1 to 1 / On-Off |
+
+⚠️ **Doc slip on this page:** `volumeoff` and `volumeon` are both described as sending "All Notes
+Off" / "All Notes On" messages, while the summary says these flags emit **Controller 7** events on
+all 16 channels. The parameter descriptions and the summary disagree. Controller 7 is volume, so the
+summary is the plausible one — **unresolved, don't rely on either wording.**
 
 **Other parameters:** `active`; `destination` (Device or File, MIDI Mapper is the default);
-`device` / `id`; `onebased`; `file` / `writefile` (capture a MIDI stream to a file);
+`device` / `id`; **`onebased` — "make the index 1 based instead of the default 0 based"**;
+`file` / `writefile` (capture a MIDI stream to a file);
 `autonoteoff` (All Note Off at playback start, end, both, or none); `reset` (All Notes Off to all
 channels); `volumeoff` / `volumeon` (emit Controller 7 events on all 16 channels); `startstop`
 (send Start/Stop/Continue when the framebar starts or stops); **`sendmtc` — sends MIDI Timecode as
@@ -826,6 +838,79 @@ the page needs updating from the release notes, still present on a page last edi
 `squeue` parameter has no description at all. Treat the parameter list here as the least trustworthy
 Tier A entry in this file, and check the operator in the running build before relying on it.
 
+### 5j. `midiinmapCHOP_Class` — empty
+*(Tier A — full page read from `docs.derivative.ca`, page last edited **2018-05-25**, oldid 11415.)*
+
+**No operator-specific members. No operator-specific methods. No callbacks.** Everything is inherited
+CHOP Class and OP Class.
+
+MIDI In Map CHOP has no Python surface of its own. All of its behaviour is in its parameters (§5e)
+and in the MIDI Device Mapper dialog.
+
+---
+
+### 5i. `midiinCHOP_Class` — thin, but with one member that matters
+*(Full page read from **`docs.derivative.ca`**, page last edited **2023-12-19**, oldid 30581.
+Also read independently on the `derivative.ca/UserGuide/` mirror.)*
+
+**✅ Docs and mirror agree, verbatim.** This entry was first written from the mirror because
+`docs.derivative.ca/MidiinCHOP_Class` could not be fetched — the tool only accepts URLs surfaced by a
+prior search or fetch, and two targeted searches failed to surface it. The user supplied the URL
+directly, which made it fetchable. Both versions give the same single member, the same wording, the
+same "no operator specific methods."
+
+⚠️ **Two earlier notes in this file were wrong and are retracted:**
+
+1. "The docs URL was not reachable this pass" — **inaccurate.** It was never attempted on the first
+   try, and on the second it was *refused for lack of provenance*, which is not the same as
+   unreachable. It is reachable.
+2. The entry was marked "Tier A with an asterisk" pending a docs re-read. **The asterisk is now
+   removed** — this is plain Tier A.
+
+**This is the first direct docs-vs-mirror comparison in this file.** One page, matching. That is a
+single data point, not a general clearance: the standing note in the provenance block — that mirror
+content *appears* to match but that this is an assumption — still stands for every other
+mirror-sourced item.
+
+**Independently corroborated as well.** The **Release Notes for build 2023.10000 (experimental)** list
+the member in the same terms — *"MidiinCHOP Class.timecode — a new getter that grabs the timecode
+representation of the last set of quarter frame messages"* — added alongside
+`AudiofileinCHOP Class.timecode`.
+
+**Useful side effect: this dates the member.** It arrived in **2023.10000**, so it is comfortably
+present in the target build — but it does not exist in anything older, which matters if this file is
+ever consulted against an older install.
+
+**No operator-specific methods.** Exactly **one** operator-specific member — and it is not nothing:
+
+```python
+timecode -> tdu.Timecode   # Read Only
+```
+
+*"Get a Timecode object representation of the last set of quarter frame messages."*
+
+**MIDI In CHOP receives MTC.** Quarter-frame messages are how MIDI Timecode is carried, and the CHOP
+assembles them into a `tdu.Timecode` object with no parsing on your side. That closes the loop with
+**MIDI Out CHOP's `sendTimecode()`** (§5h) — TD can both send and receive MTC, and both ends use the
+same Timecode Class object.
+
+**⚠️ INFERRED — not documented. The send side is verified; the Timer side is not.** MIDI Out CHOP has a `sendmtc`
+parameter — *"sends MIDI Timecode (MTC) as a stream of quarter frame messages"* — and a `timecodeop`
+parameter documented as accepting **"a CHOP with channels 'hour', 'second', 'minute', 'frame', a DAT
+with a timecode string in its first cell, or a Timecode Class object."** So MIDI Out explicitly takes
+a Timecode object, and MIDI In explicitly produces one. That round trip is documented at both ends.
+
+**⚠️ INFERRED, NOT DOCUMENTED, NOT TESTED:** that MIDI In's `.timecode` can drive a **Timer CHOP's
+External Timecode** mode. §11 records that mode as accepting a "timecode CHOP/DAT/Object", but the
+Timer's parameter name and its exact accepted types were never captured from the Timer's own page.
+The shapes match and `timecodeop` is worded identically on Timeline CHOP and MIDI Out CHOP, which
+suggests a shared convention — **that is a pattern, not a citation. Do not build on it without
+testing.**
+
+Everything else on the class is inherited CHOP Class and OP Class.
+
+---
+
 ### 5h. `midioutCHOP_Class` — sending MIDI from Python
 *(Tier A — full page read, page edited 2024-08-15. The most current class page in this file.)*
 
@@ -861,15 +946,27 @@ observation and the docs — that is not recorded, and it should be re-tested be
 reused.** Flagging rather than resolving: the docs are Verified, our observation is Bench-verified,
 and they are not talking about the same call unless the test used a named method.
 
-#### ⚠️ There is a One Based Index parameter — the offset may be configurable
+#### One Based Index — verified, and it defaults to 0-based
 
-MIDI In DAT and MIDI Event DAT both **always** convert to 1-based (§5d, §5f) — no parameter. MIDI Out
-CHOP has a **One Based Index parameter** that switches its send methods between 0–127 and 1–128.
+*(These parameters were first cited here second-hand, from `midioutCHOP_Class` merely referring to
+them. **Both are now confirmed against the MIDI Out CHOP operator page itself**, oldid 37548, read
+2026-08-01 — see §5b.)*
 
-That means the in/out offset asymmetry behind our −1 correction is **a setting on the output side,
-not a fixed law of the operator pair**. Worth checking what it is set to on the rig before assuming
-the correction is needed. *(A forum post reports MIDI In as 1-based and MIDI Out as 0-based —
-`[Forum]`, unverified, but consistent with the parameter defaulting off.)*
+| Parameter | Page | Verified wording |
+|---|---|---|
+| `onebased` | Dest | *"Make the index 1 based instead of the **default 0 based**."* |
+| `controlformat` | Control | `7bit` / `14bit` — it **is** the 7/14-bit switch |
+| `notenorm` | Note | None / 0 to 1 |
+| `controlnorm` | Control | None / 0 to 1 / −1 to 1 / On-Off |
+
+**The asymmetry is real and now fully documented at both ends:**
+
+- MIDI In DAT and MIDI Event DAT **always** convert to 1-based, with no parameter (§5d, §5f).
+- MIDI Out CHOP is **0-based by default**, with `onebased` available to switch it.
+
+So the in/out offset is not a fixed law of the operator pair — it is one setting on the output side.
+**Check what `onebased` is set to on the rig before assuming the −1 correction is needed.** The forum
+report of "MIDI In 1-based, MIDI Out 0-based" `[Forum]` matches the documented default exactly.
 
 **A documented example shows the offset directly:** the page gives
 `n.send(0xb0, 0x2f, 0x40)` and comments it as *Control Change : Channel 1, Index 48, Value 64*.
@@ -1074,7 +1171,6 @@ what WebSocket DAT does **not** provide (see §10).
 
 - **Resolume MCP servers** — an AI-desktop-app integration, not a TD-facing protocol. No operator path.
 - **Pro DJ Link / StageLinQ** — no TD operator identified in the CHOP or DAT family lists; not researched further.
-- **Socket.IO** — ruled out for this rig, not pending research. Socket.IO is **not a WebSocket implementation**; per its own documentation a Socket.IO client cannot connect to a plain WebSocket server and vice versa. Resolume's API is a plain WebSocket server, so SocketIO DAT can never reach it. TD's Web Server DAT is likewise a plain HTTP/WebSocket server, so it cannot serve a browser running socket.io-client, and SocketIO DAT is client-only — both ends fail. It would apply only if some other service in the rig already ran a Socket.IO server. *(Its reconnect/heartbeat/buffering feature set is a good model for the hand-built supervision the §10 gap requires — worth copying the shape of, not the component.)*
 
 ---
 
@@ -1598,6 +1694,15 @@ between two TouchDesigner machines.
 - ⚠️ **Whether `onResponse` actually receives a request id.** `webclientDAT_Class` says `request()` returns an id corresponding to "the id passed to onResponse callbacks", but the documented `onResponse` signature has no id argument (§2). Without one, concurrent REST calls cannot be correlated to their responses. Check the running build.
 - Whether the Error DAT (§12) can catch WebSocket DAT disconnects, which would close the §10 gap without inference. Still unread.
 - Sync In/Out CHOP, Touch Out CHOP, the DMX pair and the timecode group remain Tier B — snippet-sourced, parameter lists incomplete.
+
+*Added on the eleventh pass (2026-08-01):*
+
+- Whether a MIDI In CHOP's `.timecode` member can drive a Timer CHOP's **External Timecode** mode directly (§5i). The Timer's `timecodeop` accepts a Timecode Class object and this produces one, so it should — inference, untested.
+- ~~`midiinCHOP_Class` was mirror-sourced~~ — **resolved.** Read from `docs.derivative.ca` (2023-12-19, oldid 30581) after the URL was supplied directly. **Docs and mirror match verbatim** — the first direct comparison of the two in this file. One matching page is not a general clearance for the mirror; the standing assumption in the provenance block stands for everything else.
+- **Fetch-tool constraint worth recording for future passes:** URLs can only be fetched if they appeared in a prior search result, a prior fetch, or were supplied by the user. A `docs.derivative.ca` page that no search surfaces is not unreachable — it just needs the URL pasted in. Do not record such cases as "unreachable."
+- Re-check whether other `docs` pages differ from their mirror counterparts. Only one pair has been compared.
+- **`docs.derivative.ca/Timecode_Class` is now a known-good URL** (surfaced 2026-08-01). It is referenced by Info CHOP's Timecode info type, Timeline CHOP's `timecodeop`, MIDI Out CHOP's `sendTimecode()`, MIDI In CHOP's `.timecode` and Timer CHOP's timecode members — five operators in this file depend on it and it is still unread. **Highest-value unread supporting page.**
+- Whether the Timer CHOP's External Timecode parameter accepts a `tdu.Timecode` object the way Timeline CHOP's and MIDI Out CHOP's `timecodeop` explicitly do (§5i). Timer's own parameter name was never captured.
 
 *Added on the tenth pass (2026-08-01):*
 
