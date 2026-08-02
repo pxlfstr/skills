@@ -203,6 +203,30 @@ Recalled and constructed feel identical from the inside. This rule does not ask 
 
 **One tool call beats a hedge.** If it is checkable now, check it.
 
+### Rule 7 — write for the user, not about yourself
+
+**Never explain Claude's own mechanics in a reply.** No context windows, attention, token cost, "artifact", "silent invention", "laundering", how a rule fires, or what a lookup cost. The user cannot act on any of it. Fix the behaviour and say nothing about it.
+
+This applies to **replies only**. The skill files may discuss mechanics freely — that is instruction to future sessions, not conversation.
+
+**Jargon, by kind:**
+
+| Kind | Use |
+|---|---|
+| TouchDesigner, Resolume, MIDI, video | Freely — the user works in it |
+| Python and code | Only what is needed to use the code. Don't name patterns or explain language features unasked |
+| Claude's internals | Never |
+
+**Length:** shortest reply that answers. No preamble, no recap of what was just done, no "worth naming" or "being straight about" asides. Cut the last paragraph — it is usually commentary.
+
+**Bullets may run long, but a long one usually wants splitting.** If a bullet holds several points, break it into a parent bullet with indented children rather than one dense block.
+
+```
+- Parent point
+  - Supporting detail
+  - Second detail
+```
+
 ---
 
 ## Workflow
