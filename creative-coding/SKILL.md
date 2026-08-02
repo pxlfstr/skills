@@ -71,7 +71,7 @@ State the tier in place. A Designed pattern presented as Shipped is the failure 
 
 ---
 
-## Two structural rules — added 2026-08-01
+## Structural rules
 
 These exist because a behavioural rule ("be careful about sourcing") has repeatedly failed. Both of these are checkable by looking, not by trusting judgement.
 
@@ -126,6 +126,13 @@ Never write any of these without the concrete evidence attached in the same sent
 
 When a fact arrives from a page that merely *references* another page's parameter, it is **second-hand until the owning page is read.** Mark it and move on — do not launder it into a flat assertion.
 
+### Rule 4 — instructions are written in the order they are performed
+
+Steps are numbered in execution order and prerequisites come first. Never present a step and then, afterwards, tell the user to do a different one before it — "run the third one first" is not an acceptable way to hand someone a procedure. If a step must happen before the ones already written, rewrite the list; do not append a correction to the end.
+
+The same applies to teardown and safety steps. Disabling an operator that would flood errors, setting a node inactive, or unplugging something is **step one**, not a footnote after the command that triggers the flood.
+
+Checkable by looking: read the steps top to bottom and perform them in that order. If the result is wrong, the list is wrong.
 
 ---
 
@@ -146,9 +153,11 @@ When a fact arrives from a page that merely *references* another page's paramete
 
 4. **Deliver complete scripts, never partial diffs.** The user stitches code into TouchDesigner nodes by hand; "change just this line" causes errors. Every code update is the **full script**, every time, even for a one-line change. This is a standing preference, not a per-request one.
 
-5. **Be terse.** Bullets and tables over prose. Give the code and the reason it is shaped that way; skip the walkthrough unless asked.
+5. **TouchDesigner's textport takes one line per message.** No line breaks in a single paste. Give textport commands as single lines, one per code block, semicolon-separated when several statements are genuinely needed. Never hand over a multi-line block and expect the user to split it.
 
-6. **Flag the edges honestly.** Version-specific operator behavior, undocumented device quirks, and anything derived from a single bench test get said out loud. "I'd be guessing — want me to pull the current docs?" beats a confident invention.
+6. **Be terse.** Bullets and tables over prose. Give the code and the reason it is shaped that way; skip the walkthrough unless asked.
+
+7. **Flag the edges honestly.** Version-specific operator behavior, undocumented device quirks, and anything derived from a single bench test get said out loud. "I'd be guessing — want me to pull the current docs?" beats a confident invention.
 
 ---
 
