@@ -64,27 +64,15 @@ The old rule was "facts in `digital-video`, patterns in `creative-coding`." It f
 
 > **Would this still be true if TouchDesigner, Resolume and every control surface disappeared?**
 
-| Answer | Skill |
-|---|---|
-| **Yes** — it's the video signal, or a video device's own behaviour | `digital-video` |
-| **No** — it's a control protocol, a data protocol, or software integration | `creative-coding` |
+Yes → `digital-video`. No → `creative-coding`. DMX, Art-Net and sACN are `creative-coding` entire, packet level included.
 
-**DMX, Art-Net and sACN live entirely in `creative-coding`**, packet level included. They are control protocols that happen to drive lights and pixels.
-
-**Consequence worth understanding:** `creative-coding` now holds facts *and* patterns, so the folder boundary no longer does the separating work by itself. `protocols/` and `patterns/` do it instead, backed by the confidence tiers below. `creative-coding` is now the larger library; `digital-video` cites into it for anything protocol-shaped.
-
-They still cross-reference by filename rather than duplicating, so there is exactly one place a spec can be wrong.
+The full test with worked borderline cases is in each `SKILL.md`. Consequence worth understanding here: `creative-coding` now holds facts *and* patterns, so `protocols/` and `patterns/` do the separating that the skill boundary used to. Cross-reference by filename rather than duplicating, so there is exactly one place a spec can be wrong.
 
 ---
 
 ## Working protocol
 
-**At the start of a session**, Claude should clone this repo and read the relevant `references/INDEX.md`, then report the last commit date. If the installed skill's file timestamps predate the newest commit, the installed copy is stale and Claude must say so before answering from it.
-
-```bash
-git clone --depth 1 https://github.com/pxlfstr/skills.git
-git -C skills log -1 --format='%h %ad %s' --date=short
-```
+**At the start of a session** Claude clones this repo to `/tmp/skills-repo`, reads the relevant `references/INDEX.md`, and reports the last commit date. Once per session, not once per task. Re-pull when Obie says he has committed. The exact procedure is the Order of operations at the top of each `SKILL.md`; it is not restated here.
 
 The repo is public specifically so this needs no credentials.
 
@@ -101,48 +89,40 @@ This repository is public. Skill material goes in; project material does not. Ke
 - Rate card, invoicing terms, client names, contract details
 - Venue drawings, show files, production documents, `.toe` files
 - Rig inventories, camera IPs, network topology
-
-Device configuration for commercially available gear is **not** a rig inventory and may be committed — `protocols/xtouch-compact-midi-map.md` is a decoded MIDI map for a controller anyone can buy, and is public by explicit decision. The line is whether the document identifies a deployment, a client or a venue.
 - Credentials, tokens, or anything implying them
 - Project-specific code as built
 - Anything personal
+
+Device configuration for commercially available gear is **not** a rig inventory and may be committed — `creative-coding/references/protocols/xtouch-compact-midi-map.md` is a decoded MIDI map for a controller anyone can buy, and is public by explicit decision. The line is whether the document identifies a deployment, a client or a venue.
 
 Reference-grade technical material and generically written patterns only. The authoring discipline is to write a pattern generically **from the start** rather than writing it deployment-specific and sanitizing later — if a pattern cannot be stated without the rig it ran on, it is not ready to be committed.
 
 ---
 
-## Document conventions
+## Where the rules live
 
-Verification tiers are used throughout — **Verified** (datasheet, schematic, manufacturer documentation, or direct measurement), **Lead** (forum, wiki, secondary source), **Memory** (model knowledge, unverified). Citations use descriptor style: article or document title, hyperlinked where online, tagged `[Official]` or `[Forum]`. No years.
+**This file does not restate the operating rules, so they cannot drift.**
 
-`creative-coding` additionally tiers **patterns** by provenance — **Shipped** (ran in a real show), **Bench-verified** (tested on hardware), **Designed** (reasoned, not run), **Abandoned** (tried and rejected, kept deliberately). Empirically developed techniques are never presented as documented facts.
+Claude loads `SKILL.md` into context automatically. It does **not** load this README — it is read only if a session clones the repo and opens it. So every rule that has to fire without being sought lives in `SKILL.md`, in full, in each skill that needs it. That triplication is deliberate: a session may load only one skill, and a rule it cannot see is a rule that does not exist.
 
-### Every reference document opens with a provenance block
+| Rule | Where |
+|---|---|
+| Order of operations — clone once, then look up on every prompt; never ask permission to check | `*/SKILL.md`, first section |
+| Rule 1 — `protocols/` and `patterns/` are separate folders | `creative-coding/SKILL.md` |
+| Rule 2 — every reference document opens with `## Provenance` | all `SKILL.md` |
+| Rule 3 — claim vocabulary is load-bearing | all `SKILL.md` |
+| Rule 4 — instructions written in the order they are performed | `creative-coding`, `digital-video` |
+| Rule 5 — no named member from memory; the lookup leaves a source block | all `SKILL.md` |
+| Rule 6 — a retraction names the cause, not the state | all `SKILL.md` |
 
-Mandatory in both `digital-video` and `creative-coding`, no exceptions, including short documents. The heading is exactly `## Provenance` (a suffix is fine), placed above the first content heading, so coverage is checkable mechanically:
+Verification tiers, citation style and the additive-maintenance rule are also defined there, and per-document tier schemes are defined in each skill's `references/INDEX.md`.
+
+**The mechanical provenance check**, for running against the repo directly:
 
 ```bash
-for f in $(find */references -name '*.md' ! -name INDEX.md ! -name STORAGE.md); do
+# scoped: the rule applies to digital-video and creative-coding only
+for f in $(find digital-video/references creative-coding/references -name '*.md' \
+           ! -name INDEX.md ! -name STORAGE.md ! -name README.md); do
   grep -q "^## Provenance" "$f" || echo "MISSING PROVENANCE: $f"
 done
 ```
-
-The block states sourcing tiers by section; for each web source its own last-edited date and revision identifier where the source exposes one; **what was not read, listed explicitly**; and open contradictions left in place rather than silently resolved. A document without this block is not finished.
-
-### Claim vocabulary is load-bearing
-
-None of these words may be written without the evidence attached in the same sentence:
-
-| Word | Requires |
-|---|---|
-| "full page read" | The page's own last-edited date, and a revision id where available |
-| "verified" | A named source, read directly |
-| "unreachable" / "not available" | An actual attempt that failed, **and the failure mode** — a tool refusing a URL is not unreachability |
-| "confirmed" | Two independent sources, or one source plus a bench test — name both |
-| "the docs say" | Which page. A page *mentioning* another page's parameter is second-hand; say so |
-
-No evidence, weaker word. Downgrading a claim costs nothing; an overstated one gets discovered live.
-
-Standing rule: **no false, placeholder, or estimated numbers.** Every figure must come from a source actually read. Derived values are labelled as derived. Where a number is missing, the gap is stated explicitly rather than filled.
-
-Library maintenance is **additive and never lossy** — merge rather than replace; remove only what has been shown to be wrong, not merely what a newer source omits.

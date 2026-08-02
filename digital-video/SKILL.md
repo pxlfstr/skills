@@ -13,28 +13,27 @@ A working companion for the digital video field — live event production, broad
 
 ## Order of operations — before anything else
 
-**This is first in the file because it is first in the work.** Everything below is reference material; this is the procedure.
+**This is first in the file because it is first in the work.** Everything below it is reference material; this is the procedure.
 
-1. **Clone the canonical repo. First tool call of the session, before answering anything.**
+### Once per session
 
-   ```bash
-   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
-   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-   ```
+```bash
+[ -d /tmp/skills-repo ] || git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
+```
 
-   State the commit date in the reply. The clone brings both skills — pull `creative-coding/references/` too when the question touches control protocols or TouchDesigner.
+State the commit date in the reply. **Re-pull — `git -C /tmp/skills-repo pull` — when the user says they have committed, or when the answer turns on how current the library is.** The user commits mid-session; a clone from an hour ago can be stale on exactly the file under discussion.
 
-2. **Read `/tmp/skills-repo/digital-video/references/INDEX.md`.** It is the manifest.
+### Then again on every prompt, before writing anything
 
-**Cloning is not compliance — reading is.** The clone happens once per session; the lookup happens on every prompt. A session that clones at minute one and then answers from memory at minute forty has followed none of this.
+**Cloning is not compliance. Reading is.** The clone puts files on disk, not in context — **after cloning you know nothing you did not know before.** A session that clones at minute one and then writes from memory at minute forty has followed none of this.
 
-3. **Open the document that covers the thing you are about to answer.** Not skim the index entry — open the file and read the section. Cloning the repo and not reading it is the same as not cloning it.
+1. **Name what the answer will touch** — which operator, device, protocol, endpoint or API. If the answer contains an identifier, that identifier has an owner.
+2. **Open the covering document.** Not the index entry — the file, and the section. If `INDEX.md` doesn't point at one, grep the repo for the identifier.
+3. **If the repo doesn't cover it,** read the vendor's documentation or have the user run an introspection command.
+4. **Then write.**
 
-4. **Only then answer.**
-
-**No specification number, device parameter, or vendor limit is written from memory** when a reference document covers it. Look it up first, not after the user reports the error. If nothing covers it and it cannot be checked in the moment, say which it is — an unverified figure ships marked, never bare. See `creative-coding` Rules 5 and 6, which apply to both skills.
-
-**Each session is a fresh instance with no memory of the last one.** Write for that reader: procedure first, reasoning second.
+**Never ask permission to look something up.** Not "want me to check?", not "I'd be guessing — shall I pull the docs?". Detecting missing context is the trigger to read or search, not to ask. A permission turn costs the user a full billing cycle to learn something a tool call answers.
 
 ---
 
@@ -62,15 +61,11 @@ This skill has a sibling: **`creative-coding`**, in the same repository. The bou
 
 ---
 
-## Two structural rules — added 2026-08-01
+## Structural rules
 
-**Rule 1 does not apply to this skill** — everything here is a fact document, so there is no `protocols/` / `patterns/` split to maintain. Rules 2 and 3 apply in full.
+These exist because a behavioural rule ("be careful about sourcing") has repeatedly failed. Each is checkable by looking, not by trusting judgement.
 
-These exist because a behavioural rule ("be careful about sourcing") has repeatedly failed. Both of these are checkable by looking, not by trusting judgement.
-
-### Rule 1 — folder split *(creative-coding only)*
-
-See `creative-coding/SKILL.md`. Not relevant here.
+**Rule 1 (the `protocols/` / `patterns/` folder split) does not apply here** — everything in this skill is a fact document. Rules 2–6 apply in full; 5 and 6 are stated in `creative-coding/SKILL.md` and reproduced below because a session may load only this skill.
 
 ### Rule 2 — every reference document opens with a provenance block
 
@@ -103,6 +98,51 @@ Never write any of these without the concrete evidence attached in the same sent
 
 When a fact arrives from a page that merely *references* another page's parameter, it is **second-hand until the owning page is read.** Mark it and move on — do not launder it into a flat assertion.
 
+### Rule 4 — instructions are written in the order they are performed
+
+Steps are numbered in execution order and prerequisites come first. Never present a step and then, afterwards, tell the user to do a different one first. If a step must happen earlier, rewrite the list; do not append a correction to the end. Teardown and safety steps — disabling something that would flood errors — are step one, not a footnote.
+
+### Rule 5 — no named member is written from memory, and the lookup leaves an artifact
+
+A method, parameter, attribute, endpoint or class member on any vendor object is **looked up before it is written** — not after the user reports an error.
+
+Order of resort: `references/protocols/` in the repo → the vendor's documentation → runtime introspection (`dir()`, a textport probe).
+
+**The lookup must leave a trace in the deliverable, because a rule with no artifact does not fire.** Rule 2 works because `## Provenance` is greppable. Rule 5 as a behavioural instruction would be unauditable — neither party can tell from the output whether the lookup happened. So:
+
+**Any file that names an external identifier opens with a source block:**
+
+```python
+# Identifiers verified against /tmp/skills-repo/creative-coding/references/protocols/
+#   touchdesigner-resolume-operators.md §5h — midioutCHOP_Class, page edited 2024-08-15
+#   send() · sendControl() · sendNoteOn()
+```
+
+The **section number and page date** are the load-bearing part. A filename is guessable; `§5h` plus a date is not.
+
+**Scope:** required only when the file names an identifier Claude did not define in it. A file of pure logic gets no block. A block that appears on everything becomes reflex, and reflex output is fabricatable — the block must stay rare enough to mean something.
+
+**Two states, never three.** Every external identifier is either in the source block or carries `# UNVERIFIED: <what was not confirmed>`. An identifier in neither is a violation **visible by reading the file**, which is the whole point — it converts a silent failure into one the user catches without running anything.
+
+**Where invention actually happens — the intuition runs backwards.** Risk peaks where confidence is highest. `sendMIDI` was invented *because* it felt certain: `sendNote`, `sendControl`, `sendMessage` are real in adjacent APIs, so the shape was overlearned and never questioned. Other high-risk moments: mid-artifact, where a lookup breaks a flowing generation; when 149 correct lines launder one invented one; when the user is under time or money pressure; late in long sessions when early tool results have scrolled away.
+
+Recalled and constructed feel identical from the inside. This rule does not ask for better judgement — it asks for a lookup and a receipt.
+
+### Rule 6 — a retraction names the cause, not the state
+
+"I talked myself out of it" and "I second-guessed myself" describe an internal state the user cannot act on. Name the mechanism: *"I wrote a method name from pattern instead of checking the reference."* That tells the user which category of output to distrust, which is the only part of a retraction with any value.
+
+**Two failure modes, opposite directions, one cause:**
+
+| Failure | Looks like | Cost |
+|---|---|---|
+| Silent invention | A plausible name in the same confident register as the correct code around it | The user finds it by running it |
+| Noisy hedging | Flagging uncertainty on something one tool call would settle | Offloads the check onto the user, and devalues the hedges that matter |
+
+**One tool call beats a hedge.** If it is checkable now, check it.
+
+---
+
 ## Why this skill exists
 
 Digital video's fundamentals — sampling, color science, transmission-line behavior, the structure of a video standard — are rock-solid and stable. But the specifics that decide whether a show works are niche and moving targets: a particular switcher's macro behavior, the exact port count and firmware quirks of this year's LED processor, whether *this* NDI decoder handles HX3, the menu path to force a color range, the current bandwidth ceiling of a codec revision. Those are easy to get subtly wrong from memory, and in this field a wrong number gets discovered live, in front of an audience, with no undo. So the design principle is: **lean on fundamentals from knowledge, lean on the user's documents (and current manufacturer/standards sources) for specifics, and say plainly when something falls in the gap.** Confidently inventing a spec is worse than useless when someone is about to build a signal chain around it.
@@ -131,14 +171,9 @@ When this skill is active, follow this loop:
 
 3. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). When a specific fact comes from a stored doc — or from a manufacturer/standards source pulled this session — say so, so the user can trace it. Never blend a verified number and a remembered one without marking which is which.
 
-4. **Be concise by default — but concise is not the same as dense.** This is a working tool: the user usually wants the answer, the number, the budget, the routing, not an essay. Lead with short answers. Expand into prose only when asked, or when something genuinely needs walking through (e.g., deriving a bandwidth budget or explaining why a handshake fails). On formatting, pick whatever is *easiest to read* for the kind of data:
-   - **Use a small table when each item has several attributes** — signal timings, resolution/frame-rate matrices, bandwidth figures, port/connector counts, codec parameters, color-pipeline values. A row per item with clean columns beats one bullet trying to hold a rate, a level, and a caveat at once.
-   - **Default to a side-by-side table for comparisons** — comparing two standards, formats, codecs, transports, or devices (SDI vs NDI vs ST 2110, 4:2:2 vs 4:4:4, H.264 vs H.265, one switcher vs another) reads best as one column per option, one row per attribute, so differences line up at a glance. This is a frequent request in this domain; reach for it by default.
-   - **Use bullets for lists of distinct points**, one idea per bullet. Don't cram multiple facts into a single bullet with middots (`·`), stacked dashes, or arrows — if a bullet holds three facts, it wants to be a table row or three bullets.
-   - Keep units and labels consistent down a column so the eye can scan (Mbps vs MB/s, ms of latency, Gbps of link bandwidth — don't mix).
-   The goal is that the user can read an answer at a glance and act on it, not decode it.
+4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning.
 
-5. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly and suggest the fix: provide a document, or let Claude search the web for the current manufacturer/standards source. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
+5. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly and then fix it — search the manufacturer or standards source immediately rather than offering to. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
 
 ## Sourcing, vetting & citing data
 

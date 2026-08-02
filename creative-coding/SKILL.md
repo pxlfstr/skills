@@ -13,34 +13,25 @@ Code, control protocols, and working patterns for live video and show control. S
 
 **This is first in the file because it is first in the work.** Everything below it is reference material; this is the procedure.
 
-### Once, at the start of the session
+### Once per session
 
 ```bash
-git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+[ -d /tmp/skills-repo ] || git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
 git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-cat /tmp/skills-repo/creative-coding/references/INDEX.md
 ```
 
-State the commit date in the reply. The clone brings `digital-video/` too — coding work needs device facts from it.
+State the commit date in the reply. **Re-pull — `git -C /tmp/skills-repo pull` — when the user says they have committed, or when the answer turns on how current the library is.** The user commits mid-session; a clone from an hour ago can be stale on exactly the file under discussion.
 
-### Then again on every single prompt, before writing anything
+### Then again on every prompt, before writing anything
 
-**Cloning is not compliance. Reading is.** The clone happens once; the lookup happens every turn. A session that clones at minute one and then writes code from memory at minute forty has followed none of this.
+**Cloning is not compliance. Reading is.** The clone puts files on disk, not in context — **after cloning you know nothing you did not know before.** A session that clones at minute one and then writes from memory at minute forty has followed none of this.
 
-For each prompt, in order:
-
-1. **Name what the answer will touch.** Which operator, device, protocol, endpoint, or API. If the answer contains an identifier, that identifier has an owner.
-2. **Open the covering document in `/tmp/skills-repo/`.** Not the index entry — the file, and the section. If `INDEX.md` doesn't obviously point at one, grep the repo for the identifier.
-3. **If the repo doesn't cover it,** go to the vendor's documentation, or have the user run an introspection command. Only after both fail does the identifier ship marked `# UNVERIFIED:` (Rule 5).
+1. **Name what the answer will touch** — which operator, device, protocol, endpoint or API. If the answer contains an identifier, that identifier has an owner.
+2. **Open the covering document.** Not the index entry — the file, and the section. If `INDEX.md` doesn't point at one, grep the repo for the identifier.
+3. **If the repo doesn't cover it,** read the vendor's documentation or have the user run an introspection command.
 4. **Then write.**
 
-### The failure this prevents
-
-**2026-08-02.** The repo was cloned as the first tool call of the session. Forty minutes later, code was written naming `sendMIDI` on a MIDI Out CHOP — a method that does not exist. `references/protocols/touchdesigner-resolume-operators.md` §5h documents the real method set (`sendNoteOn`, `sendNoteOff`, `sendControl`, `send`), read first-hand from Derivative, dated, with a working `send(0xb0, 0x2f, 0x40)` example. The file was never opened, because the clone had already happened and that felt like the rule had been satisfied. The user found the error by running the code.
-
-**The instruction to read the index already existed** — as step 2 of a numbered list 150 lines into this document, below an essay on taxonomy. A rule placed where it will not be reached first is not a rule. A rule framed as a session-start gate will be satisfied once and then forgotten.
-
-**Each session is a fresh instance with no memory of the last one.** The user is, in their own words, briefing a new programmer every time — and paying for every repetition. Procedure first, reasoning second.
+**Never ask permission to look something up.** Not "want me to check?", not "I'd be guessing — shall I pull the docs?". Detecting missing context is the trigger to read or search, not to ask. A permission turn costs the user a full billing cycle to learn something a tool call answers.
 
 ---
 
@@ -140,7 +131,9 @@ A document without this block is not finished. The provenance block is what caug
 **The heading must be exactly `## Provenance`** (a suffix such as `## Provenance — ⚠️ READ THIS FIRST` is fine; a different word is not), placed **above the first content heading**. This is so coverage can be checked mechanically:
 
 ```bash
-for f in $(find */references -name '*.md' ! -name INDEX.md ! -name STORAGE.md); do
+# scoped: the rule applies to digital-video and creative-coding only
+for f in $(find digital-video/references creative-coding/references -name '*.md' \
+           ! -name INDEX.md ! -name STORAGE.md ! -name README.md); do
   grep -q "^## Provenance" "$f" || echo "MISSING PROVENANCE: $f"
 done
 ```
@@ -171,54 +164,60 @@ The same applies to teardown and safety steps. Disabling an operator that would 
 
 Checkable by looking: read the steps top to bottom and perform them in that order. If the result is wrong, the list is wrong.
 
-### Rule 5 — no named member is ever written from memory
+### Rule 5 — no named member is written from memory, and the lookup leaves an artifact
 
-A method, parameter, attribute, endpoint, or class member on a TouchDesigner operator, a Resolume API, a Companion module, or any vendor device is **looked up before it is written** — not after the user reports an error.
+A method, parameter, attribute, endpoint or class member on any vendor object is **looked up before it is written** — not after the user reports an error.
 
-Order of resort:
+Order of resort: `references/protocols/` in the repo → the vendor's documentation → runtime introspection (`dir()`, a textport probe).
 
-1. `references/protocols/` in the cloned repo
-2. The vendor's own documentation page
-3. Runtime introspection — `dir()`, a textport probe the user runs
+**The lookup must leave a trace in the deliverable, because a rule with no artifact does not fire.** Rule 2 works because `## Provenance` is greppable. Rule 5 as a behavioural instruction would be unauditable — neither party can tell from the output whether the lookup happened. So:
 
-**If none of the three is possible in the moment, the identifier still ships — with the doubt attached to the artifact, not to the chat:**
+**Any file that names an external identifier opens with a source block:**
 
 ```python
-# UNVERIFIED: send() signature not confirmed against docs
+# Identifiers verified against /tmp/skills-repo/creative-coding/references/protocols/
+#   touchdesigner-resolume-operators.md §5h — midioutCHOP_Class, page edited 2024-08-15
+#   send() · sendControl() · sendNoteOn()
 ```
 
-A hedge written in a chat message does not count. Chat scrolls away; the code outlives it, and the next session reads the file, not the conversation.
+The **section number and page date** are the load-bearing part. A filename is guessable; `§5h` plus a date is not.
+
+**Scope:** required only when the file names an identifier Claude did not define in it. A file of pure logic gets no block. A block that appears on everything becomes reflex, and reflex output is fabricatable — the block must stay rare enough to mean something.
+
+**Two states, never three.** Every external identifier is either in the source block or carries `# UNVERIFIED: <what was not confirmed>`. An identifier in neither is a violation **visible by reading the file**, which is the whole point — it converts a silent failure into one the user catches without running anything.
+
+**Where invention actually happens — the intuition runs backwards.** Risk peaks where confidence is highest. `sendMIDI` was invented *because* it felt certain: `sendNote`, `sendControl`, `sendMessage` are real in adjacent APIs, so the shape was overlearned and never questioned. Other high-risk moments: mid-artifact, where a lookup breaks a flowing generation; when 149 correct lines launder one invented one; when the user is under time or money pressure; late in long sessions when early tool results have scrolled away.
+
+Recalled and constructed feel identical from the inside. This rule does not ask for better judgement — it asks for a lookup and a receipt.
+
+### Rule 6 — a retraction names the cause, not the state
+
+"I talked myself out of it" and "I second-guessed myself" describe an internal state the user cannot act on. Name the mechanism: *"I wrote a method name from pattern instead of checking the reference."* That tells the user which category of output to distrust, which is the only part of a retraction with any value.
 
 **Two failure modes, opposite directions, one cause:**
 
 | Failure | Looks like | Cost |
 |---|---|---|
-| Silent invention | A plausible name written in the same confident register as the correct code around it | The user finds it by running it |
+| Silent invention | A plausible name in the same confident register as the correct code around it | The user finds it by running it |
 | Noisy hedging | Flagging uncertainty on something one tool call would settle | Offloads the check onto the user, and devalues the hedges that matter |
 
-**One tool call beats a hedge.** If it is checkable now, check it. Hedging is for what cannot be checked.
-
-Recalled and constructed feel identical from the inside, so this rule does not ask for better judgement — it asks for a lookup.
-
-### Rule 6 — a retraction names the cause, not the state
-
-"I talked myself out of it" and "I second-guessed myself" describe an internal state the user cannot act on. Name the mechanism instead: *"I wrote a method name from pattern instead of checking the reference."* That tells the user which category of output to distrust, which is the only part of a retraction with any value.
+**One tool call beats a hedge.** If it is checkable now, check it.
 
 ---
 
 ## Workflow
 
-1. **Steps 1–4 are the Order of operations at the top of this file.** Clone, read the index, open the covering document, then write. The `references/` folder in this container is a snapshot from the last skill upload and may be weeks stale — always prefer `/tmp/skills-repo/`.
+The Order of operations above is steps 1–4 of every turn. What follows applies once you are writing.
 
-2. **Separate fact from pattern before writing anything — but both stay in this skill now.** Tag a vendor or protocol number `[Official]` and a developed structure `Bench-verified` / `Designed`; never let the two blur into one paragraph. Only a *video-signal or device* fact goes to `digital-video`. If a request needs both sides of that boundary, produce two deliverables and cite across.
+1. **Separate fact from pattern before writing anything — but both stay in this skill now.** Tag a vendor or protocol number `[Official]` and a developed structure `Bench-verified` / `Designed`; never let the two blur into one paragraph. Only a *video-signal or device* fact goes to `digital-video`. If a request needs both sides of that boundary, produce two deliverables and cite across.
 
-4. **Deliver complete scripts, never partial diffs.** The user stitches code into TouchDesigner nodes by hand; "change just this line" causes errors. Every code update is the **full script**, every time, even for a one-line change. This is a standing preference, not a per-request one.
+2. **Deliver complete scripts, never partial diffs.** The user stitches code into TouchDesigner nodes by hand; "change just this line" causes errors. Every code update is the **full script**, every time, even for a one-line change. This is a standing preference, not a per-request one.
 
-5. **TouchDesigner's textport takes one line per message.** No line breaks in a single paste. Give textport commands as single lines, one per code block, semicolon-separated when several statements are genuinely needed. Never hand over a multi-line block and expect the user to split it.
+3. **TouchDesigner's textport takes one line per message.** No line breaks in a single paste. Give textport commands as single lines, one per code block, semicolon-separated when several statements are genuinely needed. Never hand over a multi-line block and expect the user to split it.
 
-6. **Be terse.** Bullets and tables over prose. Give the code and the reason it is shaped that way; skip the walkthrough unless asked.
+4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning. Give the code and why it is shaped that way; skip the walkthrough unless asked.
 
-7. **Flag the edges honestly.** Version-specific operator behavior, undocumented device quirks, and anything derived from a single bench test get said out loud. "I'd be guessing — want me to pull the current docs?" beats a confident invention.
+5. **Flag the edges honestly.** Version-specific operator behaviour, undocumented device quirks, and anything derived from a single bench test get said out loud — including in prose, not just in code. A performance or capacity claim reasoned rather than measured says so. Do not offer to check; check, then report.
 
 ---
 
@@ -232,10 +231,12 @@ Recalled and constructed feel identical from the inside, so this rule does not a
 
 ## Where Claude is reference-first
 
-- **TouchDesigner operator specifics** — parameter names, defaults, and Python class members drift between builds. Verify against docs.derivative.ca for the build in use.
-- **Resolume version behavior** — the OSC namespace and REST surface change across 7.x. Discover from the running instance, don't recite.
-- **Bitfocus Companion modules** — action and feedback sets are per-module and per-version, maintained in the open. Read the module.
-- **Video-signal and device questions** — bandwidth ceilings, genlock, codecs, colour, LED processors, projector optics. Those are `digital-video`. Control protocols are no longer in that set; they are here.
+Rule 5 governs all of these — look up, then write, with the source block.
+
+- **TouchDesigner operator specifics** — parameter names, defaults and Python class members drift between builds.
+- **Resolume version behaviour** — OSC namespace and REST surface change across 7.x. Discover from the running instance.
+- **Bitfocus Companion modules** — action and feedback sets are per-module, per-version. Read the module.
+- **Video-signal and device questions** — those are `digital-video`. Control protocols are here.
 
 ---
 
