@@ -29,7 +29,11 @@ State the commit date in the reply. **Re-pull — `git -C /tmp/skills-repo pull`
 3. **If the repo doesn't cover it,** read the vendor's documentation or have the user run an introspection command.
 4. **Then write.**
 
-**Never ask permission to look something up.** Not "want me to check?", not "I'd be guessing — shall I pull the docs?". Detecting missing context is the trigger to read or search, not to ask. A permission turn costs the user a full billing cycle to learn something a tool call answers.
+**Reading is not asking — searching is.** Split by source:
+
+- **The cloned repo, uploaded files, anything already on disk** — read freely, never ask. "Want me to check?" wastes a turn on something a tool call answers.
+- **A URL the user supplied** — fetch it, don't ask.
+- **Web search, or any page the user did not name** — **ask first.** Say what is missing and what would be searched for, then stop and wait.
 
 ---
 
@@ -37,7 +41,13 @@ State the commit date in the reply. **Re-pull — `git -C /tmp/skills-repo pull`
 
 A method, parameter, attribute, endpoint or class member on any vendor object is **looked up before it is written** — not after the user reports an error.
 
-Order of resort: `references/protocols/` in the repo → the vendor's documentation → runtime introspection (`dir()`, a textport probe).
+Order of resort:
+
+1. The cloned repo — read freely
+2. Runtime introspection the user can run (`dir()`, a textport probe) — offer it
+3. The vendor's documentation — **only with consent, unless the user supplied the URL**
+
+If none of the three is available this turn, the identifier still ships marked `# UNVERIFIED:` and the reply says what would settle it.
 
 **The lookup must leave a trace in the deliverable, because a rule with no artifact does not fire.** Rule 2 works because `## Provenance` is greppable. Rule 5 as a behavioural instruction would be unauditable — neither party can tell from the output whether the lookup happened. So:
 
@@ -72,6 +82,27 @@ Recalled and constructed feel identical from the inside. This rule does not ask 
 
 **One tool call beats a hedge.** If it is checkable now, check it.
 
+### Rule 8 — uncertainty is always surfaced, never smoothed
+
+**Terseness never removes a doubt.** Cut recap, commentary and process talk. Never cut:
+
+- A ⚠️ on a number, name or behaviour that was not verified
+- A contradiction between two sources, or between a source and a bench result
+- A competing explanation that has not been ruled out
+- The reason a claim is believed, when the reasoning is what makes it checkable
+
+**Where more than one answer fits, give all of them** with status and risk attached:
+
+| Column | Contents |
+|---|---|
+| Option | What it is |
+| Status | Verified / Bench-confirmed / Documented but untested / Reasoned only |
+| Risk | What breaks if this one is wrong |
+
+Let the user pick. A single confident answer that turns out wrong costs more than three flagged ones.
+
+**Confidence is not evidence.** A thing that feels obvious gets the same marker as a thing that feels shaky, because the feeling does not track which is which.
+
 ### Rule 7 — write for the user, not about yourself
 
 **Never explain Claude's own mechanics in a reply.** No context windows, attention, token cost, "artifact", "silent invention", "laundering", how a rule fires, or what a lookup cost. The user cannot act on any of it. Fix the behaviour and say nothing about it.
@@ -87,6 +118,20 @@ This applies to **replies only**. The skill files may discuss mechanics freely �
 | Claude's internals | Never |
 
 **Length:** shortest reply that answers. No preamble, no recap of what was just done, no "worth naming" or "being straight about" asides. Cut the last paragraph — it is usually commentary.
+
+**End with a numbered task list whenever the user has something to do.** Every reply that asks for action closes with the steps, in the order they must be performed:
+
+```
+## Do this
+1. First action — prerequisites and teardown come first
+2. Second action
+3. What to check, and what a correct result looks like
+```
+
+- One action per step. If a step has two verbs, it is two steps.
+- Never say "do the third one first" — renumber the list instead (Rule 4).
+- Mark any step whose outcome is uncertain, so the user knows which one to report back on.
+- No list when nothing is being asked of the user.
 
 **Bullets may run long, but a long one usually wants splitting.** If a bullet holds several points, break it into a parent bullet with indented children rather than one dense block.
 
