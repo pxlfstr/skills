@@ -11,30 +11,36 @@ Code, control protocols, and working patterns for live video and show control. S
 
 ## Order of operations — before anything else
 
-**This is first in the file because it is first in the work.** Everything below it is reference material; this is the procedure. Do not read past this section until step 1 is running.
+**This is first in the file because it is first in the work.** Everything below it is reference material; this is the procedure.
 
-1. **Clone the canonical repo. First tool call of the session, before answering anything.**
+### Once, at the start of the session
 
-   ```bash
-   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
-   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-   ```
+```bash
+git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
+cat /tmp/skills-repo/creative-coding/references/INDEX.md
+```
 
-   State the commit date in the reply. Clone both `creative-coding/` and `digital-video/` — coding work needs device facts from the sibling skill.
+State the commit date in the reply. The clone brings `digital-video/` too — coding work needs device facts from it.
 
-2. **Read `/tmp/skills-repo/creative-coding/references/INDEX.md`.** It is the manifest. It tells you which document covers the thing you are about to answer.
+### Then again on every single prompt, before writing anything
 
-3. **Open the document that covers the thing you are about to write.** Not skim the index entry — open the file and read the section. Cloning the repo and not reading it is the same as not cloning it.
+**Cloning is not compliance. Reading is.** The clone happens once; the lookup happens every turn. A session that clones at minute one and then writes code from memory at minute forty has followed none of this.
 
-4. **Only then write.**
+For each prompt, in order:
 
-### Why this section exists
+1. **Name what the answer will touch.** Which operator, device, protocol, endpoint, or API. If the answer contains an identifier, that identifier has an owner.
+2. **Open the covering document in `/tmp/skills-repo/`.** Not the index entry — the file, and the section. If `INDEX.md` doesn't obviously point at one, grep the repo for the identifier.
+3. **If the repo doesn't cover it,** go to the vendor's documentation, or have the user run an introspection command. Only after both fail does the identifier ship marked `# UNVERIFIED:` (Rule 5).
+4. **Then write.**
 
-**2026-08-02.** The repo was cloned at the start of the session. Code was then written naming `sendMIDI` on a MIDI Out CHOP — a method that does not exist. `references/protocols/touchdesigner-resolume-operators.md` §5h documents the real method set (`sendNoteOn`, `sendNoteOff`, `sendControl`, `send`), read first-hand from Derivative and dated, along with the working `send(0xb0, 0x2f, 0x40)` example. The file was never opened. The user found the error by running the code.
+### The failure this prevents
 
-The instruction to read the index already existed — as step 2 of a numbered list 150 lines into this document, below an essay on taxonomy. **A rule placed where it will not be reached first is not a rule.** That is why this section is at the top and why the Workflow section below now begins after it.
+**2026-08-02.** The repo was cloned as the first tool call of the session. Forty minutes later, code was written naming `sendMIDI` on a MIDI Out CHOP — a method that does not exist. `references/protocols/touchdesigner-resolume-operators.md` §5h documents the real method set (`sendNoteOn`, `sendNoteOff`, `sendControl`, `send`), read first-hand from Derivative, dated, with a working `send(0xb0, 0x2f, 0x40)` example. The file was never opened, because the clone had already happened and that felt like the rule had been satisfied. The user found the error by running the code.
 
-**Each session is a fresh instance with no memory of the last one.** The user is, in their own words, briefing a new programmer every time. Write for that reader: procedure first, reasoning second.
+**The instruction to read the index already existed** — as step 2 of a numbered list 150 lines into this document, below an essay on taxonomy. A rule placed where it will not be reached first is not a rule. A rule framed as a session-start gate will be satisfied once and then forgotten.
+
+**Each session is a fresh instance with no memory of the last one.** The user is, in their own words, briefing a new programmer every time — and paying for every repetition. Procedure first, reasoning second.
 
 ---
 

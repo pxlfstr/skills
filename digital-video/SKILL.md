@@ -26,6 +26,8 @@ A working companion for the digital video field — live event production, broad
 
 2. **Read `/tmp/skills-repo/digital-video/references/INDEX.md`.** It is the manifest.
 
+**Cloning is not compliance — reading is.** The clone happens once per session; the lookup happens on every prompt. A session that clones at minute one and then answers from memory at minute forty has followed none of this.
+
 3. **Open the document that covers the thing you are about to answer.** Not skim the index entry — open the file and read the section. Cloning the repo and not reading it is the same as not cloning it.
 
 4. **Only then answer.**
