@@ -1,11 +1,35 @@
 # X-Touch Compact — MIDI map
 
-**Rig-specific. Does NOT go in the public `pxlfstr/skills` repo.**
+Obie's own X-Touch Compact configuration, as loaded on the device. Not the Behringer
+factory map — for that see `behringer-xtouch-compact-resolume.md`.
 
-Derived 2026-08-01 from `LayerA.bin` / `LayerB.bin` exported from X-Touch Editor.
-Physical control labels supplied by Obie. 91 assignments per layer, all accounted for.
+Approved for the public repo: device configuration for a commercial controller, not rig,
+client or venue detail.
 
-Octave convention: **C3 = 60 (Yamaha/Steinberg)**.
+## Provenance
+
+- **Tier: `[Official]` for the assignment table** — every number below is read out of the
+  device's own configuration files, not from documentation or from observed traffic.
+- **Source files:** the four `.bin` exports committed in `xtouch-compact-config/`,
+  exported from X-Touch Editor and decoded 2026-08-02 by `xtouch-compact-config/decode.py`.
+  723 bytes each, 91 assignment records each, all 91 decoded and accounted for.
+- **Method:** byte comparison across layer pairs plus structural decode. Layer A and B
+  differ in exactly 90 records, every one of them a channel byte — which pins the channel,
+  type, index, min and max fields unambiguously.
+- **Supplied by Obie, not derived from the files:** every physical control label, the
+  C3 = 60 octave convention, which physical row is "top", and the design intent behind the
+  expression-pedal channel exception. The `.bin` files carry no labels.
+- **Bench-identified, not documented by Behringer:** which Editor relative mode is which
+  encoding, and the encoder mode byte value. See *Encoders* below.
+- **Supersedes** the version derived 2026-08-01. Three things changed — see
+  *What changed* at the end.
+- **Not read:** no X-Touch Editor documentation of the `.bin` format is known to be
+  published. The format decode is reverse-engineered from these exports alone.
+- **Not verified against hardware in this pass.** The table states what the configuration
+  files contain, not what the device transmits.
+- **Open, unresolved:** the byte values for Relative 2 and Relative 3; the meaning of the
+  trailing bytes on every record; whether the device's ring-value RX table carries the
+  same +1 shift found in the button LED velocity table.
 
 ---
 
@@ -15,11 +39,15 @@ Octave convention: **C3 = 60 (Yamaha/Steinberg)**.
 |---|---|
 | `.bin` file | Raw MIDI (CC 0–127, note 0–127) |
 | X-Touch Editor display | Raw — matches the file |
-| MIDI In DAT | **Always 1-based**, no parameter. Documented by Derivative |
-| MIDI In CHOP | Raw by default; `1 Based Index` (`onebased`) switches it. **Affects notes AND controllers** |
-| MIDI Out CHOP | **0-based by default**; same `onebased` parameter available |
+| MIDI In DAT | **Always 1-based**, no parameter |
+| MIDI In CHOP | Raw by default; `onebased` switches it. Affects notes AND controllers |
+| MIDI Out CHOP | **0-based by default**; same `onebased` parameter |
 
-The "TD (1-based)" column below is what you'll see in the DAT, and in the CHOP if `onebased` is on.
+Raw `send()` on the MIDI Out CHOP bypasses `onebased`, `controlnorm` and `controlformat`
+entirely — the named methods (`sendControl`, `sendNoteOn`) honour them. Bench-confirmed for
+`send()`; the docs state it for both.
+
+Octave convention throughout: **C3 = 60 (Yamaha/Steinberg)**.
 
 ---
 
@@ -32,67 +60,157 @@ The "TD (1-based)" column below is what you'll see in the DAT, and in the CHOP i
 | Encoders 9–16 (right side) | 18–25 | 19–26 | 1 | 2 |
 | Expression pedal | 30 | 31 | 1 | **1** — intentional, layer-independent |
 | Foot switch | 31 | 32 | 1 | 2 |
+| Fader touch 1–9 | 100–108 | 101–109 | 1 | 2 |
+
+CC 9 is unassigned, as are 26–29 and 32–99.
 
 ## Buttons
 
-| Row | Notes (raw) | Note names | TD (1-based) | Count | Layer B ch |
-|---|---|---|---|---|---|
-| Top row | 36–43 | C1–G1 | 37–44 | 8 | 2 |
-| Middle row | 48–55 | C2–G2 | 49–56 | 8 | 2 |
-| Bottom row | 60–67 | C3–G3 | 61–68 | 8 | 2 |
-| Below faders 1–8 | 72–79 | C4–G4 | 73–80 | 8 | 2 |
-| Below Main fader (9) | 80 | G#4 | 81 | 1 | 2 |
-| Playback control grid | 84–89 | C5–F5 | 85–90 | 6 | 2 |
-| Encoder push 1–8 | 96–103 | C6–G6 | 97–104 | 8 | 2 |
-| Encoder push 9–16 | 108–115 | C7–G7 | 109–116 | 8 | 2 |
+| Row | Notes (raw) | Note names | TD (1-based) | Count | Layer A ch | Layer B ch |
+|---|---|---|---|---|---|---|
+| Top row | 36–43 | C1–G1 | 37–44 | 8 | 1 | 2 |
+| Middle row | 48–55 | C2–G2 | 49–56 | 8 | 1 | 2 |
+| Bottom row | 60–67 | C3–G3 | 61–68 | 8 | 1 | 2 |
+| Below faders 1–8 | 72–79 | C4–G4 | 73–80 | 8 | 1 | 2 |
+| Below Main fader (9) | 80 | G#4 | 81 | 1 | 1 | 2 |
+| Playback control grid | 84–89 | C5–F5 | 85–90 | 6 | 1 | 2 |
+| Encoder push 1–8 | 96–103 | C6–G6 | 97–104 | 8 | 1 | 2 |
+| Encoder push 9–16 | 108–115 | C7–G7 | 109–116 | 8 | 1 | 2 |
 
-Every button block runs **C through G** except two: the below-faders row is nine wide
-(C4–G#4) because of the Main fader button, and the playback grid is six (C4–F5).
+Every block runs C through G except two: the below-faders row is nine wide (C4–G#4)
+because of the Main fader button, and the playback grid is six (C5–F5). The gaps between
+blocks — 44–47, 56–59, 68–71, 81–83, 90–95, 104–107 — are what keep each block starting
+on a C.
+
+---
+
+## Encoders — Relative 1, all sixteen
+
+Set 2026-08-02. Relative deltas, not absolute positions, so **TouchDesigner owns the
+value** and the encoders cannot jump on a layer switch or after a change made elsewhere.
+
+**Relative 1 is two's complement:**
+
+| Direction | Values sent | Decode |
+|---|---|---|
+| Right | 1, 2, 3 … | `delta = v if v < 64 else v - 128` |
+| Left | 127, 126, 125 … | branchless: `(v + 64) % 128 - 64` |
+
+Magnitude scales with turn speed, so a fast spin sends larger deltas.
+
+**Which Editor mode is which encoding is undocumented by Behringer.** Bench-identified
+2026-08-02 by setting three encoders to the three modes and reading the values:
+
+| Editor label | Encoding | Left | Right |
+|---|---|---|---|
+| **Relative 1** | Two's complement | 127, 126… | 1, 2… |
+| Relative 2 | Binary offset | 63, 62… | 65, 66… |
+| Relative 3 | Sign and magnitude | 65, 66… | 1, 2… |
+
+**The mode is stored in the record's min byte** — `0` = absolute, **`130` = Relative 1**.
+Confirmed by changing only that setting and re-exporting: all sixteen encoder records moved
+from 0 to 130, nothing else in the file changed.
+
+⚠️ The byte values for Relative 2 and Relative 3 are **unknown** — neither has been
+exported. `decode.py` reports an unrecognised value rather than guessing.
 
 ## Fader touch
 
-| Control | CC (raw) | TD (1-based) | Layers |
-|---|---|---|---|
-| Fader touch 1–9 | 101–109 | 102–110 | Identical in both files |
+CC 100–108 raw, in use as of 2026-08-02. Reads as **101–109 in the MIDI In DAT**, which
+lines up with fader numbering.
 
-⚠️ **Partly inferred.** These nine records are byte-identical across layers and carry `0x12`
-in the field every other record uses for MIDI channel. The count matches the nine faders and
-the CC range matches what we have recorded for fader touch — but our bench note records
-101–109 as *observed*, which would mean raw 100–108, one lower than stored here.
-**Unresolved off-by-one. Confirm against a DAT capture before building on it.**
+Value 127 on touch, 0 on release. ⚠️ **Touch-on lags the first movement message by roughly
+2–9 frames** (bench-observed), so touch is not usable as the onset signal for echo
+suppression — latch on first movement instead and use touch only for the release edge.
+
+This numbering was chosen deliberately to retire an earlier off-by-one: the files
+previously stored 101–109 while a bench note recorded 101–109 *as displayed*, and which
+convention the note used was never recorded. Moving the device to 100–108 makes both
+readings agree rather than resolving which was right.
 
 ---
 
-## One control stays on channel 1 in Layer B
+## Layer B is channel 2, with exactly one exception
 
-**CC 30 — expression pedal.** Intentional, layer-independent by design. Everything else on
-Layer B transmits on channel 2.
+Every assignment transmits on **channel 1 in Layer A and channel 2 in Layer B**, at the
+same control number. One record breaks that, on purpose:
 
-*(Note 80 / G#4, the button below the Main fader, was also on channel 1 in the dump analysed
-here. That was an oversight in the Editor config and Obie corrected it to channel 2 on
-2026-08-01. **The `.bin` files this table was derived from predate that fix** — re-export the
-layers if you need dumps that match the device.)*
+**CC 30 — expression pedal. Channel 1 in both layers.** Verified: it is the only channel-1
+record in the Layer B file.
+
+The point is layer detection. The hardware Layer A/B buttons transmit nothing, so the host
+cannot see a layer change on the surface. Channel now identifies the bank on every message,
+and the pedal stays reachable regardless of bank.
 
 **Consequence for TouchDesigner:** with `Channel Prefix` blank on the MIDI In CHOP, input
-from multiple MIDI channels **merges into one set of CHOP channels**. The expression pedal
-would then land silently in the Layer A stream. Set `prefix` to `ch` before adding Layer B.
+from multiple MIDI channels **merges into one set of CHOP channels**, and the expression
+pedal would land silently in the Layer A stream. Set `prefix` to `ch` before adding Layer B.
 
----
+## Two config variants
+
+| Variant | Expression pedal |
+|---|---|
+| `with_EXP` | CC 30, channel 1 |
+| `NO_EXP` | Off |
+
+⚠️ An assigned but **unterminated** expression jack emits spurious CC 30 on fast fader-9
+movement. With no pedal plugged in, load a `NO_EXP` layer. The same applies to the foot
+switch — set its channel to Off when nothing is in the jack.
 
 ## All values full-range
 
-Every one of the 91 assignments is min `0` / max `127`. No scaling configured in the Editor —
-do any normalizing in TouchDesigner.
+Every record in both layers is min-equivalent `0` / max `127`, except the sixteen encoder
+records where the min byte carries the mode instead. No scaling configured in the Editor —
+normalize in TouchDesigner.
 
 ---
 
-## Provenance
+## `.bin` file format — reverse-engineered
 
-- **Verified from the byte comparison:** channel, message type (CC vs Note), index, min, max.
-  The two files differ in exactly one way — the channel byte — which makes those fields
-  unambiguous.
-- **Supplied by Obie:** every physical control label, the C3=60 convention, expression pedal
-  intent, the Main fader button identification, and the G#4 channel fix.
-- **Inferred:** the fader touch group (see caveat above).
-- **Unexplained:** the `0x12` byte on the touch records, and the trailing bytes on every
-  record. The `.bin` format is undocumented and reverse-engineered.
+Undocumented. Decoded from these exports only; treat as provisional. Working decoder:
+`xtouch-compact-config/decode.py`.
+
+**Header:** 5 bytes, `20 15 01 04 03`. **Identical in every file** — the layer is not
+identified in the header, only by filename.
+
+**Records:** 91, immediately following the header:
+
+```
+[0] channel   0 = ch1 … 15 = ch16, 0x12 = Off
+[1] type      0 = CC, 1 = Note
+[2] index     raw MIDI CC or note number
+[3] min       0 normally; encoder mode when the control is an encoder
+[4] max       127 throughout
+[5..]         trailing zeros
+```
+
+**`0x12` in the channel byte means Off.** Established 2026-08-02 by exporting the same
+layer with the expression pedal enabled and disabled — that byte was the only difference.
+This also explains the original fader-touch records, which carried `0x12` because touch was
+simply switched off.
+
+Record length is **7 bytes for the nine faders and the expression pedal, 8 bytes for the
+other 81.** What determines the length is not known; the extra byte has been zero in every
+file examined. A parser must not assume a fixed stride.
+
+⚠️ **Open:** whether that extra byte holds button push behaviour and encoder ring mode.
+Plausible — exactly those controls have such a setting and faders do not — but it has never
+been observed to change.
+
+**Record order** is not the physical layout order: faders, encoders 1–8, encoder pushes
+1–8, encoders 9–16, encoder pushes 9–16, then the button blocks in ascending note order,
+then expression pedal, foot switch, fader touch.
+
+---
+
+## What changed from the previous version of this document
+
+1. **Fader touch moved from CC 101–109 to CC 100–108** and is now in use, channel-assigned
+   in both layers. The parked off-by-one is retired.
+2. **All sixteen encoders set to Relative 1**, and the mode byte identified as `130`.
+   The previous version stated all controls were absolute.
+3. **`0x12` = channel Off** established, replacing the earlier guess that it was an unknown
+   marker specific to fader touch.
+
+Also new: the `NO_EXP` variants, and the four source exports now under version control in
+`xtouch-compact-config/`.

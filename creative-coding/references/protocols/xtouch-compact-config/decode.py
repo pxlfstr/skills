@@ -17,7 +17,8 @@ Records  91, immediately after the header:
     [0] channel   0 = ch1 ... 15 = ch16, 0x12 = Off
     [1] type      0 = CC, 1 = Note
     [2] index     raw MIDI CC or note number
-    [3] min       0 = absolute for encoders; relative modes are set here
+    [3] min       encoder mode lives here: 0 = absolute, 130 = Relative 1
+                  (two's complement). Values for Relative 2 and 3 unknown.
     [4] max       127 throughout in every file seen so far
     [5..] trailing zeros
 
@@ -58,6 +59,17 @@ def channel(v):
     return "Off" if v == CH_OFF else f"ch{v + 1}"
 
 
+# Encoder mode is stored in the min byte. Only these two values have been seen.
+# 130 was confirmed by setting all sixteen encoders to Relative 1 in the Editor
+# and re-exporting — single variable, unambiguous. Relative 2 and 3 have never
+# been exported, so their byte values are unknown.
+ENC_MODE = {0: "absolute", 130: "relative1"}
+
+
+def enc_mode(v):
+    return ENC_MODE.get(v, f"unknown({v})")
+
+
 def read(path):
     d = open(path, "rb").read()
     if d[:5] != HEADER:
@@ -82,11 +94,13 @@ def read(path):
 
 def dump(path):
     print(f"\n=== {path} ===")
-    print(f"{'control':<16}{'type':<6}{'num':>5}{'channel':>10}{'min':>6}{'max':>6}")
+    print(f"{'control':<16}{'type':<6}{'num':>5}{'channel':>10}{'min':>6}{'max':>6}  mode")
     for r in read(path):
+        mode = enc_mode(r["min"]) if r["control"].startswith("enc") and not r[
+            "control"].startswith("encpush") else ""
         print(
             f"{r['control']:<16}{r['type']:<6}{r['index']:>5}"
-            f"{channel(r['channel']):>10}{r['min']:>6}{r['max']:>6}"
+            f"{channel(r['channel']):>10}{r['min']:>6}{r['max']:>6}  {mode}"
         )
 
 

@@ -11,10 +11,10 @@ drift the moment a `.bin` changes without the document being regenerated** — r
 
 | File | Layer | Expression pedal |
 |---|---|---|
-| `LayerA-with_EXP.bin` | A — channel 1 | CC 30, channel 1 |
-| `LayerA-NO_EXP.bin` | A — channel 1 | Off |
-| `LayerB-with_EXP.bin` | B — channel 2 | CC 30, channel 1 |
-| `LayerB-NO_EXP.bin` | B — channel 2 | Off |
+| `Touchdesigner-X_Touch-LayerA-with_EXP.bin` | A — channel 1 | CC 30, channel 1 |
+| `Touchdesigner-X_Touch-LayerA-NO_EXP.bin` | A — channel 1 | Off |
+| `Touchdesigner-X_Touch-LayerB-with_EXP.bin` | B — channel 2 | CC 30, channel 1 |
+| `Touchdesigner-X_Touch-LayerB-NO_EXP.bin` | B — channel 2 | Off |
 
 The pedal is deliberately pinned to **channel 1 in both layers** so it stays reachable
 regardless of the active bank. It is the only control that does not follow the layer's
@@ -24,13 +24,14 @@ The two `NO_EXP` variants exist because an assigned-but-unterminated expression 
 emits spurious CC 30 on fast fader-9 movement. With no pedal plugged in, load a
 `NO_EXP` layer or the noise comes back.
 
-**Filenames are fixed, not timestamped.** Overwriting the same four names is what makes
-each save show up as a diff. Superseded exports go in `archive/` with a date prefix.
+**Filenames are the Editor's own, fixed and not timestamped.** The Editor writes straight
+into this folder, so overwriting the same four names is what makes each save show up as a
+change in git. Superseded exports go in `archive/` with a date prefix.
 
 ## Usage
 
 ```
-python decode.py LayerA-with_EXP.bin
+python decode.py Touchdesigner-X_Touch-LayerA-with_EXP.bin
 python decode.py *.bin --compare
 ```
 
@@ -53,7 +54,7 @@ identified in the header, only by filename.
 [0] channel   0 = ch1 ... 15 = ch16, 0x12 = Off
 [1] type      0 = CC, 1 = Note
 [2] index     raw MIDI CC or note number
-[3] min       0 = absolute; encoder relative modes are set in this byte
+[3] min       encoder mode: 0 = absolute, 130 = Relative 1 (two's complement)
 [4] max       127 in every file so far
 [5..]         trailing zeros
 ```
