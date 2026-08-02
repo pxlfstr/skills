@@ -101,21 +101,20 @@ Reference-grade technical material and generically written patterns only. The au
 
 ## Where the rules live
 
-**This file does not restate the operating rules, so they cannot drift.**
+**`RULES.md` at the root of this repo.** One copy, for all three skills.
 
-Claude loads `SKILL.md` into context automatically. It does **not** load this README — it is read only if a session clones the repo and opens it. So every rule that has to fire without being sought lives in `SKILL.md`, in full, in each skill that needs it. That triplication is deliberate: a session may load only one skill, and a rule it cannot see is a rule that does not exist.
+Each skill's `SKILL.md` is a short pointer file whose only job is to clone this repo and read `RULES.md` plus that skill's `GUIDE.md`. That means:
 
-| Rule | Where |
+- Rules exist once and cannot drift between skills
+- Changing a rule needs a commit, not a re-upload
+- **Re-upload is only needed when a skill's frontmatter `description` changes** — that is the trigger text, read before anything is cloned
+- If the clone fails, the pointer file tells Claude to halt and say so rather than work from memory
+
+| File | Holds |
 |---|---|
-| Order of operations — clone once, then look up on every prompt; never ask permission to check | `*/SKILL.md`, first section |
-| Rule 1 — `protocols/` and `patterns/` are separate folders | `creative-coding/SKILL.md` |
-| Rule 2 — every reference document opens with `## Provenance` | all `SKILL.md` |
-| Rule 3 — claim vocabulary is load-bearing | all `SKILL.md` |
-| Rule 4 — instructions written in the order they are performed | `creative-coding`, `digital-video` |
-| Rule 5 — no named member from memory; the lookup leaves a source block | all `SKILL.md` |
-| Rule 6 — a retraction names the cause, not the state | all `SKILL.md` |
-
-Verification tiers, citation style and the additive-maintenance rule are also defined there, and per-document tier schemes are defined in each skill's `references/INDEX.md`.
+| `RULES.md` | Order of operations, what may be committed, confidence tiers, Rules 1–8 |
+| `<skill>/GUIDE.md` | That skill's scope, workflow, knowledge map, reference library |
+| `<skill>/SKILL.md` | Short pointer file. Clone, read, halt on failure. **Frozen** — editing it means a manual re-upload |
 
 **The mechanical provenance check**, for running against the repo directly:
 

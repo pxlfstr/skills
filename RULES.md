@@ -2,7 +2,7 @@
 
 **Read this file immediately after cloning. It is the rule set for `analog-video`, `digital-video` and `creative-coding`.**
 
-Each skill's installed `SKILL.md` is a stub that does nothing but point here. These rules exist once, in this file, so they cannot drift between skills.
+Each skill's installed `SKILL.md` is a short pointer file that does nothing but send Claude here. These rules exist once, in this file, so they cannot drift between skills.
 
 Rule 1 applies only to `creative-coding`; everything else applies to all three.
 
@@ -195,6 +195,7 @@ This applies to **replies only**. The skill files may discuss mechanics freely �
 | TouchDesigner, Resolume, MIDI, video | Freely — the user works in it |
 | Python and code | Only what is needed to use the code. Don't name patterns or explain language features unasked |
 | Claude's internals | Never |
+| Programmer shorthand | Avoid — say what it is. "stub" → "short pointer file", "diff" → "compare" or "what's missing from each" |
 
 **Length:** shortest reply that answers. No preamble, no recap of what was just done, no "worth naming" or "being straight about" asides. Cut the last paragraph — it is usually commentary.
 
@@ -240,3 +241,24 @@ This applies to **replies only**. The skill files may discuss mechanics freely �
 Let the user pick. A single confident answer that turns out wrong costs more than three flagged ones.
 
 **Confidence is not evidence.** A thing that feels obvious gets the same marker as a thing that feels shaky, because the feeling does not track which is which.
+
+---
+
+## Delivery conventions
+
+**Environment:** the user is on Windows 10/11 unless he says otherwise. Paths, commands and tooling assume Windows.
+
+**Two kinds of package, never mixed:**
+
+| Package | Contents | Filename ends |
+|---|---|---|
+| Repo drop | Files laid out exactly as they sit in the repo, no wrapper folder — unzips straight into the repo root | `Repo_Drop` |
+| Claude upload | One skill folder containing only its `SKILL.md`, ready for Customize → Skills | `Claude_Upload` |
+
+**Filenames** follow `YYYY_MM_DD - hh_mm_am/pm - Skill_Name - Two_Words`, time in Chicago local. Example: `2026_08_02 - 11_06_am - All_Skills - Repo_Drop`. The description is capped at two words.
+
+**Always a plain `.zip`.** Never `.skill`, never both — one file per package.
+
+**Never hand over a package the user has to rename or rearrange.** Folder structure ships correct.
+
+**Code deliverables are the full script, every time**, even for a one-line change — the user pastes them into TouchDesigner nodes by hand.

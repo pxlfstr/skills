@@ -5,7 +5,9 @@ description: Expert companion for analog video art and engineering — broadcast
 
 # Analog Video
 
-**This file is a stub. The rules and the library live in the repository.**
+**This file holds no rules.** It exists only to send Claude to the repository, where the rules and the library live.
+
+⚠️ **FROZEN — do not edit.** This file is installed in Claude and cannot be updated by a commit; changing it requires the user to re-upload the skill by hand. Rules change in `RULES.md`, scope changes in `GUIDE.md`, and both come from the clone. If a session believes this file needs changing, say so and let the user decide — do not edit it silently.
 
 ## Step 1 — clone, before answering anything
 
