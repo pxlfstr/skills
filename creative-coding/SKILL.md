@@ -7,6 +7,37 @@ description: Code and working patterns for live video and show control — MIDI 
 
 Code, control protocols, and working patterns for live video and show control. Sibling skill to `digital-video`.
 
+---
+
+## Order of operations — before anything else
+
+**This is first in the file because it is first in the work.** Everything below it is reference material; this is the procedure. Do not read past this section until step 1 is running.
+
+1. **Clone the canonical repo. First tool call of the session, before answering anything.**
+
+   ```bash
+   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
+   ```
+
+   State the commit date in the reply. Clone both `creative-coding/` and `digital-video/` — coding work needs device facts from the sibling skill.
+
+2. **Read `/tmp/skills-repo/creative-coding/references/INDEX.md`.** It is the manifest. It tells you which document covers the thing you are about to answer.
+
+3. **Open the document that covers the thing you are about to write.** Not skim the index entry — open the file and read the section. Cloning the repo and not reading it is the same as not cloning it.
+
+4. **Only then write.**
+
+### Why this section exists
+
+**2026-08-02.** The repo was cloned at the start of the session. Code was then written naming `sendMIDI` on a MIDI Out CHOP — a method that does not exist. `references/protocols/touchdesigner-resolume-operators.md` §5h documents the real method set (`sendNoteOn`, `sendNoteOff`, `sendControl`, `send`), read first-hand from Derivative and dated, along with the working `send(0xb0, 0x2f, 0x40)` example. The file was never opened. The user found the error by running the code.
+
+The instruction to read the index already existed — as step 2 of a numbered list 150 lines into this document, below an essay on taxonomy. **A rule placed where it will not be reached first is not a rule.** That is why this section is at the top and why the Workflow section below now begins after it.
+
+**Each session is a fresh instance with no memory of the last one.** The user is, in their own words, briefing a new programmer every time. Write for that reader: procedure first, reasoning second.
+
+---
+
 ## The dividing line — revised 2026-08-01
 
 **The split is by domain, not by fact-versus-pattern.** The old rule sent every protocol fact to `digital-video`, which pushed TouchDesigner operator reference, MIDI maps and the Resolume control API into a skill about video signal. That drift is what this revision corrects.
@@ -134,22 +165,46 @@ The same applies to teardown and safety steps. Disabling an operator that would 
 
 Checkable by looking: read the steps top to bottom and perform them in that order. If the result is wrong, the list is wrong.
 
+### Rule 5 — no named member is ever written from memory
+
+A method, parameter, attribute, endpoint, or class member on a TouchDesigner operator, a Resolume API, a Companion module, or any vendor device is **looked up before it is written** — not after the user reports an error.
+
+Order of resort:
+
+1. `references/protocols/` in the cloned repo
+2. The vendor's own documentation page
+3. Runtime introspection — `dir()`, a textport probe the user runs
+
+**If none of the three is possible in the moment, the identifier still ships — with the doubt attached to the artifact, not to the chat:**
+
+```python
+# UNVERIFIED: send() signature not confirmed against docs
+```
+
+A hedge written in a chat message does not count. Chat scrolls away; the code outlives it, and the next session reads the file, not the conversation.
+
+**Two failure modes, opposite directions, one cause:**
+
+| Failure | Looks like | Cost |
+|---|---|---|
+| Silent invention | A plausible name written in the same confident register as the correct code around it | The user finds it by running it |
+| Noisy hedging | Flagging uncertainty on something one tool call would settle | Offloads the check onto the user, and devalues the hedges that matter |
+
+**One tool call beats a hedge.** If it is checkable now, check it. Hedging is for what cannot be checked.
+
+Recalled and constructed feel identical from the inside, so this rule does not ask for better judgement — it asks for a lookup.
+
+### Rule 6 — a retraction names the cause, not the state
+
+"I talked myself out of it" and "I second-guessed myself" describe an internal state the user cannot act on. Name the mechanism instead: *"I wrote a method name from pattern instead of checking the reference."* That tells the user which category of output to distrust, which is the only part of a retraction with any value.
+
 ---
 
 ## Workflow
 
-1. **Sync the library from the canonical repo.** The `references/` folder in this container is a snapshot taken at the last skill upload and may be weeks stale. The canonical library is public and needs no credentials:
+1. **Steps 1–4 are the Order of operations at the top of this file.** Clone, read the index, open the covering document, then write. The `references/` folder in this container is a snapshot from the last skill upload and may be weeks stale — always prefer `/tmp/skills-repo/`.
 
-   ```bash
-   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
-   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
-   ```
-
-   Prefer `/tmp/skills-repo/creative-coding/references/` over the local copy wherever they differ, and **state the repo's last commit date** so the user knows how current the library is. Pull `/tmp/skills-repo/digital-video/references/` in the same clone — coding work still needs video-signal and device facts from it (bandwidth ceilings, LED processor behaviour, projector optics, switcher behaviour), even though the protocol reference now lives here.
-
-2. **Read `references/INDEX.md`** before answering. It is the manifest.
-
-3. **Separate fact from pattern before writing anything — but both stay in this skill now.** Tag a vendor or protocol number `[Official]` and a developed structure `Bench-verified` / `Designed`; never let the two blur into one paragraph. Only a *video-signal or device* fact goes to `digital-video`. If a request needs both sides of that boundary, produce two deliverables and cite across.
+2. **Separate fact from pattern before writing anything — but both stay in this skill now.** Tag a vendor or protocol number `[Official]` and a developed structure `Bench-verified` / `Designed`; never let the two blur into one paragraph. Only a *video-signal or device* fact goes to `digital-video`. If a request needs both sides of that boundary, produce two deliverables and cite across.
 
 4. **Deliver complete scripts, never partial diffs.** The user stitches code into TouchDesigner nodes by hand; "change just this line" causes errors. Every code update is the **full script**, every time, even for a one-line change. This is a standing preference, not a per-request one.
 

@@ -9,6 +9,33 @@ A working companion for the digital video field — live event production, broad
 
 **Use this skill** whenever the user says "digital video skill," or whenever a conversation turns to: designing or troubleshooting a live signal chain; switchers, routers, multiviewers, scan converters, scalers, or frame syncs; signal transport (SDI, HDMI, DisplayPort, HDBaseT, fiber); IP video (NDI, SMPTE ST 2110, ST 2022-6, SRT, RTMP/RTSP); sync and genlock (black burst, tri-level, PTP/2059); codecs and containers (H.264/265, AV1, ProRes, DNxHR, JPEG2000, MXF); color and formats (Rec.601/709/2020, DCI-P3, HDR/PQ/HLG, chroma subsampling, bit depth, frame rates, scan formats); LED walls and processors; projection (lumens, throw, blending, warping, mapping); or media-server / TouchDesigner / Resolume pipelines. Trigger it even when the user doesn't say the magic phrase but is clearly working in this domain.
 
+---
+
+## Order of operations — before anything else
+
+**This is first in the file because it is first in the work.** Everything below is reference material; this is the procedure.
+
+1. **Clone the canonical repo. First tool call of the session, before answering anything.**
+
+   ```bash
+   git clone --depth 1 https://github.com/pxlfstr/skills.git /tmp/skills-repo
+   git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
+   ```
+
+   State the commit date in the reply. The clone brings both skills — pull `creative-coding/references/` too when the question touches control protocols or TouchDesigner.
+
+2. **Read `/tmp/skills-repo/digital-video/references/INDEX.md`.** It is the manifest.
+
+3. **Open the document that covers the thing you are about to answer.** Not skim the index entry — open the file and read the section. Cloning the repo and not reading it is the same as not cloning it.
+
+4. **Only then answer.**
+
+**No specification number, device parameter, or vendor limit is written from memory** when a reference document covers it. Look it up first, not after the user reports the error. If nothing covers it and it cannot be checked in the moment, say which it is — an unverified figure ships marked, never bare. See `creative-coding` Rules 5 and 6, which apply to both skills.
+
+**Each session is a fresh instance with no memory of the last one.** Write for that reader: procedure first, reasoning second.
+
+---
+
 ## The dividing line with `creative-coding` — revised 2026-08-01
 
 This skill has a sibling: **`creative-coding`**, in the same repository. The boundary was redrawn on 2026-08-01 because the old one ("facts here, code there") had pulled TouchDesigner operator reference, MIDI maps and media-server control APIs into this skill, none of which are about video signal.
