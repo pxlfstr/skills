@@ -1,7 +1,7 @@
----
-name: analog-video
-description: Expert companion for analog video art and engineering — broadcast television technology (NTSC/PAL/SECAM), CRT displays, video synthesizers (Rutt-Etra, LZX, Sandin, Paik-Abe), circuit bending, video art history, color theory, graphic design, liquid light shows, and the underlying physics, electrical engineering, and math (geometry, trig, calculus). Use this skill whenever the user says "analog video skill," or whenever a conversation turns to any of the above topics — designing or repairing video gear, reading schematics, understanding TV signal structure, planning a video-art or light-show piece, or interpreting documentation the user provides about analog video. The user supplies reference documents to extend and update Claude's knowledge; this skill is the protocol for using and growing that library. Trigger it even when the user doesn't say the magic phrase but is clearly working in this domain.
----
+# Analog Video — guide
+
+Read after `RULES.md`. Scope, workflow and knowledge map for this skill.
+
 
 # Analog Video Art & Engineering
 
@@ -28,20 +28,17 @@ The user owns a specific rack, captured in `references/my-rack.md` — an LZX-ce
 
 When this skill is active, follow this loop:
 
+`RULES.md` runs first, every turn. What follows applies once you are answering.
+
 1. **Gather all available references.** Check two places: (a) any documents the user has just provided in this conversation, and (b) the stored library in `references/`. Read `references/INDEX.md` first if it exists — it's the manifest of what's been stored and why. Treat stored documents as more authoritative than memory for specifics (part numbers, schematics, module specs, recipes, dates).
 
 2. **Offer to store new documents.** If the user provided new material this turn that looks reusable (a schematic, a manual, a spec sheet, build notes, a reading list), ask whether to save it to the library — e.g., "Want me to store this in the skill so it's available next time?" Don't store automatically; the user curates their own library. When they say yes, follow `references/STORAGE.md`.
 
 3. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). Cite which document a specific fact came from when it came from a stored doc, so the user can trace it.
 
-4. **Be concise by default — but concise is not the same as dense.** This is a working tool: the user usually wants the answer, the value, the pinout, the formula, not an essay. Lead with short answers. Expand into prose only when asked, or when a concept genuinely needs a walked-through explanation (e.g., deriving a deflection waveform). On formatting, pick whatever is *easiest to read* for the kind of data:
-   - **Use a small table when each item has several attributes** — signal timings, voltage/IRE levels, pinouts, module specs, component values. A row per item with clean columns is far clearer than one bullet trying to hold a duration, a level, and a description at once.
-   - **Default to a side-by-side table for comparisons** — comparing two standards, formats, devices, or techniques (NTSC vs. PAL, shadow mask vs. aperture grille, one synth module vs. another) reads best as one column per option and a row per attribute, so differences line up at a glance. This is a frequent request in this domain; reach for the table format by default.
-   - **Use bullets for lists of distinct points**, one idea per bullet. Don't cram multiple facts into a single bullet with middots (`·`), stacked dashes, or arrows — if a bullet has three facts in it, it wants to be a table row or three bullets.
-   - Keep units and labels consistent down a column so the eye can scan.
-   The goal is that the user can read an answer at a glance and act on it, not decode it.
+4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning.
 
-5. **Flag the edges of competence.** When a question lands in a thin-knowledge area (see "Where Claude is limited" below), say so directly and suggest the fix: provide a document, or let Claude search the web. A short "⚠️ low confidence — verify against a datasheet" is more valuable than a confident guess.
+5. **Flag the edges of competence.** When a question lands in a thin-knowledge area (see "Where Claude is limited" below), say so directly and then search — do not offer to. A short "⚠️ low confidence — verify against a datasheet" is more valuable than a confident guess.
 
 ## Where Claude has deep knowledge
 
@@ -71,9 +68,13 @@ When a request sits here, say something like: "This is device-specific and I'd b
 
 ## Reference library
 
+**Canonical source: https://github.com/pxlfstr/skills** (`analog-video/references/`). The repo is authoritative; the copy in this container is a snapshot.
+
 The `references/` folder holds the user's curated documents. Two helper files govern it:
 
 - `references/INDEX.md` — the manifest. Read it at the start of every session to know what's available.
 - `references/STORAGE.md` — how to add a new document to the library and update the index.
 
 If `references/` is empty except for those files, that's expected for a fresh skill — the library grows as the user feeds it material.
+
+**Nothing written to `references/` persists.** This container is discarded when the session ends; the only durable copy is the GitHub repository above. Never tell the user a document has been "stored" or "saved to the skill" on the basis of having written it to disk. Produce the file, deliver it as a download, and say plainly that it needs to be committed. Full rules in `references/STORAGE.md`.
