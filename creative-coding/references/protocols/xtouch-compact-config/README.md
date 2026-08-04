@@ -26,7 +26,7 @@ emits spurious CC 30 on fast fader-9 movement. With no pedal plugged in, load a
 
 **Filenames are the Editor's own, fixed and not timestamped.** The Editor writes straight
 into this folder, so overwriting the same four names is what makes each save show up as a
-change in git. Superseded exports go in `archive/` with a date prefix.
+change in git.
 
 ## Usage
 
@@ -56,17 +56,22 @@ identified in the header, only by filename.
 [2] index     raw MIDI CC or note number
 [3] min       encoder mode: 0 = absolute, 130 = Relative 1 (two's complement)
 [4] max       127 in every file so far
-[5..]         trailing zeros
+[5] push      push behaviour: 0 = Momentary, 1 = Toggle
+[6..]         trailing zeros
 ```
 
 Record length is **7 bytes for the nine faders and the expression pedal, 8 for the other
 81**. What decides the length is not established — the extra byte has been zero in every
 file examined. A parser must not assume a fixed stride.
 
-⚠️ **Open:** whether the 8-byte records use their extra byte for button push behaviour
-and encoder ring mode. Plausible, since exactly those controls have such a setting and
-faders do not, but every export so far has that byte at zero, so it has never been seen
-to change.
+**Push behaviour is byte 5.** Confirmed 2026-08-02 by switching only fader touch from
+Momentary to Toggle and re-exporting: exactly nine bytes changed across all four files,
+all at byte 5 of the nine fader-touch records, `0x00` → `0x01`. Byte 5 is present on the
+7-byte records too — faders and the expression pedal both carry it at 0 — so it has
+nothing to do with record length.
+
+⚠️ **Still open:** what decides record length, and where encoder ring mode is stored.
+Neither has been seen to change.
 
 ## Record order
 
@@ -77,7 +82,3 @@ switch, fader touch.
 ⚠️ Which physical row is "top" versus "bottom" is **Obie's labelling**, not readable from
 the file. `decode.py` uses the names from the map document.
 
-## Archive
-
-`archive/` holds superseded exports, date-prefixed. Kept rather than deleted so a change
-in device behaviour can be traced to the config change that caused it.

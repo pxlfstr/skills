@@ -27,9 +27,11 @@ client or venue detail.
   published. The format decode is reverse-engineered from these exports alone.
 - **Not verified against hardware in this pass.** The table states what the configuration
   files contain, not what the device transmits.
-- **Open, unresolved:** the byte values for Relative 2 and Relative 3; the meaning of the
-  trailing bytes on every record; whether the device's ring-value RX table carries the
-  same +1 shift found in the button LED velocity table.
+- **Open, unresolved:** the byte values for Relative 2 and Relative 3; what decides record
+  length; where encoder ring mode is stored.
+- **Closed since the last version:** the ring-value RX table is NOT shifted — raw sends of
+  13 and 14 to CC 26 gave rightmost-LED solid and leftmost-LED blinking, matching the
+  manual's documented bands. The +1 shift is specific to the button LED velocity table.
 
 ---
 
@@ -116,7 +118,12 @@ exported. `decode.py` reports an unrecognised value rather than guessing.
 
 ## Fader touch
 
-CC 100–108 raw, in use as of 2026-08-02. Reads as **101–109 in the MIDI In DAT**, which
+CC 100–108 raw, in use as of 2026-08-02. **Push behaviour must be Toggle, not Momentary.**
+
+⚠️ With fader touch set to Momentary, the touch signal interferes with the fader's own
+move CC: fader 1's move CC alternated between 0 and 127 instead of sweeping, with the host
+sending nothing at all. Setting touch to Toggle cleared it. Bench-observed 2026-08-02,
+undocumented by Behringer, mechanism unknown. Reads as **101–109 in the MIDI In DAT**, which
 lines up with fader numbering.
 
 Value 127 on touch, 0 on release. ⚠️ **Touch-on lags the first movement message by roughly
@@ -181,7 +188,8 @@ identified in the header, only by filename.
 [2] index     raw MIDI CC or note number
 [3] min       0 normally; encoder mode when the control is an encoder
 [4] max       127 throughout
-[5..]         trailing zeros
+[5] push      push behaviour: 0 = Momentary, 1 = Toggle
+[6..]         trailing zeros
 ```
 
 **`0x12` in the channel byte means Off.** Established 2026-08-02 by exporting the same
@@ -193,9 +201,12 @@ Record length is **7 bytes for the nine faders and the expression pedal, 8 bytes
 other 81.** What determines the length is not known; the extra byte has been zero in every
 file examined. A parser must not assume a fixed stride.
 
-⚠️ **Open:** whether that extra byte holds button push behaviour and encoder ring mode.
-Plausible — exactly those controls have such a setting and faders do not — but it has never
-been observed to change.
+**Push behaviour is byte 5.** Established 2026-08-02 by switching only fader touch from
+Momentary to Toggle and re-exporting: exactly nine bytes changed across all four files, all
+at byte 5 of the fader-touch records, `0x00` → `0x01`. Byte 5 exists on the 7-byte records
+too and reads 0 there, so it is unrelated to record length.
+
+⚠️ **Still open:** what decides record length, and where encoder ring mode is stored.
 
 **Record order** is not the physical layout order: faders, encoders 1–8, encoder pushes
 1–8, encoders 9–16, encoder pushes 9–16, then the button blocks in ascending note order,

@@ -20,7 +20,10 @@ Records  91, immediately after the header:
     [3] min       encoder mode lives here: 0 = absolute, 130 = Relative 1
                   (two's complement). Values for Relative 2 and 3 unknown.
     [4] max       127 throughout in every file seen so far
-    [5..] trailing zeros
+    [5] push      push behaviour: 0 = Momentary, 1 = Toggle. Confirmed 2026-08-02
+                  by switching only fader touch to Toggle and re-exporting — nine
+                  records moved, nothing else in any of the four files
+    [6..] trailing zeros
 
 Record length is 7 bytes for the nine faders and the expression pedal,
 8 bytes for the other 81. What decides the length is not known — the extra
@@ -70,6 +73,15 @@ def enc_mode(v):
     return ENC_MODE.get(v, f"unknown({v})")
 
 
+# Push behaviour, byte 5. Present on 7-byte records too — faders and the
+# expression pedal both carry it at 0 — so it is unrelated to record length.
+PUSH = {0: "momentary", 1: "toggle"}
+
+
+def push(v):
+    return PUSH.get(v, f"unknown({v})")
+
+
 def read(path):
     d = open(path, "rb").read()
     if d[:5] != HEADER:
@@ -87,6 +99,7 @@ def read(path):
                 "index": d[s + 2],
                 "min": d[s + 3],
                 "max": d[s + 4],
+                "push": d[s + 5],
             }
         )
     return out
@@ -94,13 +107,14 @@ def read(path):
 
 def dump(path):
     print(f"\n=== {path} ===")
-    print(f"{'control':<16}{'type':<6}{'num':>5}{'channel':>10}{'min':>6}{'max':>6}  mode")
+    print(f"{'control':<16}{'type':<6}{'num':>5}{'channel':>10}{'min':>6}{'max':>6}  {'push':<11}mode")
     for r in read(path):
         mode = enc_mode(r["min"]) if r["control"].startswith("enc") and not r[
             "control"].startswith("encpush") else ""
         print(
             f"{r['control']:<16}{r['type']:<6}{r['index']:>5}"
-            f"{channel(r['channel']):>10}{r['min']:>6}{r['max']:>6}  {mode}"
+            f"{channel(r['channel']):>10}{r['min']:>6}{r['max']:>6}  "
+            f"{push(r['push']):<11}{mode}"
         )
 
 
