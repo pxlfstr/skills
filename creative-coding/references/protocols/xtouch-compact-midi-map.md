@@ -21,14 +21,15 @@ client or venue detail.
   expression-pedal channel exception. The `.bin` files carry no labels.
 - **Bench-identified, not documented by Behringer:** which Editor relative mode is which
   encoding, and the encoder mode byte value. See *Encoders* below.
-- **Supersedes** the version derived 2026-08-01. Three things changed — see
-  *What changed* at the end.
+- **Supersedes** the version derived 2026-08-01, and its 2026-08-02 revision. Rebuilt 2026-08-04
+  from the four exports committed in `xtouch-compact-config/`.
 - **Not read:** no X-Touch Editor documentation of the `.bin` format is known to be
   published. The format decode is reverse-engineered from these exports alone.
 - **Not verified against hardware in this pass.** The table states what the configuration
   files contain, not what the device transmits.
 - **Open, unresolved:** the byte values for Relative 2 and Relative 3; what decides record
-  length; where encoder ring mode is stored.
+  length; where encoder ring mode is stored; **which physical button block maps to which LED
+  receive note — never tested, 39 buttons**.
 - **Closed since the last version:** the ring-value RX table is NOT shifted — raw sends of
   13 and 14 to CC 26 gave rightmost-LED solid and leftmost-LED blinking, matching the
   manual's documented bands. The +1 shift is specific to the button LED velocity table.
@@ -62,7 +63,7 @@ Octave convention throughout: **C3 = 60 (Yamaha/Steinberg)**.
 | Encoders 9–16 (right side) | 18–25 | 19–26 | 1 | 2 |
 | Expression pedal | 30 | 31 | 1 | **1** — intentional, layer-independent |
 | Foot switch | 31 | 32 | 1 | 2 |
-| Fader touch 1–9 | 100–108 | 101–109 | 1 | 2 |
+| Fader touch 1–9 | 0–8 | 1–9 | **3** | **4** |
 
 CC 9 is unassigned, as are 26–29 and 32–99.
 
@@ -116,34 +117,47 @@ from 0 to 130, nothing else in the file changed.
 ⚠️ The byte values for Relative 2 and Relative 3 are **unknown** — neither has been
 exported. `decode.py` reports an unrecognised value rather than guessing.
 
-## Fader touch
+## Fader touch — its own channels
 
-CC 100–108 raw, in use as of 2026-08-02. **Push behaviour must be Toggle, not Momentary.**
+**CC 0–8 on channel 3 for bank A and channel 4 for bank B. Push behaviour Momentary.**
 
-⚠️ With fader touch set to Momentary, the touch signal interferes with the fader's own
-move CC: fader 1's move CC alternated between 0 and 127 instead of sweeping, with the host
-sending nothing at all. Setting touch to Toggle cleared it. Bench-observed 2026-08-02,
-undocumented by Behringer, mechanism unknown. Reads as **101–109 in the MIDI In DAT**, which
-lines up with fader numbering.
+Touch deliberately does **not** follow the bank channels the rest of the surface uses. It shares
+CC 0–8 with the faders themselves and is separated only by channel.
 
-Value 127 on touch, 0 on release. ⚠️ **Touch-on lags the first movement message by roughly
-2–9 frames** (bench-observed), so touch is not usable as the onset signal for echo
-suppression — latch on first movement instead and use touch only for the release edge.
+⚠️ **Why it was moved there.** With touch on the same channel as the fader's own move CC, Momentary
+push behaviour corrupted that CC: fader 1's move messages alternated between 0 and 127 instead of
+sweeping, with the host sending nothing at all. Bench-observed 2026-08-02, mechanism unknown,
+undocumented by Behringer.
 
-This numbering was chosen deliberately to retire an earlier off-by-one: the files
-previously stored 101–109 while a bench note recorded 101–109 *as displayed*, and which
-convention the note used was never recorded. Moving the device to 100–108 makes both
-readings agree rather than resolving which was right.
+Toggle cleared the corruption but made touch useless as a gate — **no message on finger contact,
+one message per release, alternating 127 then 0.** Moving touch to its own channels allows
+Momentary, which restores proper contact and release.
+
+**Now bench-confirmed on channel 3:** `b2 00 7f` on contact, `b2 00 00` on release, with the
+fader's own move messages arriving between the two.
+
+⚠️ **Touch-on lags the first movement message by roughly 2–9 frames** (bench-observed). Touch is
+not usable as the onset signal for echo suppression — arm on first movement and use touch for the
+release edge.
+
+**Consequence for any host mapping:** the lookup must be keyed on **channel + message type +
+number**. `fader1` and `fader_touch1` are both CC 0; only the channel separates them. Bank detection
+also cannot be "channel 2 means B" — **channels 1 and 3 are bank A, 2 and 4 are bank B.**
+
+**History.** Touch was previously at raw CC 101–109, then moved to 100–108 on the bank channels to
+retire an off-by-one, then moved here. The off-by-one is retired either way.
 
 ---
 
-## Layer B is channel 2, with exactly one exception
+## Bank channels, with two exceptions
 
-Every assignment transmits on **channel 1 in Layer A and channel 2 in Layer B**, at the
-same control number. One record breaks that, on purpose:
+Every assignment transmits on **channel 1 in bank A and channel 2 in bank B**, at the same control
+number. Two things break that, both on purpose:
 
-**CC 30 — expression pedal. Channel 1 in both layers.** Verified: it is the only channel-1
-record in the Layer B file.
+**CC 30 — expression pedal. Channel 1 in both banks.** So it stays reachable regardless of the
+active bank, and can never be evidence of which bank is active.
+
+**Fader touch — channels 3 and 4.** See above.
 
 The point is layer detection. The hardware Layer A/B buttons transmit nothing, so the host
 cannot see a layer change on the surface. Channel now identifies the bank on every message,
@@ -216,8 +230,9 @@ then expression pedal, foot switch, fader touch.
 
 ## What changed from the previous version of this document
 
-1. **Fader touch moved from CC 101–109 to CC 100–108** and is now in use, channel-assigned
-   in both layers. The parked off-by-one is retired.
+1. **Fader touch moved to CC 0–8 on channels 3 and 4**, push behaviour Momentary. It was at
+   CC 101–109, then CC 100–108 on the bank channels, before landing here. The parked off-by-one
+   is retired.
 2. **All sixteen encoders set to Relative 1**, and the mode byte identified as `130`.
    The previous version stated all controls were absolute.
 3. **`0x12` = channel Off** established, replacing the earlier guess that it was an unknown

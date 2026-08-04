@@ -261,6 +261,10 @@ Let the user pick. A single confident answer that turns out wrong costs more tha
 
 **Never hand over a package the user has to rename or rearrange.** Folder structure ships correct.
 
+**Repo files ship in the zip and nowhere else.** Never also attach them as loose files — loose deliveries get named to avoid collisions in one output folder (`creative-coding_GUIDE.md`), those names are not repo names, and they end up committed alongside the correct ones. Three duplicate guides and six stray `.bin` files reached the repo this way on 2026-08-03. One package, correctly pathed, nothing beside it.
+
+**Strip upload prefixes before packaging.** Files arriving from the user land with a numeric prefix (`1785688292171_Touchdesigner-...bin`). Copying an upload folder straight into a package carries that prefix into the repo. Rename to the intended filename first, every time.
+
 **Every textport command goes in its own fenced code block.** Fenced blocks render with a copy button; inline backticks do not, and the user is pasting these into TouchDesigner by hand. One command per block — the textport takes one line per message, so a block holding two lines cannot be pasted as-is. Never put a runnable command in inline backticks or in prose.
 
 **Code deliverables are the full script, every time**, even for a one-line change — the user pastes them into TouchDesigner nodes by hand.

@@ -3,15 +3,27 @@
 Project: a column sequencer for Resolume Arena 7, running in TouchDesigner, with a browser/phone
 UI. Built starting 2026-05-01.
 
-> **Provenance of this document.** Reconstructed 2026-07-19 from session records, **not** from the
-> source files. The original file set — `arena_sequencer.py`, `arena_web_callbacks.py`,
-> `index.html`, `readme.txt` — was delivered as downloads and is not in hand. What survives is the
-> design reasoning and the specific bugs we hit. Treat code fragments below as *descriptions of
-> what the code did*, not as verified transcriptions. If the original files still exist locally,
-> they supersede this entirely.
->
-> Protocol facts about Resolume's API are deliberately **not** duplicated here — see
-> `digital-video/references/` (Resolume API reference; see INDEX "depends on" note).
+## Provenance
+
+- **Reconstructed 2026-07-19 from session records, NOT from the source files.** The original
+  file set — `arena_sequencer.py`, `arena_web_callbacks.py`, `index.html`, `readme.txt` — was
+  delivered as downloads and is not in hand. Code fragments below are *descriptions of what the
+  code did*, not verified transcriptions. **If the original files still exist locally they
+  supersede this document entirely.**
+- **Tiers present, stated in place at each section:** Bench-verified for the architecture,
+  component list, QR onboarding and column identity; Shipped for the console-introspection
+  habit; Designed for the poll-removal refactor; Abandoned for the WebSocket drop.
+- **No web sources.** Nothing here was read from a vendor page, so there are no page dates or
+  revision identifiers to record.
+- **Not read:** the source files themselves; the running project; any Resolume documentation.
+  Protocol facts about Resolume's API are deliberately not duplicated here — see
+  `protocols/resolume-control-interfaces.md`.
+- **Open, unresolved:** the 1.5 s self-trigger window, never re-tested off the original
+  network; the 1 s composition poll, superseded in principle but the refactor untried; the
+  WebSocket drop, never root-caused; the original source files, not recovered.
+- **Provenance block added 2026-08-04.** The document already carried this material as an
+  untitled note; it failed the mechanical `## Provenance` check in Rule 2 despite having the
+  substance. Content preserved, heading corrected.
 
 ---
 

@@ -19,7 +19,11 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 
 `protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md`
 
+`protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
+
 `patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md`
+
+**Every document opens with a `## Provenance` block, heading exact, above the first content heading.** As of 2026-08-04 all documents in `protocols/` and `patterns/` pass the mechanical check in `RULES.md` Rule 2.
 
 **Every document opens with a provenance block.** Sourcing tiers, each web source's own last-edited date and oldid, what was *not* read, and open contradictions left unresolved rather than tidied away. A document without one is not finished. See `STORAGE.md`.
 
@@ -31,7 +35,7 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 | `resolume-control-interfaces.md` | All 13 Resolume control/sync/media protocols, capability matrix, ports, and all 295 REST operations |
 | `behringer-x-touch-compact.md` | X-Touch Compact device facts, factory MIDI maps, `.bin` preset format decode |
 | `behringer-xtouch-compact-resolume.md` | X-Touch as a Resolume control surface — TX/RX maps, LED feedback gate, mode selection |
-| `xtouch-compact-midi-map.md` | **New 2026-08-01.** The user's own X-Touch Compact map decoded from their Layer A/B `.bin` exports — 91 assignments, note names at C3=60, the expression-pedal channel exception, and an unresolved off-by-one on fader touch |
+| `xtouch-compact-midi-map.md` | **Rebuilt 2026-08-04** from the committed `.bin` exports — 91 assignments, note names at C3=60, encoders on Relative 1, the expression-pedal channel exception, and fader touch on its own channels 3 and 4 sharing CC 0–8 with the faders. Read the fader-touch section before writing any host mapping: the lookup must be keyed on channel + type + number, and banks are channels 1/3 = A, 2/4 = B |
 
 Maintenance is **additive and never lossy** — merge rather than replace, promote confidence tiers rather than overwriting them, keep Abandoned patterns, remove only what is shown to be *wrong*. See `STORAGE.md`.
 
