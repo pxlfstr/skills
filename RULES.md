@@ -261,6 +261,8 @@ Let the user pick. A single confident answer that turns out wrong costs more tha
 
 **Never hand over a package the user has to rename or rearrange.** Folder structure ships correct.
 
+**Every textport command goes in its own fenced code block.** Fenced blocks render with a copy button; inline backticks do not, and the user is pasting these into TouchDesigner by hand. One command per block — the textport takes one line per message, so a block holding two lines cannot be pasted as-is. Never put a runnable command in inline backticks or in prose.
+
 **Code deliverables are the full script, every time**, even for a one-line change — the user pastes them into TouchDesigner nodes by hand.
 
 ### Rule 9 — no answer is reasoned when a reference covers it
