@@ -28,8 +28,11 @@ client or venue detail.
 - **Not verified against hardware in this pass.** The table states what the configuration
   files contain, not what the device transmits.
 - **Open, unresolved:** the byte values for Relative 2 and Relative 3; what decides record
-  length; where encoder ring mode is stored; **which physical button block maps to which LED
-  receive note — never tested, 39 buttons**.
+  length; where encoder ring mode is stored.
+- **Closed 2026-08-04:** the button LED receive-note mapping, previously untested across all 39
+  buttons, is confirmed correct — see *Button LEDs* below. The playback grid's transmit notes and
+  the two silent Layer A/B positions are confirmed in the same pass. **No assignment in this
+  document is now unverified against hardware.**
 - **Closed since the last version:** the ring-value RX table is NOT shifted — raw sends of
   13 and 14 to CC 26 gave rightmost-LED solid and leftmost-LED blinking, matching the
   manual's documented bands. The +1 shift is specific to the button LED velocity table.
@@ -77,6 +80,8 @@ CC 9 is unassigned, as are 26–29 and 32–99.
 | Below faders 1–8 | 72–79 | C4–G4 | 73–80 | 8 | 1 | 2 |
 | Below Main fader (9) | 80 | G#4 | 81 | 1 | 1 | 2 |
 | Playback control grid | 84–89 | C5–F5 | 85–90 | 6 | 1 | 2 |
+
+**The playback grid is 4 rows by 2 columns physically — eight positions, six assignments.** The other two are the Layer A and Layer B buttons, which transmit nothing at all. Bench-confirmed 2026-08-04: pressing all eight produced exactly six messages, raw notes 84–89 in order, left to right then top to bottom.
 | Encoder push 1–8 | 96–103 | C6–G6 | 97–104 | 8 | 1 | 2 |
 | Encoder push 9–16 | 108–115 | C7–G7 | 109–116 | 8 | 1 | 2 |
 
@@ -84,6 +89,46 @@ Every block runs C through G except two: the below-faders row is nine wide (C4�
 because of the Main fader button, and the playback grid is six (C5–F5). The gaps between
 blocks — 44–47, 56–59, 68–71, 81–83, 90–95, 104–107 — are what keep each block starting
 on a C.
+
+## Button LEDs — receive notes, and the device lights its own
+
+**Transmit and receive use completely different note numbers.** A button transmits in the C-based
+blocks above and receives its LED on a separate contiguous range:
+
+| Block | Transmits (raw) | LED receives (raw) |
+|---|---|---|
+| Top row | 36–43 | 0–7 |
+| Middle row | 48–55 | 8–15 |
+| Bottom row | 60–67 | 16–23 |
+| Below faders (9 wide) | 72–80 | 24–32 |
+| Playback grid | 84–89 | 33–38 |
+
+**Bench-confirmed 2026-08-04**, one send per block: raw note 0 lit row 1 button 1, 8 lit row 2
+button 1, 16 lit row 3 button 1, 24 lit row 4 button 1, and 33 lit the rewind button. Ascending
+left to right within each block.
+
+**Every transmit and receive assignment on this surface has now been verified against hardware** —
+all 91 transmit assignments captured in the MIDI In DAT, and every LED receive block confirmed by
+raw send.
+
+Velocity: **1 = off, 2 = on, 3 = blinking.** This contradicts the manual's p.32 table and is
+bench-observed. Velocity 0 also reads as off, via the standard note-on-velocity-0 convention.
+
+### The device lights its own button LEDs
+
+⚠️ **In Momentary push behaviour the device drives the LED itself** — lit while the button is
+held, cleared the instant it is released, regardless of what the host has sent. Bench-observed
+2026-08-04.
+
+**Consequence for any host that owns button state:** a write on the press is wiped by the device's
+own clear on release. The host must **re-send on note-off**, not only on note-on. Without that the
+LED goes dark on every release and only returns on the next periodic repaint — which reads as a
+multi-second delay to light, and an instant response to turn off.
+
+This mirrors the encoder rings, which the device also draws locally. The pattern is general: this
+surface renders its own controls, and a host that wants authority has to write last, not first.
+
+---
 
 ---
 
