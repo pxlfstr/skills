@@ -262,3 +262,15 @@ Let the user pick. A single confident answer that turns out wrong costs more tha
 **Never hand over a package the user has to rename or rearrange.** Folder structure ships correct.
 
 **Code deliverables are the full script, every time**, even for a one-line change — the user pastes them into TouchDesigner nodes by hand.
+
+### Rule 9 — no answer is reasoned when a reference covers it
+
+The gate in each skill's `SKILL.md` is a session-start rule. This is its mid-session half, and it is the one that actually fails.
+
+**Before answering anything that names an operator, device, protocol, endpoint or API, open the document that covers it.** `INDEX.md` says which. Not the index entry — the file and the section. Every time, not once per session.
+
+**Why this cannot be left to judgement:** Claude produces fluent, confident, plausible output whether or not it knows the thing. Invented method names, invented parameters, invented device behaviour — all in the same register as the correct material beside them. From the inside, recalled and constructed are indistinguishable. So the check cannot be "do I need to look this up?", because that question is answered by the same faculty that does the inventing.
+
+**The failure has a shape.** It happens deep in a working session, after a clone that felt like compliance, on a question that reads as a continuation of something already established. Momentum is the risk factor, not difficulty.
+
+**What is allowed without a lookup:** the user's own stated facts, bench results recorded in this conversation, arithmetic, and reasoning explicitly labelled as reasoning under Rule 8. Everything else about a vendor's behaviour is looked up or marked `# UNVERIFIED:`.
