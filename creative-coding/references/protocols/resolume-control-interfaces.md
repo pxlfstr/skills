@@ -35,6 +35,8 @@ is undated beyond `0.0.1`. Re-verify anything version-sensitive against the buil
 
 **Expanded 2026-08-01.** Integration *patterns* are deliberately excluded — they live in `creative-coding/references/patterns/resolume-companion-glue.md`.
 
+
+**§3.2a added 2026-08-04 — Tier: bench-observed.** Message shapes watched on the wire from TouchDesigner against Arena 7.27.1 rev 15990, not read from documentation. Several are stated nowhere in Resolume's own material. No page date or revision applies, because no page states them.
 ---
 
 ## 1. Protocol inventory
@@ -191,6 +193,46 @@ replacement for polling.**
 
 Parameter path is either `/parameter/by-id/<parameter id>`, or the logical REST path minus `/api/v1`
 with the parameter name appended — e.g. `/composition/columns/1/name`.
+
+### 3.2a Bench findings — Arena 7.27.1 rev 15990, 2026-08-04
+
+Observed on the wire from TouchDesigner, not read from documentation. Several of these are not
+stated anywhere in Resolume's own material and will bite a first implementation.
+
+**The composition message has no `type` field.** On connect you get three messages in this order:
+the composition, then `sources_update`, then `effects_update`. Only the last two carry a type.
+**A handler cannot route on type alone** — identify the composition by content, and note that
+`parameter_subscribed` responses are also untyped in the same way, so "no type" does not mean
+"composition" either. Keying on the presence of `layers` works.
+
+**`thumbnail_update` arrives in bursts of dozens.** Filter it or it floods the handler.
+
+**Every parameter is an object carrying an `id` and a `valuetype`** — `ParamString`,
+`ParamTrigger`, `ParamBoolean`, `ParamRange`, `ParamChoice`, `ParamEvent`, `ParamState`. Layer
+opacity and layer master are `ParamRange` 0.0–1.0.
+
+**Selection is a real parameter, not just an endpoint.** Every layer, column, clip and deck
+carries `"selected": {"id": <n>, "valuetype": "ParamTrigger", "value": true|false}`. That makes
+selection both subscribable for push feedback and triggerable to set — so a select-and-follow
+loop runs over WebSocket alone, with no REST and no polling. This is easy to miss: the REST
+inventory lists `select` as a POST action, which suggests it is an action rather than a
+parameter.
+
+⚠️ **The id you subscribe with is not the id you get back.** Subscribing with the composition's
+`selected` id returns a `parameter_subscribed` whose `id` differs from the one sent, and whose
+`path` is `/composition/layers/N/select` — note `select`, not `selected`. The subscription works;
+the response is authoritative for what subsequent `parameter_update` messages will carry.
+
+**Route on `path`, build on `id`.** The update carries both. Paths are index-based and 1-based, so
+they name the layer directly but break on reorder; ids are stable.
+
+**Both sides of a selection change push.** Selecting layer 2 pushes `value: true` for layer 2 and
+`value: false` for layer 3 in the same instant. Selection made in Resolume's own interface pushes
+identically — there is no way to tell host-originated from user-originated changes apart at the
+message level.
+
+**The composition is re-sent on structural change**, which is the hook for rebuilding a
+parameter-id map when layers or columns are added or removed.
 
 **Structural actions** use a different message shape: `action` of `post` or `remove` (not `delete` —
 it's a JS/C++ keyword), plus `path` (REST path minus `/api/v1`), optional `body`, and an optional

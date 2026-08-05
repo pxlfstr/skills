@@ -18,7 +18,9 @@ USB/MIDI control surface. Device facts, complete factory MIDI maps, and the rece
 - The RX button-LED table is printed as fixed notes 0–38 on the global channel with no per-layer variant shown. **Unverified** whether that holds in Layer B.
 - The layer Speed fader does not receive feedback on clip change. Suspected bug; **unconfirmed.**
 
-**Stored 2026-07-20.** See `xtouch-compact-midi-map.md` for the user's own decoded map, which supersedes the factory maps here for their rig.
+**§5a added 2026-08-04 — Tier: bench-observed.** Measured on the unit, not read from any documentation. Several items contradict or extend the manual and say so in place. Nothing in §5a carries a page date or revision, because no page states it. No Behringer documentation covers local ring rendering, the Momentary/Toggle channel interference, or the absence of a query command — their absence from the manual is itself part of the finding.
+
+**Stored 2026-07-20, extended 2026-08-04.** See `xtouch-compact-midi-map.md` for the user's own decoded map, which supersedes the factory maps here for their rig.
 
 ---
 
@@ -154,7 +156,73 @@ This is what makes the X-Touch a *feedback* surface rather than a one-way contro
 
 Layer A/B LEDs are **not assignable** — exactly one of the two lights, reflecting the selected layer.
 
-> ⚠️ **Open item — unverified.** The RX button-LED table is printed as fixed notes 0–38 on the global channel, with no per-layer variant shown. In Layer A those numbers coincide with the transmit map; in Layer B the transmit notes are 71+ while the RX table still reads 0–38. The manual does not state whether RX feedback re-numbers per layer. **Bench-test before relying on Layer B LED feedback.**
+**Bench-confirmed 2026-08-04**, one raw send per block: note 0 lights row 1 button 1, 8 lights row 2 button 1, 16 lights row 3 button 1, 24 lights row 4 button 1, 33 lights the rewind button. Numbering is raw throughout, not 1-based, and ascends left to right within each block. The whole table is now verified against hardware.
+
+⚠️ **Button LED velocity contradicts the manual.** Bench-observed: **1 = off, 2 = on, 3 = blinking**, and velocity 0 also reads as off. The table above is the manual's, and it is wrong for `on` and `blink`. Working explanation: the firmware's enum is 1-based while the manual documents it 0-based, and velocity 0 lands on off separately through the standard note-on-velocity-0 convention. Values 4–127 untested.
+
+⚠️ **Still open:** whether RX button-LED numbering re-numbers per layer. Confirmed only in Layer A.
+
+---
+
+## 5a. Bench findings, 2026-08-04
+
+All measured on the unit, not read from documentation. Several contradict or extend the manual.
+
+### The device drives its own controls
+
+**In Momentary push behaviour the device lights and clears its own button LED** — lit while held, dark on release — regardless of what the host sends. A host write on the press is wiped by the device's clear on release.
+
+**Consequence for any host that owns button state:** re-send on note-off, not only on note-on. Without that the LED goes dark on every release and only returns on the next periodic repaint, which reads as a multi-second delay to light and an instant response to turn off.
+
+**The device also draws its own encoder rings** as you turn, and this cannot be switched off — none of the ring behaviour modes hands display to the host.
+
+### Encoder ring: the device renders 25 states, the host can send 13
+
+Measured with USB disconnected, so this is the device's own local rendering across its internal position:
+
+| Value | Ring |
+|---|---|
+| 0 | all off |
+| 1–6 | LED 1 |
+| 7–11 | LEDs 1 & 2 |
+| 12–16 | LED 2 |
+| 17–21 | LEDs 2 & 3 |
+| 22–27 | LED 3 |
+| … | alternating single and adjacent pair |
+| 64 | LED 7 |
+| 122–126 | LEDs 12 & 13 |
+| 127 | LED 13 |
+
+Thirteen single LEDs plus twelve adjacent pairs — **25 states**. The RX table exposes only the thirteen singles.
+
+⚠️ **So a host cannot reproduce what the device draws for itself.** Whenever the device is showing a pair, a host write lands on one of the two, which reads as a flicker on the neighbouring segment. No scaling formula fixes it; the resolutions differ. Host authority over the rings and smooth rendering are mutually exclusive on this hardware.
+
+**Bench-confirmed:** raw sends of 30, 64 and 100 to a ring value CC produced no change, so **29–127 really are ignored** and the pair states are unreachable over MIDI. A send of 2 gave a single LED.
+
+**Bench-confirmed:** the ring value table is **not** shifted the way the button LED velocity table is. Sending 13 gave the rightmost LED solid, 14 gave the leftmost blinking, exactly matching the documented 1–13 / 14–26 bands.
+
+⚠️ **Value 0 is a real state — all LEDs off — not the bottom of the 1–13 range.** A host that clamps a zero up to 1 leaves one segment lit at zero.
+
+### Bank changes are silent, and the device cannot be polled
+
+**Switching banks on the surface produces no MIDI at all.** The device silently restores its own per-bank fader positions and LED states.
+
+**The entire receive map is write-only.** There is no query, request or dump command — nothing asks the device for a control's position. So a bank change can never be detected after the fact, and the device's own memory is the only source of truth for anything the host has not been told.
+
+Two consequences for host design:
+
+- A host must not assert values it never learned. A "never seen" control and a stored zero are indistinguishable unless the host tracks them separately, and asserting an unlearned zero drives a motorised fader to the bottom over a position the device had correct.
+- **Program Change is the way out** — `0 = Layer A, 1 = Layer B`, Standard mode only. A host that sets the bank always knows it. ⚠️ Documented, never bench-tested; and the hardware A/B buttons still transmit nothing, so a user pressing one desyncs it again.
+
+### Fader touch interferes with the fader's own CC
+
+⚠️ **Undocumented, mechanism unknown.** With fader touch assigned to the same MIDI channel as the fader's own move CC and set to **Momentary**, the move CC is corrupted — a fader alternated between 0 and 127 instead of sweeping, with the host sending nothing at all.
+
+**Toggle** cleared the corruption but made touch useless as a gate: there is **no message on finger contact**, only one per release, alternating 127 then 0 on successive releases.
+
+**The fix is neither setting — it is a separate channel.** With touch moved to its own MIDI channel it works properly on Momentary: 127 on contact, 0 on release, with the fader's own move messages arriving between the two, and no corruption.
+
+⚠️ Touch-on lags the first movement message by roughly 2–9 frames, so touch is not usable as the *onset* signal for echo suppression. Arm on first movement and use touch for the release edge.
 
 ---
 
@@ -186,6 +254,12 @@ Layer A/B LEDs are **not assignable** — exactly one of the two lights, reflect
 
 ### Layer A `.bin` preset decode
 
+**Superseded 2026-08-04.** A full decode from paired Layer A/B exports is in
+`xtouch-compact-midi-map.md`, along with a working parser. It establishes the record layout,
+that `0x12` in the channel byte means **channel Off** (which is what the prefix block below
+actually was), that byte 3 carries encoder mode and byte 5 push behaviour. The reading below
+predates it and is kept for history.
+
 **Tier: Lead.** A 723-byte `LayerA.bin` export was parsed as 91 fixed-width records in 7 blocks: 9 fader CCs; 16 encoder CCs across two rows (mode bytes `0x01` and `0x04`); 55 notes for buttons and encoder pushes; 2 CCs for the foot jacks; and 9 CCs carrying an anomalous `0x12` prefix of unknown purpose.
 
 Two things the file did **not** reveal:
@@ -198,7 +272,9 @@ This is a reverse-engineered read of an undocumented format. Verify empirically 
 
 ## Open items
 
-- RX button-LED numbering under Layer B (§5).
-- Purpose of the `0x12` prefix block in the Layer A preset file (§7).
-- Where per-control MIDI channel is actually stored.
+- RX button-LED numbering under Layer B (§5) — Layer A confirmed 2026-08-04.
+- Whether button LED velocities 4–127 are ignored (§5a).
+- Whether Program Change bank switching works in practice (§5a) — documented, untested.
+- Why fader touch on a shared channel corrupts the fader's own CC (§5a).
+- What decides `.bin` record length, and where encoder ring mode is stored (§7).
 - Whether the Speed-fader feedback gap is a Resolume bug or a mapping error (§6).

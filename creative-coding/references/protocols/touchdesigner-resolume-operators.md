@@ -100,6 +100,8 @@ Some Tier B snippets came from the `derivative.ca/UserGuide/` mirror rather than
 version operator pages per build — pages carry a "TouchDesigner Build: Latest" marker and an edit
 date only. Nothing here is confirmed specifically against 2025.33070.
 
+
+**§1 bench finding added 2026-08-04 — Tier: bench-observed.** That `netaddress` accepts a path, the full parameter list on the running build, and the viewer frame cost were all measured, not read. The operator page does not mention any of them.
 ---
 
 ## 0. Protocol → operator map
@@ -138,7 +140,7 @@ setup.
 | Parameter | Name | Behaviour |
 |---|---|---|
 | Active | `active` | While on, the DAT receives. **While off, no updating occurs and data sent to the port is lost** |
-| Network Address | `netaddress` | Hostname or IP. `localhost` for same machine |
+| Network Address | `netaddress` | Hostname or IP. `localhost` for same machine. **Also takes a path** — see below |
 | Network Port | `port` | **Port 443 implies a secure connection.** For a secure connection on any other port, a `wss://` prefix is required on Network Address |
 | Connection Timeout | `timeout` | Milliseconds to wait when connecting. An **upper limit** — connection may fail sooner |
 
@@ -183,6 +185,21 @@ def onMonitorMessage(dat, message): return          # websocket status messages
 `WebsocketDAT_Class` page carrying these methods and callbacks was **last edited 2018-05-25**. The
 signatures may lag the current build. **Verify against the running build's own Python help before
 building on them** — the no-false-numbers rule applies with force here.
+
+### Bench finding 2026-08-04 — the path goes in Network Address
+
+**There is no path parameter on this operator.** The full parameter list is `active`, `netaddress`,
+`port`, `timeout`, `delay`, `callbacks`, `executeloc`, `fromop`, `clamp`, `maxlines`, `clear`,
+`bytes`, plus the common language ones — confirmed on the running build. Resolume's WebSocket API
+lives at `/api/v1`, so how the path is supplied matters.
+
+**`netaddress` accepts host plus path.** `localhost/api/v1` with Network Port `8080` connects.
+Undocumented — the page describes `netaddress` only as hostname or IP.
+
+⚠️ **The viewer will cost you frames.** The FIFO table redraws on every message, and with
+Resolume pushing `parameter_update` and `thumbnail_update` this dropped TouchDesigner to 11 fps
+while inside the containing COMP. Keep Maximum Lines low (10 is plenty) or turn the node viewer
+off — the toggle is the button at the operator's top left, not a right-click item.
 
 ### Findings that matter for hub design
 

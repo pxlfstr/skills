@@ -21,7 +21,7 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 
 `protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
 
-`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md`
+`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md`
 
 **Every document opens with a `## Provenance` block, heading exact, above the first content heading.** As of 2026-08-04 all documents in `protocols/` and `patterns/` pass the mechanical check in `RULES.md` Rule 2.
 
@@ -136,3 +136,32 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **A lesson worth keeping, recorded in the document:** three separate "bugs" during verification were all bad test isolation — sampling outside the canvas, sampling a point covered by an adjacent box's border, and testing a border while art was in foreground where it is correctly suppressed. Before probing a canvas: disable everything else, move the object under test off the raster edge, and write down the expected value *before* sampling.
 
+---
+
+### `control-surface-authority.md`
+**Added:** 2026-08-04
+
+**Covers:** Who owns a control's state when the surface renders its own controls. Deciding owner
+per control and why the deciding question is what the host can actually *render*, not what it
+should own. Separating "never seen" from "stored zero", which is what drives motorised faders to
+the bottom over positions the device had right. Deduplicating writes so a device's own per-bank
+memory is trusted, and the two traps that come with it. Motorised faders: a hold-off armed by
+movement and kept open by touch, plus settling a value before moving the motor rather than
+chasing it. Deriving the bank from the message channel when the surface's bank buttons transmit
+nothing, and why it must be applied ahead of every early return. A listener hook that keeps the
+surface and target-app components ignorant of each other, passing the message's own identity
+rather than a control name. Subscribe-rather-than-poll against an app that pushes on change.
+
+**Use for:** any control-surface integration where the surface has its own display logic, motors,
+banks, or memory; deciding where authority sits before writing feedback code; debugging feedback
+that lands but doesn't hold, or motors that move when they shouldn't.
+
+**Confidence:** Bench-verified throughout — every pattern ran on hardware against live software.
+None has run a show.
+
+**Depends on:** `protocols/behringer-x-touch-compact.md` §5a for device behaviour, and
+`protocols/resolume-control-interfaces.md` §3.2a for the media server's message shapes. No vendor
+number is restated.
+
+**Open items:** whether write-deduplication can drift out of step with a device that changes state
+on its own; whether the settle interval for motor writes generalises past one operator's taste.
