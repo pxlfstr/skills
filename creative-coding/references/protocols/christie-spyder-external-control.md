@@ -19,11 +19,11 @@ there.
    and it lists no protocol change.
 3. **The 4.0.x release notes, fetched from Christie 2026-08-10 and read in full** `[Official]` —
    **020-000917-02** (v4.0.0), **-04** (v4.0.3), **-06** (v4.0.5), **-07** (v4.0.6). Cumulative:
-   the 4.0.6 document carries every entry back to 4.0.0 including all intervening betas.
-   ⚠️ **This changes the picture substantially — §8 lists seven commands and several argument
-   changes the manual does not contain.** ⚠️ **The 4.0.7 notes (020-000917-01) were not
-   retrievable**; the fetch was refused for lack of a search-result provenance chain, not because
-   the file is missing. **4.0.7 is the one unread release.**
+   the 4.0.6 document carries every entry back to 4.0.0 including all intervening betas. Plus
+   **020-000917-01 Rev. 1 (3-2016)** (v4.0.7), supplied by the user and read in full.
+   ⚠️ **This changes the picture substantially — §8 lists eight commands and several argument
+   changes the manual does not contain.** **The 4.x history is now complete: every release from
+   4.0.0 to 4.1.0 is accounted for.**
 - **Sourcing tier: `[Official]` throughout.** Every command, argument, range and response code
   below is transcribed from that chapter. Nothing is recalled and nothing is inferred except where
   marked.
@@ -31,10 +31,10 @@ there.
 - **What was NOT read:** no wire capture was taken, **no command in this document has ever been
   sent to a frame**, and no behaviour below has been tested. The manual's figures were not
   transcribed. **No protocol addendum or SDK covering the 4.x additions was found** — if Christie
-  published argument documentation for `AIR`, `RRD`, `RIF`, `RSCC`, `RSEC`, `RSCD` or `ASC`, it is
-  not in hand. **Also not read:** the 4.0.7 release notes.
+  published argument documentation for `AIR`, `RRD`, `RIF`, `RSCC`, `RSEC`, `RSCD`, `ASC` or `OCC`,
+  it is not in hand.
 - ⚠️ **Version gap, and the answer is not what the manual implies.** The manual predates 4.x, and
-  **Christie never revised it for the 4.x line.** The 4.0.x notes record **seven commands added
+  **Christie never revised it for the 4.x line.** The 4.0.x notes record **eight commands added
   and at least four existing commands changed** — none of which appears anywhere in the manual.
   **§5 is the 3.x command set as documented; §8 is everything 4.x added, as named.** A control
   system written from §5 alone will work, and will be missing capability it could have had.
@@ -363,7 +363,9 @@ Ordered by how expensive the mistake is, not by how likely it is.
     max-count arguments rather than asking for everything at once.
 12. **Establish the frame's software version before trusting any of this.** The command set,
     `RLK`'s behaviour and the response-code table all differ between 3.x and 4.x, and there is no
-    documented command that reports the version — the **front panel** is where it is read.
+    documented command that reports the version. **The front panel's status LCD shows it** — the
+    second line reads `Ver:` — confirmed from a chassis photograph in
+    `digital-video/references/christie-spyder-x20.md` §8.3. Read it before writing anything.
 13. **Use the UDP Console Simulator in Vista Advanced** to confirm any identifier before shipping
     it (§8.6). It is faster than writing a client and it is the only verification path available
     without Christie.
@@ -372,7 +374,8 @@ Ordered by how expensive the mistake is, not by how likely it is.
 
 ## 8. The 4.x additions — commands the manual does not contain
 
-**Source: release notes 020-000917-02, -04, -06, -07 and -08, read in full.** Everything in this
+**Source: release notes 020-000917-01, -02, -04, -06, -07 and -08 — all nine 4.x releases, read in
+full.** Everything in this
 section is `[Official]` **as a statement that the thing exists.** ⚠️ **No argument, range, response
 format or error behaviour is documented for any of it** — the notes are one-line summaries. Treat
 every identifier here as `# UNVERIFIED:` until it is confirmed against a frame.
@@ -388,6 +391,12 @@ every identifier here as `# UNVERIFIED:` until it is confirmed against a frame.
 | **`RSEC`** | Request Script Element Count | beta 0.55.7, in **4.0.2** | — |
 | **`RSCD`** | Request Script CueData Details | beta 0.55.7, in **4.0.2** | — |
 | **`ASC`** | Advance Script Cue | **4.0.6** | Advance a script cue, with an **optional ±X** argument |
+| **`OCC`** | **Output Config Connection** | **4.0.7** | Named and expanded, nothing more. It joins `OCF` / `OCM` / `OCR` / `OCB` / `OCS` in the output-configuration family (§5e), and "Connection" most plausibly means **selecting which physical connector an output drives** — the manual's outputs can enable DVI and SDI simultaneously when the format allows (§5e), and nothing in the 3.x protocol exposes that choice. ⚠️ **That reading is inference. The note says six words.** |
+
+**`OCC` is the one that plugs a real hole.** Every other output property — format, mode, rotation,
+blending — has a command; which connectors are live has never had one. If the inferred meaning
+holds, `OCC` is what a control system needs to switch an output between its DVI and SDI connectors
+without a client PC. **Confirm it before relying on it.**
 
 `RSCC`, `RSEC` and `RSCD` together are a **script introspection set** the 3.x protocol has no
 equivalent of — the manual can ask which cue a script is on (`SCR`) but not what is in it. For any
@@ -438,23 +447,42 @@ the set of routers a Spyder can drive grew considerably past whatever the manual
 
 **Atlona · Gefen 3 · Gefen IV (IP) · Gefen III IP · AJA Kumo (IP) · Utah Scientific RCP-3 · Utah
 Scientific 100 IP · DTrovision PureLink PM-32X (IP and serial) · Dtrovision III IP · Pesa Cougar
-P1N · Pesa PN1 over IP · Barco Matrix Pro II · Imagine Platinum (4.1.0).**
+P1N · Pesa PN1 over IP · Pesa P1N redundancy (4.0.7) · Barco Matrix Pro II · Imagine Platinum
+(4.1.0).**
+
+**The Pesa P1N *redundancy* protocol at 4.0.7 is the only redundancy-aware router driver in the
+line** — worth knowing when a rig has a redundant router and the control system needs to follow
+its failover rather than fight it.
 
 Fixes also touched Lightware response parsing, Extron IP TCP keep-alive, and Sierra / RGB Linx /
 Quartz / NVision Compact behaviour in offline sessions.
 
-### 8.6 Two more things worth knowing
+### 8.6 Register and command-key integrity — a documented failure mode
+
+§3 turns on register IDs being stable and meaningful. Across the line, three separate bugs say they
+were not always:
+
+- **Register lists could become corrupted**, requiring a "Data List Repair" (beta 0.54.2)
+- **Register names could get out of sync with underlying command key names** (beta 0.55.4)
+- **4.0.7** fixed **command keys missing after restoring the config file**, and command keys
+  **losing their colour value when applying a Repair Data List**
+
+⚠️ **A control system that addresses by register ID has a documented failure mode on older
+software**, and the repair tool meant to fix it had its own bug until 4.0.7. Addressing by
+**script ID** rather than register ID (§3) sidesteps the reordering problem but not the corruption
+one. On any frame below 4.0.7, verify register IDs after a config restore rather than assuming.
+
+### 8.7 Two more things worth knowing
 
 - **The UDP Console Simulator** — beta 0.56.6 fixed it hanging the Advanced interface when no
   server connection could be established at form load. **Its existence is the useful part:**
   Vista Advanced ships a console for sending these commands by hand. That is the fastest way to
   confirm any `# UNVERIFIED:` identifier in this document without writing a client.
-- **The register list can become corrupted**, requiring a "Data List Repair" (beta 0.54.2), and
-  register names could get **out of sync with underlying command key names** (beta 0.55.4). Since
-  §3 turns on register IDs being stable and meaningful, **a control system that addresses by
-  register ID has a documented failure mode on older software.**
+- **Expanded systems gained USB redundancy at 4.0.7.** Not a protocol matter, but it means a
+  control system talking to an expanded X20 has a more resilient frame-to-frame path above 4.0.7 —
+  see `digital-video/references/christie-spyder-x20.md` §12.5.
 
-### 8.7 4.1.0's own changes
+### 8.8 4.1.0's own changes
 
 The 4.1.0 notes list eight items and **none is a protocol change.** Two still affect code:
 
@@ -484,8 +512,8 @@ remains unread.
 
 **Still open, roughly by cost of being wrong:**
 
-1. **Arguments for every 4.x command.** `AIR`, `RRD`, `RIF`, `RSCC`, `RSEC`, `RSCD`, `ASC` are
-   **named and nothing else.** No argument list, no order, no ranges, no response format. **The
+1. **Arguments for every 4.x command.** `AIR`, `RRD`, `RIF`, `RSCC`, `RSEC`, `RSCD`, `ASC`, `OCC`
+   are **named and nothing else.** No argument list, no order, no ranges, no response format. **The
    fastest fix is the UDP Console Simulator in Vista Advanced** (§8.6), or a request to Christie
    for a 4.x protocol addendum if one exists.
 2. **The 4.x response code for oversized messages** (§8.3) — its value, and how the "option to
@@ -493,8 +521,9 @@ remains unread.
    incomplete and a strict parser can reject valid responses.**
 3. **Whether the 1400-byte ceiling applies on serial as well as UDP.** The number smells like a UDP
    payload, but nothing says so. On serial it may not exist at all.
-4. **The 4.0.7 release notes (020-000917-01).** One short public PDF; everything else in the 4.x
-   line is read.
+4. **What `OCC` (Output Config Connection) actually does** (§8.1). Reasoned as connector
+   selection, never confirmed, and it is the only command that would give external control over
+   which physical connector an output drives.
 5. **Where VDCP sits** (§8.4) — Spyder as controller or as controlled, on which transport, and
    whether it coexists with this ASCII protocol on the same port or line.
 6. **`OCM` covers only Normal, OpMon and Scaled** (§5e). The output Mode dropdown in Vista Advanced
@@ -518,9 +547,12 @@ remains unread.
 14. **Alignment effect 12's description** says "height" where the effect name says width (§6).
 15. **Response code 6 is reserved for a checksum** that is never described.
 16. **DX4 output module** appears only as a channel argument. No specification for it exists.
-17. **How a control system reads the frame's software version.** Given how much the protocol
-    changed across 4.x, this is a real gap — no command in either source reports it, and the front
-    panel is the documented place to look.
+17. **No command reports the frame's software version.** Given how much the protocol changed
+    across 4.x, this is a real gap: the version is readable on the front panel and, as far as
+    every source in hand shows, **not over the wire.** If a control system must adapt to version,
+    it cannot currently discover it.
+18. **How front-panel command-key paging maps to the protocol's register paging.** The panel pages
+    in eights across PG1–PG8; the protocol uses page × 1000 + ID (§3). **No stated relationship.**
 
 ---
 

@@ -5,7 +5,7 @@ Device and signal facts. The ASCII external control protocol is **not** here —
 
 ## Provenance
 
-**Five source groups. Four read in full, one read as a rendered product page.**
+**Six source groups. Four documents read in full, one rendered product page, two product photographs.**
 
 1. *Spyder X20 User Manual*, Christie document **020-000916-01 Rev. 1 (04-2016)** `[Official]` —
    supplied by the user as a 180-page PDF (a manualslib.com capture of the Christie PDF, page
@@ -20,10 +20,9 @@ Device and signal facts. The ASCII external control protocol is **not** here —
 3. **The 4.0.x release notes, fetched from Christie 2026-08-10 and read in full** `[Official]` —
    **020-000917-02** (v4.0.0), **-04** (v4.0.3), **-06** (v4.0.5) and **-07** (v4.0.6). These are
    **cumulative**: the 4.0.6 document contains every entry back to 4.0.0, including the 4.0.1,
-   4.0.2 and 4.0.4 releases and every intervening beta. ⚠️ **The 4.0.7 notes (020-000917-01) could
-   not be retrieved** — the fetch was refused for lack of a search-result provenance chain, not
-   because the file is missing; it is listed and linked on Christie's download page. **4.0.7's own
-   delta is the one unread gap in the 4.x history.**
+   4.0.2 and 4.0.4 releases and every intervening beta. Plus **020-000917-01 Rev. 1 (3-2016)**
+   (v4.0.7), supplied by the user and read in full. **The 4.x release history is now complete —
+   every release from 4.0.0 to 4.1.0 is accounted for.**
 4. *Spyder X20 User Manual* (stereoscopic), **020-000875-01 Rev. 1 (04-2016)** `[Official]` —
    supplied by the user, read in full. **Filed as its own document**,
    `christie-spyder-x20-stereoscopic.md`, and cited from here rather than restated.
@@ -33,22 +32,30 @@ Device and signal facts. The ASCII external control protocol is **not** here —
    copyright line reads 2026 and its most recent dated asset is 2025-02-03. **Christie's own site,
    so `[Official]`, but a marketing spec table rather than an engineering document** — where it
    disagrees with the manual, §13 records both rather than picking one.
+6. **Two Christie product photographs**, supplied by the user 2026-08-10 and **read visually**
+   `[Official]` — a rear three-quarter-flat view of a **Spyder X20-1608** (chassis plate reads
+   *Model URS1608, Mfg Date 10/08, S/N 10012-DEMO*) and a front view of an X20. **Christie's own
+   marketing gallery images**, so official product photography, but ⚠️ **observation from a
+   photograph is not a specification.** §8 states exactly what is legible and marks what is not.
+   The unit photographed is a **2008 demo chassis running 3.2.4** — connector layout is unlikely
+   to have changed, but the possibility is not excluded.
 
-- **Sourcing tier:** §1–§13 are **Verified [Official]** except where a line is marked **Derived**
-  or **Inferred** in place. Each section names which source it came from. No figure in this
-  document was recalled; every number appears in one of the five.
+- **Sourcing tier:** §1–§13 are **Verified [Official]** except where a line is marked **Derived**,
+  **Inferred** or **Observed** in place. Each section names its source. **"Observed" means read off
+  a photograph** — good enough to know a connector exists and where it sits, never good enough for
+  a specification.
 - **What was NOT read:** the manual's figures and screenshots carry values that text extraction
   does not capture — back-panel photographs (Figure 51), the front-panel status display, the patch
   utility screenshots, and the HDCP topology diagrams. Nothing in this document comes from a
   figure. The manual also defers front-panel operation to a separate "software / operator's manual
   for the X20", which was not supplied and has not been read. **Also not read:** the
-  **4.0.7 release notes** (020-000917-01), and the separate X20 **operator's manual** covering
-  front-panel operation.
+  separate X20 **operator's manual** covering front-panel operation — the front panel is now
+  photographed (§8.3) but its menu behaviour is still undocumented.
 - **Version gap, now nearly closed:** the manual **predates 4.x** — its own troubleshooting
   section names 3.5.5 as current "at the time of this writing" — and **Christie never issued a
   manual revision for the 4.x line.** §12 now carries the whole 4.x history from the release
-  notes, so the delta between the manual and the final software is known **except for 4.0.7's own
-  entries.** Anything in §9–§11 not contradicted by §12 remains 3.x-era-as-documented.
+  notes, **complete from 4.0.0 to 4.1.0 with no gaps.** Anything in §9–§11 not contradicted by §12
+  remains 3.x-era-as-documented.
 - ⚠️ **Release notes are one-line summaries, not documentation.** They name features and commands
   without arguments, ranges or behaviour. A command named in §12 is **confirmed to exist and
   nothing more** — never write one from the name alone.
@@ -165,14 +172,16 @@ Other VI rules:
 
 | Input | Connectors |
 |---|---|
-| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC |
+| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC. **On the chassis these are four BNCs marked `Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync` under "Analog", plus one marked `3G/HD/SD-SDI` under "Digital"** (§8.2) |
 | **Even** (2, 4, 6 …) | DVI-I (analog and digital on one connector) · Stereo sync input on 3-pin DIN |
 
 Only one connector / signal type can be selected per input at a time.
 
 ### X20 outputs
 
-Every output channel carries **DVI-I** and **SDI / HD-SDI / 3G-SDI**. Multiple output connectors
+Every output channel carries **DVI-I** and **SDI / HD-SDI / 3G-SDI**. **Confirmed on the chassis**
+(§8.2): the SDI BNC is silkscreened `3G/HD/SD-SDI`, and **odd outputs are marked `Dual DVI-I`
+while even outputs are marked `DVI-I`** — the dual-link split is readable off the back panel. Multiple output connectors
 can be enabled at once *provided the configured output format is valid for each* — the manual's
 example: SXGA 1280 × 1024 is valid on DVI and analog, invalid on SDI, composite and S-Video.
 
@@ -304,7 +313,9 @@ output dedicated to the operator monitor**, and its pixels count against that gr
 
 ---
 
-## 8. Physical, power, front panel
+## 8. Physical, power, and the panels
+
+### 8.1 Chassis and power
 
 | | X20 4 RU | Spyder 3 RU | Spyder 2 RU |
 |---|---|---|---|
@@ -314,28 +325,154 @@ output dedicated to the operator monitor**, and its pixels count against that gr
 
 **Standby power < 20 W** on 200, 300 and X20 alike.
 
-⚠️ **The product page disagrees with the manual on X20 power and weight** — 900 W and 9.0 A at
-100 VAC against the manual's 1000 W max, and 59 lb / 70.5 lb against the manual's ~70 lb. Both
-figures recorded in §13; neither has been resolved.
+⚠️ **Three sources give three different X20 power figures, and none of them agree.**
+
+| Source | Figure |
+|---|---|
+| User manual | **1000 W max** |
+| Product page spec table | **900 W**, 9.0 A @ 100 VAC, <750 BTU/hr |
+| **The chassis nameplate itself**, photographed | **`100-240V~ 50-60Hz 12.0A`** |
+
+The nameplate is a **regulatory marking on the unit**, so it is the number to size a circuit
+against — 12 A at 100 V is 1200 VA, above both published figures. The published numbers are most
+likely typical or measured draw and the plate is the rated maximum, but **nothing states that**,
+and the plate belongs to a 2008 demo chassis. **Unresolved. For a load-in, plan on the plate.**
+
+⚠️ **The X20 has two power supplies — and no Christie document in this library says so.** The
+photograph shows **two independently removable supply modules, each with its own IEC inlet and
+fan, on green release latches.** The product page's accessory list says *"2 AC power cords"*,
+which is consistent. **Redundant or load-sharing is not stated anywhere**, but two cords into two
+removable modules is the shape of a redundant pair, and a 4 RU processor of this class normally is.
+⚠️ **Treat redundancy as Observed and untested** — do not promise a client a single-cord failover
+without pulling one on a bench.
+
+**Weight also disagrees:** manual ~70 lb; product page lists **59 lb (27 kg)** and **70.5 lb
+(32 kg)** together, with 70.5 lb repeated as shipping weight. Reads like unit vs shipping with a
+mislabelled field; not stated.
 
 **Soft power scheme.** The front Standby switch starts a power-up or power-down cycle; the rear
 hard switch should only be used when the unit is already in standby. On X20, **holding the front
 power button for 13–15 seconds forces power off, and may cause permanent configuration data
-loss**. **Never pull AC before the unit reaches standby** — the manual warns of hard drive
-corruption on both families.
+loss**. **Never pull AC before the unit reaches standby** — hard drive corruption risk.
 
-**X20 back panel exposes the internal PC's connections** — keyboard, mouse, HD15 monitor, USB,
-mic in, speaker out. **Factory use only**, not intended for user peripherals.
+**110 V / 220 V conversion** (legacy 2 RU / 3 RU frames only): pull the fuse holder from the AC
+inlet and swap between a jumper-plus-one-fuse arrangement for 110 V and two fuses for 220 V —
+2 × 3 A for 3 RU or 2 × 2 A for 2 RU at 220 V; 1 × 5 A for 3 RU or 1 × 3 A for 2 RU at 110 V.
+Units ship set for their destination with a sticker over the AC inlet.
 
-**Front panel:** legacy frames have a status/error display showing version, frame, I/O
-configuration and IP address. X20 has an LCD plus switch-button interface for control and status;
-**its actual operation is deferred to a separate operator's manual that is not in hand.** The X20's
-IP address is readable from that front-panel display.
+### 8.2 Rear panel layout — Observed, X20-1608
 
-**110 V / 220 V conversion** (legacy frames): pull the fuse holder from the AC inlet and swap
-between a jumper-plus-one-fuse arrangement for 110 V and two fuses for 220 V — 2 × 3 A for 3 RU or
-2 × 2 A for 2 RU at 220 V; 1 × 5 A for 3 RU or 1 × 3 A for 2 RU at 110 V. Units ship set for their
-destination with a sticker over the AC inlet.
+**Source: Christie product photograph, read visually.** Layout only; no connector is specified
+from this. Four horizontal boards stacked top to bottom:
+
+| Row | Contents |
+|---|---|
+| 1 | **Input board 1 — Inputs 1–8** |
+| 2 | **Input board 2 — Inputs 9–16** |
+| 3 | **Output board — Outputs 1–8**, plus the system connector cluster |
+| 4 | **Nameplate · two power supply modules · the internal PC's I/O panel** |
+
+**Two input boards of eight on a 1608**, which is what the 4.x release notes imply when they
+describe linear key failing with cut and fill on *different input boards of an X20 1608* (§12.5).
+Board boundaries are real and they are at input 8.
+
+**Per-input connectors, alternating exactly as §4 describes:**
+
+| Input | Connectors, as labelled on the panel |
+|---|---|
+| **Odd** (1, 3, 5 …) | Four analog BNCs grouped under **Analog** — labelled **`Cr-Pr-C`**, **`B-Pb`**, **`G-Y-Comp`**, **`Comp Sync`** — plus one BNC under **Digital**, labelled vertically **`3G/HD/SD-SDI`** |
+| **Even** (2, 4, 6 …) | A 3-pin mini-DIN labelled **`Stereo Sync`**, and a DVI connector labelled **`Dual DVI-I`** |
+
+The four-BNC analog cluster is the manual's "3 or 4 wire BNC" made concrete: **`Cr-Pr-C` carries
+the composite/S-Video signal that shares the BNC with composite analog sync**, which is why the
+manual describes composite as sharing a connector rather than having its own.
+
+**Per-output connectors — and this is the useful one:**
+
+| Output | DVI connector as labelled | Also |
+|---|---|---|
+| **1, 3, 5, 7** | **`Dual DVI-I`** | One BNC under **Digital**, `3G/HD/SD-SDI` |
+| **2, 4, 6, 8** | **`DVI-I`** | One BNC under **Digital**, `3G/HD/SD-SDI` |
+
+⚠️ **The odd/even dual-link split is silkscreened on the panel.** Odd outputs read *Dual DVI-I*,
+even outputs read *DVI-I*. This independently confirms §5 and the stereoscopic document's output
+table **from the hardware itself**, not from a manual — the single most useful thing in the
+photograph, because it means an engineer at the back of a rack can see which outputs take dual
+link without consulting anything.
+
+**System cluster, right of Output 8** (this is the "one per output board" group from the
+stereoscopic document):
+
+| Connector | Label | Note |
+|---|---|---|
+| 3-pin mini-DIN | **`Stereo Sync`** | **One per output board**, shared by all eight outputs — the output-7 rule applies to it |
+| BNC | **`Genlock`** | ⚠️ **The genlock connector, confirmed on a real chassis.** A BNC. Nothing else about it is documented anywhere |
+| BNC | *(label not legible)* | A second BNC sits beside Genlock. **Not identified.** Recorded rather than guessed |
+| USB Type-B | **`Control`** | |
+| DVI-D | **`Op Mon Input`** | The still-server capture input (§10) |
+| High-density | **`Infiniband`** | The expansion port (§7) |
+
+**Bottom row:** the Christie nameplate reading **Spyder X20-1608**, the two power supply modules,
+and the internal PC's I/O panel — **two PS/2 ports, several DE-9 serial ports, an HD15 monitor
+output, RJ45 Ethernet, four or more USB, and three analog audio jacks.** The manual is explicit
+that this panel is **factory use only** and not for user peripherals (§1). The DE-9s are visible
+here; the manual's three RS-232 ports for external control are presumably among them, but **which
+DE-9 is which is not marked and not documented.**
+
+### 8.3 Front panel layout — Observed
+
+**Source: Christie product photograph, read visually.** Left to right: Christie badge over a
+**Spyder X20** plate, a ventilation panel, a rack handle, then the control surface, then a second
+handle and vent.
+
+**Left block — a soft-button control surface:**
+
+1. An **LCD label strip** above the buttons, showing one short label per column — in the photograph
+   `1 unti` · `2 clea` · `3 unti` · *(two blank)* · `6 unti` · `7 look` · `8 Look`, i.e.
+   **truncated command-key names** ("untitled", "clear", "look").
+2. **Two rows of eight amber buttons.**
+3. A second **LCD label strip** reading `1- PG1` · `9- PG2` · `17- PG3` · `25- PG4` · `33- PG5` ·
+   `41- PG6` · `49- PG7` · `57- PG8` — **page selection in steps of eight across eight pages.**
+4. **A row of eight pale blue buttons**, then **a row of eight green buttons.**
+
+The page strip is worth noting against §3 and the protocol's register model: **the front panel
+pages in eights**, while the external protocol's register paging arithmetic is *page × 1000 + ID*.
+⚠️ **Those are two different paging schemes** and nothing states how they map to each other.
+
+**Right block — the status display and navigation:**
+
+The **status LCD** shows four lines:
+
+```
+Vista Spyder X20
+Ver: 3.2.4 16I 8O
+IP: 127.0.0.1
+CKey  FKey     Lock
+```
+
+- ⚠️ **This confirms the front panel is where the running software version and IP address are
+  read** — which §12.7 previously had to infer from the release notes' upgrade procedure. It is
+  now observed. Given how much the command set changed across 4.x, **this display is the first
+  thing to look at before writing or debugging any control code.**
+- **`16I 8O`** on a 1608 chassis reads as **16 inputs, 8 outputs** — independent corroboration of
+  the model numbering in §1, from the machine's own display. ⚠️ *Observed from a photograph, and
+  the glyphs are small; the reading is confident but not certain.*
+- **`CKey FKey Lock`** is a soft-key row driving the unlabelled buttons directly beneath the LCD.
+- `IP: 127.0.0.1` is a placeholder on a demo unit, not a real default.
+
+**Navigation cluster**, below the soft keys: a left column of **`Home`**, **`Config`**,
+**`Health`**, and a keypad of **`T/L`**, **`B/R`**, **`Auto`**, **`Undo/Cancel`**, **`Save/Ok`**
+around a four-way arrow cross. `T/L` and `B/R` read as **top/left and bottom/right** — layer
+geometry from the front panel without a client PC. **`Health`** is presumably the user-diagnostics
+view (§10); **not documented anywhere in hand.**
+
+**Below the keypad, a single illuminated blue button** — the **Standby switch** of §8.1. This is
+the button held 13–15 seconds to force power off, and the one toggled twice during the software
+upgrade in §12.7.
+
+⚠️ **No menu structure, no key behaviour and no display states are documented** for any of this.
+The manual defers front-panel operation to a separate operator's manual that is still not in hand.
+Everything above is what the panel *has*, not what it *does*.
 
 ---
 
@@ -474,8 +611,8 @@ Three output modes:
 
 **Sources: release notes 020-000917-02 (4.0.0), -04 (4.0.3), -06 (4.0.5), -07 (4.0.6) and -08
 (4.1.0), all read in full.** The 4.0.x notes are **cumulative** — the 4.0.6 document carries every
-entry back to 4.0.0 — so four documents cover eight releases. ⚠️ **4.0.7's own entries are the one
-gap** (see Provenance).
+entry back to 4.0.0 — so four documents cover eight releases. **With 4.0.7 supplied, the 4.x history is complete — no
+release is unaccounted for.**
 
 **4.1.0 is the last X20 software release.** The user manual was never revised for any of the 4.x
 line, which is why §9–§11 are labelled 3.x-era.
@@ -491,7 +628,7 @@ line, which is why §9–§11 are labelled 3.x-era.
 | 4.0.4 | 2014-05-13 | **SDI Level B on X20 inputs.** Frame naming in Connection Manager. EDID wizard first-try failure fixed |
 | 4.0.5 | 2015-03-05 | **VDCP external control. SMPTE 352M insertion on 3G outputs.** True Mix. Static-IP fallback when DHCP fails |
 | 4.0.6 | 2015-08-25 | HDCP enhancement; **`ASC` command gains optional ±X**; several router protocols |
-| 4.0.7 | 2016-06-30 | ⚠️ **Notes not read** |
+| 4.0.7 | notes dated 3-2016, posted 2016-06-30 | **USB redundancy for expanded systems.** `OCC` external command. Pesa P1N **redundancy** router protocol. Dual-link resources fix |
 | 4.1.0 | 2017-01-05 | Backup/Recovery; two 4K output factory formats; Imagine Platinum router |
 
 ### 12.2 Signal and hardware changes
@@ -509,6 +646,7 @@ These are the entries that change what the box can do, as distinct from what the
 | beta 0.55.0 | Output firmware fix for **artifacts on odd-numbered outputs** |
 | beta 0.55.1 | Output board firmware updated **to support newer production power supplies** — relevant to mixed-vintage frames |
 | beta 0.54.1 | **A 24 Hz or 30 Hz VI was not being configured correctly and actually ran at NTSC.** Any pre-4.0.1 system claiming a 24/30 Hz VI was lying |
+| 4.0.7 | **"Fixed an issue with Dual link resources."** No detail given. Dual link consumes adjacent input channels and adjacent layers (§5), so "resources" plausibly means that allocation — ⚠️ **that is reading, not the note.** On a dual-link-heavy rig, 4.0.7 or later is the floor |
 
 ### 12.3 HDCP work across the line
 
@@ -547,11 +685,16 @@ adjacent to a stereo input is a known, fixed bug, not a cabling fault.**
 
 ### 12.5 Expansion and parallel systems
 
-- beta 0.54.5 — **support added for different VI heights between multiple X20 frames connected via
-  USB expansion.** ⚠️ **"USB expansion"** — the manual describes expansion only over InfiniBand
-  (§7). Whether USB is a second expansion path, a diagnostic link, or loose wording in the notes
-  is **unresolved**; note that beta 0.54.9 also refers to attaching to a **USB connection index**
-  when opening low-level diagnostics on a parallel system
+- **USB expansion is real, and it is a documented expansion path the manual never mentions.**
+  Three independent entries establish it: beta 0.54.5 added **support for different VI heights
+  between multiple X20 frames connected via USB expansion**; beta 0.54.9 refers to choosing a
+  **USB connection index** when opening low-level diagnostics on a parallel system; and **4.0.7
+  added "USB redundancy for expanded systems."** ⚠️ **The manual describes expansion only over
+  InfiniBand (§7), and the rear panel shows one InfiniBand port and one USB Type-B "Control" port
+  per output board (§8.2).** Whether USB expansion runs over that Control port, over the internal
+  PC's USB, or over something else **is not stated anywhere.** What is now certain: **USB carries
+  inter-frame traffic in expanded systems, and 4.0.7 made it redundant.** Anyone running expanded
+  X20 frames should be on 4.0.7 or later for that reason alone
 - beta 0.54.5 / 0.54.9 — several **linear key** failures on expanded and parallel frames, including
   **cut and fill arriving on different input boards of an X20 1608** (beta 0.54.7). Confirms the
   1608 has more than one input board and that board boundaries matter for linear key
@@ -563,9 +706,11 @@ The manual names no router list, so this is the only inventory that exists. Adde
 **Atlona · Gefen 3 · Gefen IV (IP) · Gefen III IP · AJA Kumo (IP) · Utah Scientific RCP-3 · Utah
 Scientific 100 IP · DTrovision PureLink PM-32X (IP and serial) · Dtrovision III IP · Pesa Cougar
 P1N · Pesa PN1 over IP · Barco Matrix Pro II · Imagine Platinum.** Fixes also touched Lightware,
-Extron IP, Sierra, RGB Linx, Quartz/Magnum and NVision Compact.
+Extron IP, Sierra, RGB Linx, Quartz/Magnum and NVision Compact. **4.0.7 adds the Pesa P1N *redundancy* protocol** — distinct
+from the plain Pesa PN1-over-IP added at 4.0.4, and the only redundancy-aware router driver named
+anywhere in the line.
 
-### 12.7 The 4.1.0 upgrade procedure
+### 12.7 Upgrading, and the config-restore bugs
 
 1. Start Vista Advanced 4.1.0 on the client PC.
 2. Go to **Server → Connection Manager**.
@@ -577,8 +722,20 @@ Extron IP, Sierra, RGB Linx, Quartz/Magnum and NVision Compact.
 6. Toggle the front panel button to restart. **The front LCD reads v4.1.0** when complete.
 
 The client drives the frame update; there is no separate firmware file. **The release notes'
-standing advice for any upgrade is to back up system data first** — and note that the notes'
-phrasing predates the Backup and Recovery feature 4.1.0 itself added.
+standing advice for any upgrade is to back up system data first.**
+
+⚠️ **Config restore is older than the feature that 4.1.0 advertised.** 4.0.7 fixed *"Command keys
+missing after restoring the config file"* — so restoring a config file was already possible in
+4.0.x, and 4.1.0's "Backup and Recovery feature for the system configuration files" is a
+formalisation of something that already existed, not a new capability. **Two separate
+command-key-loss bugs sit in this area**: the 4.0.7 restore bug, and a 4.0.7 fix for command keys
+**losing their colour value when applying a Repair Data List** — the same Repair Data List that
+beta 0.54.2 introduced to recover corrupted register lists. **If a show file comes back
+from a restore with missing or discoloured command keys, this is a known, fixed, version-specific
+bug.**
+
+The identical upgrade procedure appears verbatim in the 4.0.7 notes with the version numbers
+changed, so it is stable across the late 4.x line.
 
 ⚠️ **Every 4.x release carries its own FPGA version set** (XP, IP, FRC, CP, VIC, OP, plus input and
 output CPLD and power). They change between releases — IP went 5.23.6.16 → 6.3.7.2 at 4.0.4, OP
@@ -632,54 +789,64 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 
 ## 14. Not yet verified — open items
 
-**Closed on 2026-08-10** — kept visible so a future session sees what settled them:
+**Closed on 2026-08-10:**
 
 | Was open | Settled by |
 |---|---|
-| ~~4.x behaviour uncovered~~ | Release notes for 4.0.0–4.0.6 and 4.1.0 read in full (§12). **Only 4.0.7's own delta remains** |
-| ~~X20 output counts inferred from the model name~~ | Product page — 8 outputs with the resolution trade (§13) |
+| ~~4.x behaviour uncovered~~ | **All nine 4.x releases now read** — 4.0.0 through 4.1.0, no gaps (§12) |
+| ~~Output count inferred from the model name~~ | Product page, then **corroborated by the chassis's own front-panel display reading `16I 8O`** (§8.3) |
 | ~~No latency figure~~ | Product page — under 1.5 interlaced frames (§13) |
-| ~~No genlock or reference input described~~ | Connector confirmed on the output board in the SSO manual's figure; capability stated on the product page. **Type and behaviour still undocumented** — now item 4 below |
-| ~~No SDI level A/B statement~~ | Partly. **4.0.4 added SDI Level B on inputs** (§12.2). Output-side level and a rate table are still absent |
-| ~~SSO manual not in hand~~ | Supplied and read; filed as `christie-spyder-x20-stereoscopic.md` |
+| ~~Genlock connector undocumented~~ | **A BNC labelled `Genlock` is on the output board** (§8.2), confirmed on a real chassis |
+| ~~No SDI level A/B statement~~ | Partly — **4.0.4 added Level B on inputs.** Output-side level still absent |
+| ~~"USB expansion" — real or loose wording?~~ | **Real.** Three release-note entries, including 4.0.7 adding **USB redundancy for expanded systems** (§12.5) |
+| ~~SSO manual not in hand~~ | Supplied and read; `christie-spyder-x20-stereoscopic.md` |
+| ~~Front panel undocumented~~ | Partly — **its layout is now photographed** (§8.3), including the version/IP display. **Its behaviour still is not** |
 
 **Still open:**
 
-1. **The 4.0.7 release notes (020-000917-01) have not been read.** Everything else in the 4.x line
-   is covered. This is a single short public PDF and the last piece of the version history.
-2. **The stereo VI contradiction** — this manual says SSO halves VI capacity; the SSO manual says
-   20 M per eye, 40 M total. Recorded in full in the stereoscopic document §2. **Unmeasured, and
-   it changes stereo system sizing by a factor of four.**
-3. **Three unresolved manual-vs-product-page conflicts** — power, weight, and output DVI pixel
-   clock (§13). The 265 vs 330 MHz output clock is the one that affects what raster an output
-   carries.
-4. **The genlock connector's type and behaviour.** Confirmed present on the output board; no
-   signal spec, no menu path, no statement of what happens on reference loss, and no explanation
-   of how reference interacts with an expansion chain. The only functional mention anywhere is a
-   4.x stereo bug fix that "requires genlock and a 50/59.94/60 Hz VI configuration."
-5. **"USB expansion"** (§12.5) — the notes twice refer to X20 frames connected by USB, while the
-   manual describes expansion only over InfiniBand. Second path, diagnostic link, or loose
-   wording? Unresolved.
-6. **Two different VI capacity tables for the 200/300 series** in the same manual (§2).
-7. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level statement,
-   no format table. 3G-SDI is named as SMPTE 424M and nothing more.
-8. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
-   20 Mpx on one output. Whether two fit alongside anything useful is arithmetic nobody has run
-   against a real configuration.
-9. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
-   written before 4.x existed, and no release note mentions it.
-10. **What the Backup and Recovery feature (4.1.0) actually covers** — "system configuration
-    files" and nothing else. No file location, no restore procedure.
-11. **X20 front-panel operation** is deferred to a separate operator's manual not in hand — which
-    matters more now, since §12 shows the front panel is where the running version is read and
-    where the upgrade prompts appear.
-12. **X20 accepted input format list** — the only format list in the manual sits under the 200/300
+1. **Three conflicting X20 power figures** — 1000 W (manual), 900 W / 9.0 A (product page),
+   **12.0 A on the chassis nameplate** (§8.1). **Size a circuit from the plate.** Which figure is
+   rated vs typical is not stated by anyone.
+2. **Whether the two power supplies are redundant.** Two removable modules, two IEC inlets, two
+   cords in the accessory list — **never described as redundant in any Christie document here.**
+   One bench test with one cord pulled would settle it.
+3. **The second BNC beside `Genlock`** on the output board (§8.2). Present, unlabelled in the
+   photograph, unidentified.
+4. **Genlock behaviour** — signal type beyond "black burst" on the product page, menu path,
+   reference-loss behaviour, and how reference works across an expansion chain. Connector
+   confirmed; everything else absent.
+5. **What "USB expansion" physically uses** (§12.5) — the output board's `Control` USB Type-B,
+   the internal PC's USB, or something else. Confirmed to exist and carry inter-frame traffic;
+   the cable and topology are undocumented.
+6. **The stereo VI contradiction** — this manual says SSO halves VI capacity; the SSO manual says
+   20 M per eye, 40 M total. See the stereoscopic document §2. **Unmeasured, and it changes stereo
+   sizing by a factor of four.**
+7. **Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13). Affects what
+   raster an output will actually carry.
+8. **Two different VI capacity tables for the 200/300 series** in the same manual (§2).
+9. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
+   display states.** `Home` / `Config` / `Health` / `T/L` / `B/R` / `Auto` are readable as labels
+   and nothing more. The operator's manual is still not in hand.
+10. **How front-panel paging (eights, PG1–PG8) maps to the external protocol's register paging**
+    (page × 1000 + ID). Two different schemes, no stated relationship (§8.3).
+11. **Which rear DE-9 is which.** The manual names three RS-232 ports for external control; the
+    photograph shows several DE-9s on the factory-use PC panel with no functional marking.
+12. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level, no format
+    table. 3G-SDI is named as SMPTE 424M and nothing more.
+13. **What 4.0.7's "Dual link resources" fix actually was** (§12.2). One line, no detail, on the
+    mechanism §5 depends on.
+14. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
+    20 Mpx on one output; nobody has run the arithmetic against a real configuration.
+15. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
+    written before 4.x existed, and no release note mentions it.
+16. **X20 accepted input format list** — the only format list in the manual sits under the 200/300
     section and may not be current for X20.
-13. **Montage II control surface** is named as a control option and never described.
-14. **DX4 output module** appears only in protocol arguments — no specification, no channel
-    behaviour, no statement of which chassis take it.
-15. **The FPGA version sets per release** (§12.7) are recorded in the notes but nothing explains
-    what mismatches cause, or how to read the running set off a frame.
+17. **Montage II control surface** is named as a control option and never described.
+18. **DX4 output module** — appears only in protocol arguments. No specification, no statement of
+    which chassis take it, and **it is not visible on the photographed 1608.**
+19. **The FPGA version sets per release** (§12) are recorded in the notes; nothing explains what
+    mismatches cause or how to read the running set off a frame. The front panel shows the
+    *software* version (§8.3), not the FPGA set.
 
 ---
 
@@ -694,11 +861,13 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 | §5 dual link | Manual — **Verified [Official]**; the ">2048 × 1200 costs two input channels" restatement is from the product page |
 | §6 HDCP | Manual — **Verified [Official]**; §12.3 adds the software history |
 | §7 expansion | Manual — **Verified [Official]**; the USB-expansion question from the notes is flagged, not resolved |
-| §8 physical and power | Manual — **Verified [Official]**, with the product page's conflicting power and weight figures flagged |
+| §8.1 physical and power | Manual — **Verified [Official]**; the product page and **the chassis nameplate** give two further, conflicting figures, all three recorded. **Dual power supplies are Observed from a photograph and described as redundant nowhere** |
+| §8.2 rear panel | **Observed [Official]** — read off a Christie product photograph of an X20-1608 demo chassis, connector labels transcribed as silkscreened. Layout and labels only; **no specification is derived from the image.** One BNC left unidentified rather than guessed |
+| §8.3 front panel | **Observed [Official]** — same basis. Layout, labels and the status-display fields are legible; **no behaviour is documented** |
 | §9 client install and network | Manual — **Verified [Official]**, 3.x era |
 | §10 feature set | Manual — **Verified [Official]**, 3.x era |
 | §11 output configuration | Manual — **Verified [Official]** |
-| §12 the 4.x line | **Release notes — Verified [Official]**, four documents read in full. ⚠️ **Entries are one-line summaries**: a feature named here is confirmed to exist and nothing more. The grouping into 12.2–12.6 is this document's editorial arrangement, not Christie's |
+| §12 the 4.x line | **Release notes — Verified [Official]**, five documents read in full, **covering all nine releases with no gaps**. ⚠️ **Entries are one-line summaries**: a feature named here is confirmed to exist and nothing more. The grouping into 12.2–12.6 is this document's editorial arrangement, not Christie's |
 | §13 spec table | **Product page — [Official]** but marketing-grade, undated. Conflicts recorded rather than resolved |
 
 **Nothing in this document is from memory.** Where every source is silent, §14 says so rather than

@@ -202,10 +202,22 @@ adds.** Taking the emitter straight off the X20 gives up that compensation.
 **Connector observation from Figure 10's back-panel photograph** — the output board carries, left
 to right: **Output 7 (Dual DVI-I plus a digital BNC), Output 8 (DVI-I), the Stereo Sync 3-pin DIN,
 a Control port (USB), an Op Mon Input on DVI-D, a Genlock connector, and the InfiniBand expansion
-port.** ⚠️ **This is read from a figure, not from body text** — but it is the only place in either
-manual where a **Genlock connector is shown to exist on the X20**, which the main manual never
-mentions and the product page only implies. Treat the genlock connector as **confirmed present**,
-its type and behaviour as **undocumented**.
+port.** ⚠️ **This is read from a figure, not from body text.**
+
+✅ **Corroborated 2026-08-10** against a Christie product photograph of a real X20-1608 chassis —
+see `christie-spyder-x20.md` §8.2. That photograph shows the same cluster right of Output 8, with
+**one `Stereo Sync` 3-pin mini-DIN per output board** (confirming the shared-connector rule above)
+and a **BNC labelled `Genlock`**. Two independent images, same layout. **The genlock connector is
+confirmed present and is a BNC; its behaviour remains undocumented.**
+
+The chassis photograph also confirms the odd/even output split of §5 **from the silkscreen
+itself** — odd outputs are marked `Dual DVI-I`, even outputs `DVI-I`. And every **even input**
+carries its own `Stereo Sync` 3-pin mini-DIN beside its `Dual DVI-I`, which is the input-side
+sync connection §3 describes as "the 3-pin connection located above the DVI connector."
+
+⚠️ **The main manual never mentions any of these connectors.** Without this document and the
+chassis photograph, an engineer reading only 020-000916-01 would not know the X20 has stereo sync
+or genlock connectors at all.
 
 ---
 
@@ -301,8 +313,9 @@ documented protocol equivalent.
    2027-01-02.
 4. **What "erratic operation" means** when the VI rate does not match the mode (§2). Named as a
    consequence, never described.
-5. **The genlock connector's type and behaviour** (§6). Confirmed to exist from a figure; no
-   signal type, no menu, no reference-loss behaviour documented anywhere.
+5. **The genlock connector's behaviour** (§6). Now confirmed to exist and to be a BNC, on two
+   independent images. Still no signal spec beyond the product page's "black burst", no menu path,
+   no reference-loss behaviour, and no statement of how reference works across an expansion chain.
 6. **Whether output 7 must be physically connected**, or merely configured to the right rate, for
    the stereo sync to be correct (§6). The manual says its *refresh rate* controls the sync
    interval, which implies configuration alone suffices — **that is inference, not a statement.**
@@ -311,10 +324,13 @@ documented protocol equivalent.
 8. **No stereo latency figure**, and no statement of whether stereo adds a frame over 2D.
 9. **Passive stereo over HD-SDI** is permitted by one sentence (§4) and never elaborated — no rate
    table, no level A/B statement, no mention of how two SDI feeds stay locked.
-10. **Whether the 4.x software changed any of this.** Release notes 4.0.0–4.0.6 carry roughly a
-    dozen stereo bug fixes — alternate-eye transparency, command-key recall of the alternate eye,
-    stereo sources overwriting layers, left/right correlation across reboots — but **no stereo
-    manual revision was ever issued.** The 4.0.7 notes remain unread.
+10. **Whether the 4.x software changed any of this.** All nine 4.x releases have now been read and
+    carry roughly a dozen stereo bug fixes — alternate-eye transparency, command-key recall of the
+    alternate eye, stereo sources overwriting layers, left/right correlation across reboots,
+    **4.0.7's "issue with Dual link resources"** (undetailed, on the mechanism every stereo source
+    depends on), and 4.1.0's analog/SDI-goes-black-next-to-a-stereo-input fix. **No stereo manual
+    revision was ever issued**, so none of it is reflected in the text above. See
+    `christie-spyder-x20.md` §12.4.
 
 ---
 
@@ -327,7 +343,7 @@ documented protocol equivalent.
 | §3 active inputs | **Verified [Official]**; the layer-set conflict with the main manual flagged in place |
 | §4 passive inputs | **Verified [Official]** |
 | §5 active outputs | **Verified [Official]**; one obvious source typo corrected and flagged |
-| §6 display wiring and output 7 | **Verified [Official]** from body text; **the back-panel connector list including genlock is from a figure**, marked in place |
+| §6 display wiring and output 7 | **Verified [Official]** from body text; the back-panel connector list is **Observed** — from this manual's Figure 10 and corroborated against a separate Christie chassis photograph, both marked in place |
 | §7 passive outputs | **Verified [Official]** |
 | §8 software configuration | **Verified [Official]**, 3.x-era |
 | §9 licensing | **Verified [Official]** |
