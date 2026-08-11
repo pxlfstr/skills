@@ -17,7 +17,7 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 | `protocols/` | Vendor and protocol facts — operator parameters, MIDI maps, API endpoints, ports, packet structure | `[Official]` / `[Forum]` / `[Lead]` |
 | `patterns/` | Structures the user developed | Shipped / Bench-verified / Designed / Abandoned |
 
-`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md`
+`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md` · `christie-spyder-external-control.md`
 
 `protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
 
@@ -137,6 +137,21 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 **A lesson worth keeping, recorded in the document:** three separate "bugs" during verification were all bad test isolation — sampling outside the canvas, sampling a point covered by an adjacent box's border, and testing a border while art was in foreground where it is correctly suppressed. Before probing a canvas: disable everything else, move the object under test off the raster edge, and write down the expected value *before* sampling.
 
 ---
+
+### `protocols/christie-spyder-external-control.md`
+**Added:** 2026-08-10
+
+**Covers:** the ASCII external control protocol shared by the Christie / Vista Spyder 200/300 series and the Spyder X20. Both transports and their framing — RS-232 with a carriage-return terminator and its 3-pin pinout, and **UDP to port 11116 behind a 10-byte `spyder` + four null header with no delimiter after it**. The `%20` space-escaping rule in both directions, the seven response codes with error code always first, and the two addressing traps that break naive code: **layer IDs start at 2 because 0 and 1 are the background layers** (and `RLC` counts them), and **register pages are encoded as page × 1000 + ID**. The register model — register ID vs script/data ID, why reordering a list in the client silently repoints an external button, and the register type table. `<DVCEn:PGM|PVW>` device indirection anywhere a layer ID is accepted. Full command reference with every argument and range, grouped by function: layer geometry, look and keying, routing and transitions, stills and backgrounds, output configuration, presets and scripts, routers, queries, system. All 25 layer-alignment effect IDs for `LAC`.
+
+**Use for:** driving a Spyder from TouchDesigner, Companion, a Crestron/AMX system, or any custom control surface; parsing Spyder query responses; deciding between register ID and script ID addressing for a show.
+
+**Confidence:** `[Official]` throughout §1–§6 — *Spyder X20 User Manual* 020-000916-01 Rev. 1 (04-2016), user-supplied PDF, protocol chapter read end to end. §7 implementation notes are **Designed**. §8 is from the **v4.1.0 release notes** (020-000917-08 Rev. 2, read in full 2026-08-10). **No command in the document has been sent to a frame.**
+
+**Revised 2026-08-10 with §8, and it changed the picture.** The 4.0.x release notes (four cumulative documents covering eight releases) record **seven commands the manual does not contain** — `AIR`, `RRD`, `RIF`, `RSCC`, `RSEC`, `RSCD`, `ASC` — plus **four changes to documented commands**: a fifth (gamma) argument on `ILA`, a raw-pixel form for `LCC`, a `normalize` option on `RLK`, and ⚠️ **an `RLK` behaviour change that breaks a common visibility check** (an invisible layer no longer returns PixelSpace −1; check the transparency argument instead). Most consequential: **a previously undocumented 1400-byte response ceiling**, with a 4.x response code and opt-in to retrieve the rest whose values are **not stated anywhere** — meaning the manual's response-code table is incomplete and a strict parser can reject valid responses. Also records VDCP support, the full router-protocol inventory, and the UDP Console Simulator in Vista Advanced as the practical way to verify any of it. ⚠️ **Every 4.x identifier is `# UNVERIFIED:`** — the notes give names and purposes, never arguments.
+
+**Open items:** ⚠️ **arguments for all seven new commands are undocumented**, as is the oversized-response code; the 4.0.7 notes are the one unread release; serial line settings (baud, parity, stop bits) are never stated despite the pinout being given; no TCP interface is documented; whether UDP responses return to the source port is unanswered; no timing or rate-limit guidance beyond the explicit "do not poll `RCS` faster than 1 Hz"; response code 6 is reserved for a checksum that is never described. Two errors in the source are flagged in place rather than corrected — the chapter's own command table omits `KPS` and `RCR` while describing both in full, and alignment effect 12's description says "height" where the effect name says width.
+
+**Cites across to:** `digital-video/references/christie-spyder-x20.md` for every device, VI-capacity, HDCP and connector fact from the same manual.
 
 ### `control-surface-authority.md`
 **Added:** 2026-08-04
