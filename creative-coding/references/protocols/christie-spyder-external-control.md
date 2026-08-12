@@ -241,6 +241,7 @@ Read §8 before writing anything against `ILA`, `LCC` or `RLK`.
 | **`OCM`** Mode — Normal | 1 output ID · 2 the literal string `Normal` · 3* H start on the VI · 4* V start on the VI · 5* DX4 channel 0–3 |
 | **`OCM`** Mode — OpMon | 1 output ID · 2 `OpMon` · 3 program PixelSpace ID (a preview ID resolves to its program space) |
 | **`OCM`** Mode — Scaled | 1 output ID · 2 `Scaled` · 3 program PixelSpace ID |
+| **`OCM`** Mode — anything else | ⚠️ **The software has at least five output modes and `OCM` documents three.** A user running Advanced 4.1.0 reported the dropdown as **Normal · OpMon · Scaled · SourceConfig · SourceMon**, and the SSO manual's screenshot adds **PassiveLeft · PassiveRight · ActiveStereo**. **No argument form is documented for any of the extra modes.** Whether `OCM` accepts `SourceMon`, `SourceConfig` or the stereo strings is untested — the three documented modes take the mode name as a literal ASCII string, so trying them costs one command in the UDP Console Simulator |
 | **`OCR`** Rotation | 1 output ID · 2 angle — **0, 90, 180 or 270 only**, and **not supported on every output module type** |
 | **`OCB`** Blending | 1 output ID · 2 edge (**`L` or `R` only**) · 3 enable (0/1) · 4* blend width in px · 5* mode — **`Bezier`, `Gamma` or `Velocity`** · 6* curve param 1 **0.000–1.000** · 7* curve param 2 **0.000–1.000** |
 | **`OCS`** Save | 1 output ID. ⚠️ **Must be called after output changes or they are lost on restart** |
@@ -440,22 +441,77 @@ whether it drives Spyder, or Spyder drives devices with it, and on which port or
 likely reading is **Spyder controlling playback devices**, but that is inference and is marked as
 such.
 
-### 8.5 Router protocols added across the line
+### 8.5 Router drivers — the complete list
 
-`RCR` and `QRC` (§5g) address routers by ID and are driver-agnostic, so no command changed — but
-the set of routers a Spyder can drive grew considerably past whatever the manual assumed:
+⚠️ **Correction, 2026-08-10.** An earlier version of this document listed ~14 router drivers
+assembled from the release notes and implied that was the inventory. **It was not.** Release notes
+name only drivers *added or fixed* in a given release, so every driver shipping before 4.0.0 was
+invisible to that method. **Blackmagic Videohub was wrongly reported as unsupported on that basis.**
 
-**Atlona · Gefen 3 · Gefen IV (IP) · Gefen III IP · AJA Kumo (IP) · Utah Scientific RCP-3 · Utah
-Scientific 100 IP · DTrovision PureLink PM-32X (IP and serial) · Dtrovision III IP · Pesa Cougar
-P1N · Pesa PN1 over IP · Pesa P1N redundancy (4.0.7) · Barco Matrix Pro II · Imagine Platinum
-(4.1.0).**
+**The real list, transcribed from the Add Router dialog's Router Type dropdown in a running
+Advanced 4.1.0 client** (user screenshots, 2026-08-10) — **Verified, user observation of the
+running software.** Roughly 75 entries:
 
-**The Pesa P1N *redundancy* protocol at 4.0.7 is the only redundancy-aware router driver in the
-line** — worth knowing when a rig has a redundant router and the control system needs to follow
-its failover rather than fight it.
+| A–G | G–Q | R–V |
+|---|---|---|
+| AJA Kumo IP | GrassValley Encore | RGB Spectrum Linx |
+| Atlona | Imagine Platinum | RGB Spectrum Linx IP* |
+| AutoPatch | Imagine Platinum IP | Ross Ascii |
+| Barco MatrixPRO II | **Internal Crosspoint** | RTCom EDM |
+| Barco MatrixPRO II IP* | Isis IP | Sierra |
+| BlackDiamond XPS | Isis Serial | Sierra IP |
+| **BlackMagic VideoHub** | Knox RSII | Sigma |
+| CurtisWright | Kramer 2000 | **SpyderRouter** |
+| CurtisWright IP | Leitch | ThinkLogical DCS |
+| DTrovision | Leitch II | ThinkLogical DCS IP |
+| DTrovision II | Leitch II IP | ThinkLogical VX IP |
+| DTrovision III | Leitch IP | UtahScientific RCP1 |
+| DTrovision III IP | Lightware | UtahScientific RCP3 |
+| Extron | Lightware IP | UtahScientific UTAH |
+| Extron IP | Magenta Mondo | **Virtual** |
+| Extron SMX | Magenta Voyager | |
+| Extron SMX IP | MatrixSwitch | |
+| Folsom MatrixPRO | MatrixSwitch IP | |
+| Folsom MatrixPRO IP | Network Veemux | |
+| Folsom MatrixPRO II | Network VikinX | |
+| Folsom MatrixPRO W…* | Network VikinX IP | |
+| FSR | NVision Compact IP | |
+| FSR PathFinder | NVision IP | |
+| FSR PathFinder IP | Opticis | |
+| Gefen | Pesa | |
+| Gefen II | Pesa P1N IP | |
+| Gefen III | Pesa P1N Redundan…* | |
+| Gefen III IP | ProBel SWP02 | |
+| Gefen IV | Quartz | |
+| Gefen IV TCP | Quartz IP | |
 
-Fixes also touched Lightware response parsing, Extron IP TCP keep-alive, and Sierra / RGB Linx /
-Quartz / NVision Compact behaviour in offline sessions.
+`*` truncated in the dropdown by column width; expansion is obvious but not literally read.
+
+**Four entries that are not third-party routers:**
+
+| Entry | What it is |
+|---|---|
+| **`Internal Crosspoint`** | The X20's own crosspoint switcher, selectable as a router type. This is how sources reach layers without external hardware. The chassis nameplate reads **URS1608** — *Universal Routing Switcher* — so the routing is intrinsic to the product, not an add-on |
+| **`SpyderRouter`** | **A Spyder driving another Spyder as a router.** Fits the Function Key type for *external command key recall on a remote Spyder*. No documentation of it exists |
+| **`Virtual`** | The offline router used when building a configuration against a Virtual frame with no hardware present |
+| **`Ross Ascii`** | Spyder driving Ross gear. Note the reciprocal path: **Ross Acuity ships an `RTalkSpyder` driver** that drives Spyder over UDP 11116 with `SpyderBPR`, `SpyderFKR`, `SpyderRSC` custom controls and a `TypeInCmd` free-text escape. **Control flows both directions between the two platforms** |
+
+**Naming convention:** most brands appear twice, once serial and once with an **`IP`** or **`TCP`**
+suffix. ⚠️ **A brand-level entry does not guarantee a specific model works** — Sierra shipped
+several generations behind one `Sierra` / `Sierra IP` pair, and the same holds for Extron, Gefen
+and Leitch. If a router connects but crosspoints do not take, suspect a protocol-generation
+mismatch rather than the network.
+
+**What the release notes still usefully add** — which drivers are *recent*, and therefore which
+need a late-4.x frame: Atlona, Gefen III IP, Gefen IV (IP), AJA Kumo (IP), Utah Scientific RCP-3
+and 100 IP, DTrovision PureLink PM-32X, Dtrovision III IP, Pesa Cougar P1N, Pesa PN1 over IP,
+**Pesa P1N redundancy (4.0.7)**, Barco Matrix Pro II, **Imagine Platinum (4.1.0)**. Fixes across
+the line touched Lightware response parsing, Extron IP TCP keep-alive, and **Sierra / RGB Linx /
+Quartz / NVision Compact behaviour in offline sessions** — relevant if configuring against a
+Virtual frame.
+
+**`RCR` and `QRC` (§5g) are driver-agnostic**, so none of this changes the command syntax. What it
+changes is the range of hardware a Spyder-driven show can reach without a separate control system.
 
 ### 8.6 Register and command-key integrity — a documented failure mode
 
@@ -524,34 +580,42 @@ remains unread.
 4. **What `OCC` (Output Config Connection) actually does** (§8.1). Reasoned as connector
    selection, never confirmed, and it is the only command that would give external control over
    which physical connector an output drives.
-5. **Where VDCP sits** (§8.4) — Spyder as controller or as controlled, on which transport, and
+5. **Whether a brand-level driver covers a specific model.** The dropdown names brands and
+   generations, not models — `Sierra` / `Sierra IP` must cover every Sierra generation including
+   the Aspen line. Untested for any specific router.
+6. **What `SpyderRouter` does** (§8.5) — Spyder as a router to another Spyder. Named in the
+   dropdown, documented nowhere.
+7. **Where VDCP sits** (§8.4) — Spyder as controller or as controlled, on which transport, and
    whether it coexists with this ASCII protocol on the same port or line.
-6. **`OCM` covers only Normal, OpMon and Scaled** (§5e). The output Mode dropdown in Vista Advanced
-   offers **Normal, Scaled, OpMon, Source, PassiveLeft, PassiveRight and ActiveStereo** — see
-   `digital-video/references/christie-spyder-x20-stereoscopic.md` §8. **Four of the seven modes,
-   including every stereo mode, have no documented protocol equivalent.** Whether `OCM` accepts
-   those strings is unknown and directly limits what a control system can do on a stereo rig.
-7. **Whether `OCF` accepts the two 4.1.0 factory formats** (§8.7). Reasoned yes, never tested, and
+7. **`OCM` covers only Normal, OpMon and Scaled** (§5e) — and the gap is wider than the manual
+   suggests. A user running **Advanced 4.1.0** reported the output Mode dropdown as **Normal ·
+   OpMon · Scaled · SourceConfig · SourceMon**; the SSO manual's 3.x screenshot separately shows
+   **PassiveLeft · PassiveRight · ActiveStereo**. **So at least five and possibly eight modes
+   exist, of which three have a documented protocol form.** Undocumented: the **multiviewer**
+   (`SourceMon`), the source-configuration monitor, and **every stereo mode**. This is the single
+   biggest functional gap between what the software can do and what a control system can reach.
+   Testing it is one command per mode name.
+8. **Whether `OCF` accepts the two 4.1.0 factory formats** (§8.7). Reasoned yes, never tested, and
    the "VESA formats only" restriction cuts against it.
-8. **Nothing here has been sent to a frame.** No command in this document is bench-verified.
-9. **No TCP interface is documented** — Ethernet control is UDP only per the manual. Whether 4.x
+9. **Nothing here has been sent to a frame.** No command in this document is bench-verified.
+10. **No TCP interface is documented** — Ethernet control is UDP only per the manual. Whether 4.x
    added one is unknown.
-10. **No response timing, no timeout guidance, no rate limit** other than the explicit `RCS`
+11. **No response timing, no timeout guidance, no rate limit** other than the explicit `RCS`
     warning.
-11. **No statement on whether UDP responses return to the source port** or a fixed port. This
+12. **No statement on whether UDP responses return to the source port** or a fixed port. This
     determines how a listener is written and is unanswered.
-12. **Serial baud rate, parity, stop bits and flow control are never stated.** The pinout is given
+13. **Serial baud rate, parity, stop bits and flow control are never stated.** The pinout is given
     and the line settings are not.
-13. **`KPS` and `RCR` are absent from the manual's own command table** while being described in
+14. **`KPS` and `RCR` are absent from the manual's own command table** while being described in
     full a few pages later. Unresolved.
-14. **Alignment effect 12's description** says "height" where the effect name says width (§6).
-15. **Response code 6 is reserved for a checksum** that is never described.
-16. **DX4 output module** appears only as a channel argument. No specification for it exists.
-17. **No command reports the frame's software version.** Given how much the protocol changed
+15. **Alignment effect 12's description** says "height" where the effect name says width (§6).
+16. **Response code 6 is reserved for a checksum** that is never described.
+17. **DX4 output module** appears only as a channel argument. No specification for it exists.
+18. **No command reports the frame's software version.** Given how much the protocol changed
     across 4.x, this is a real gap: the version is readable on the front panel and, as far as
     every source in hand shows, **not over the wire.** If a control system must adapt to version,
     it cannot currently discover it.
-18. **How front-panel command-key paging maps to the protocol's register paging.** The panel pages
+19. **How front-panel command-key paging maps to the protocol's register paging.** The panel pages
     in eights across PG1–PG8; the protocol uses page × 1000 + ID (§3). **No stated relationship.**
 
 ---
@@ -567,6 +631,7 @@ remains unread.
 | §5 command reference | **`[Official]`** — every argument and range transcribed; grouping is this document's, not the manual's |
 | §6 alignment effects | **`[Official]`** — source's own ID 12 error flagged in place |
 | §7 implementation notes | **Designed** — reasoning from the documented behaviour above. Nothing in §7 is a vendor statement and nothing has been run |
+| §8.5 router driver list | **Verified — user observation** of the Router Type dropdown in a running Advanced 4.1.0 client, 2026-08-10, transcribed from screenshots. **Supersedes an earlier release-notes-derived list that was incomplete and wrongly excluded Blackmagic Videohub** |
 | §8 the 4.x additions | Release notes **`[Official]`** — five documents read in full — **for the existence and purpose of each item only.** ⚠️ **Every argument, range and response format is absent from the source**; identifiers here are `# UNVERIFIED:` by default. The `OCF` and VDCP readings in §8.4 and §8.7 are **Designed** and flagged in place as reasoning |
 
 **No command in this document has been sent to a Spyder frame.** The 3.x set in §5 has full
