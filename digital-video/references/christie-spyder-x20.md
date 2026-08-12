@@ -71,6 +71,21 @@ Device and signal facts. The ASCII external control protocol is **not** here —
 | Spyder 300 series | 3 RU | 8 | `[Official]` |
 | Spyder X20 | modular, smallest chassis is three slots; 4 RU chassis specified | factory-populated, slots need not all be filled | second-generation line |
 
+**Lineage — why the nameplate says URS.** The X20 was announced at InfoComm, June 2009, as a merger
+of two Vista product lines: press coverage states it **"includes the matrix switching and
+integrated source monitoring functionality of the Christie Vista URS"** plus all the existing
+features of the Vista Spyder. **URS = Universal Routing Switcher**, a separate Vista product. That
+is why a 1608's chassis plate reads `URS1608` (§8.2) rather than a Spyder part number, and it
+explains why routing and source monitoring feel like first-class features rather than additions —
+they came from the other half of the merger. `[Lead — trade press, June 2009]`
+
+⚠️ **Early units may carry non-standard model strings.** A unit marked **`40808i`, mfg 08/09** has
+been observed in the used market. **That designation appears in no Christie document**, and the
+only two model names Christie ever published are X20-0808 and X20-1608. Given the June 2009 launch,
+an 08/09 unit is among the earliest production, and the string is most plausibly a
+Vista-Systems-era or transitional designation predating the settled marketing names. ⚠️ **The `4`
+and the `i` are not decoded** — do not assume `4` means four slots without counting the bays.
+
 **200 series sample configurations** — 240 (4 in / 0 out), 204 (0 / 4), 222, 213, 231.
 **300 series sample configurations** — 380 (8 / 0), 308 (0 / 8), 344, 353, 362.
 Both all-input and all-output models (240, 204, 380, 308) are **available only with the control
@@ -338,13 +353,13 @@ against — 12 A at 100 V is 1200 VA, above both published figures. The publishe
 likely typical or measured draw and the plate is the rated maximum, but **nothing states that**,
 and the plate belongs to a 2008 demo chassis. **Unresolved. For a load-in, plan on the plate.**
 
-⚠️ **The X20 has two power supplies — and no Christie document in this library says so.** The
-photograph shows **two independently removable supply modules, each with its own IEC inlet and
-fan, on green release latches.** The product page's accessory list says *"2 AC power cords"*,
-which is consistent. **Redundant or load-sharing is not stated anywhere**, but two cords into two
-removable modules is the shape of a redundant pair, and a 4 RU processor of this class normally is.
-⚠️ **Treat redundancy as Observed and untested** — do not promise a client a single-cord failover
-without pulling one on a bench.
+**The X20 has two power supplies, and they are redundant and hot-swappable.** The photograph
+shows **two independently removable supply modules, each with its own IEC inlet and fan, on green
+release latches**, and the product page's accessory list says *"2 AC power cords"*. Christie
+feature copy reproduced by distributors states **"redundant hot swappable power supplies"**
+`[Lead — vendor-reproduced manufacturer text]`. ⚠️ **The user manual never mentions this**, and no
+procedure for a live swap is documented anywhere — so the capability is established, the method
+is not.
 
 **Weight also disagrees:** manual ~70 lb; product page lists **59 lb (27 kg)** and **70.5 lb
 (32 kg)** together, with 70.5 lb repeated as shipping weight. Reads like unit vs shipping with a
@@ -584,13 +599,60 @@ server on the Advanced client PC.**
 
 ## 11. Output configuration
 
-Three output modes:
+### 11.1 Output modes
 
-| Mode | What it does |
-|---|---|
-| **Normal** | Window onto the VI at a given horizontal and vertical start position |
-| **OpMon** | Operator monitor focused on a program PixelSpace (supplying a preview ID resolves to its program PixelSpace) |
-| **Scaled** | Scales a whole program PixelSpace to the output |
+⚠️ **The manual documents three. The software offers at least five.** The protocol chapter's `OCM`
+command covers Normal, OpMon and Scaled only; the full dropdown was **reported by the user from a
+running Advanced 4.1.0 client on 2026-08-10** and is tiered **Verified — user observation of the
+running software.**
+
+| Mode | What it does | Source |
+|---|---|---|
+| **Normal** | Window onto the VI at a given horizontal and vertical start position | Manual |
+| **OpMon** | Operator monitor focused on a program PixelSpace (a preview ID resolves to its program PixelSpace) | Manual |
+| **Scaled** | Scales a whole program PixelSpace to the output | Manual |
+| **SourceConfig** | ⚠️ Undocumented. The manual separately describes setting an output as a **"(source) configuration output"** by right-clicking it in the patch, so this is almost certainly the same thing exposed as a mode | **User-reported** |
+| **SourceMon** | ⚠️ Undocumented in any manual. **This is the multiviewer** — see §11.2 | **User-reported** |
+
+The SSO manual's output-property screenshot (04-2016) shows a dropdown reading **Normal · Scaled ·
+OpMon · Source · PassiveLeft · PassiveRight · ActiveStereo**. ⚠️ **That list does not match the
+4.1.0 list**, and the single entry `Source` there is presumably an earlier or truncated form of
+`SourceConfig` / `SourceMon`. Whether the stereo modes still appear alongside SourceMon and
+SourceConfig in 4.1.0 is **unknown** — the user's report named five, and did not state whether the
+list ended there.
+
+### 11.2 SourceMon — the multiviewer
+
+**Confirmed to exist as an output mode** (user report, 4.1.0). **Christie documents it nowhere** —
+not in either manual, not in the Spyder Studio guide for the successor platform. What is known
+comes from three fragments:
+
+- **Christie's product page** `[Official]` markets *"integrated source monitoring"* enabling
+  *"simultaneous, real-time, full frame rate monitoring of all inputs."* That is a multiviewer
+  description: every input, live, at full rate.
+- **The 4.1.0 release notes** fixed *"displaying incorrect source names on SourceMon when it is
+  used on parallel configuration displays"* — so **SourceMon renders source names**, i.e. labelled
+  tiles, and it behaves differently across parallel frame groups.
+- **A 4.x note** records that when **no source monitor is configured**, a warning icon appears
+  beside the **Capture** button in source properties. So **still capture depends on a source
+  monitor existing** — which connects SourceMon to the `Op Mon Input` capture port (§10).
+
+**Tile layout — resolved 2026-08-12** from a dealer listing quoting Christie spec copy
+`[Lead — vendor-reproduced manufacturer text, not fetched from Christie]`: integrated source
+monitoring gives a **real-time, full-frame-rate view of all sources on a single output, tiled into
+a 4×4 array on the X20-1608 and a 4×2 array on the X20-0808.** One tile per input, every input, on
+one output. That is consistent with the product page's "all inputs" claim and with the 4.1.0 note
+about SourceMon rendering source names.
+
+**What is still not known:** whether tiles show preview/program state, whether SourceMon consumes
+VI pixels the way an OpMon output does, whether it can coexist with OpMon on separate outputs, and
+what happens to the array when inputs are unpopulated.
+
+**Practical read:** an X20 has a built-in input multiviewer that costs one universal output and
+appears to be entirely undocumented. On a rig with spare outputs this is free source monitoring
+that many operators presumably never find.
+
+### 11.3 Other output settings
 
 - **Rotation in 90° increments only** (0, 90, 180, 270), and **not supported on all output module
   types**.
@@ -804,47 +866,74 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 
 **Still open:**
 
-1. **Three conflicting X20 power figures** — 1000 W (manual), 900 W / 9.0 A (product page),
+1. ⚠️ **What "Colocate" does.** It is an option on the **right-click context menu of a screen in
+   the Vista Advanced display simulator**, reported by the user 2026-08-10. **It appears in no
+   Christie document** — not this manual, not the SSO manual, not any of the nine release notes,
+   not the Spyder Studio guide for the successor platform, and not anywhere findable on the web.
+
+   **What the manual does establish**, without naming the command: the simulator builds a **view
+   stack** *"every time multiple PixelSpaces occupy the same space, allowing a user to view a
+   PixelSpace that might otherwise be obscured by another PixelSpace."* So PixelSpaces overlapping
+   in the VI is a supported condition, and Colocate is the likely means of creating one.
+
+   **Two readings, unresolved:**
+
+   | Reading | Effect | Cost if wrong |
+   |---|---|---|
+   | **Positional** (more likely) | Moves the selected PixelSpace to the same VI X/Y as another, producing a view stack. Both then read the same canvas region, so **one layer can feed two screens** | A show planned around shared layers that are not actually shared |
+   | **View-only** | A simulator drawing convenience, no VI effect | Assuming it is cosmetic while it silently relocates a PixelSpace on a live system |
+
+   **The test is cheap and decisive.** PixelSpaces carry explicit VI coordinates, and `RPD`
+   returns them (`<ID> <Name> <CurrentBackground> <NextBackground> <X> <Y> <Width> <Height>
+   <RenewalGroupID>` — see the protocol document §5h). Record X and Y, apply Colocate, read them
+   again. **Moved coordinates mean it is positional.** Run it offline or on a frame feeding
+   nothing.
+
+2. **How SourceMon actually behaves** (§11.2). Confirmed to exist as an output mode; tile layout,
+   input count per output, labelling, VI cost and interaction with OpMon are all unknown, and
+   Christie documents none of it. **Setting a spare output to SourceMon and photographing the
+   result would document a whole feature that currently exists nowhere in writing.**
+3. **Three conflicting X20 power figures** — 1000 W (manual), 900 W / 9.0 A (product page),
    **12.0 A on the chassis nameplate** (§8.1). **Size a circuit from the plate.** Which figure is
    rated vs typical is not stated by anyone.
-2. **Whether the two power supplies are redundant.** Two removable modules, two IEC inlets, two
+4. **Whether the two power supplies are redundant.** Two removable modules, two IEC inlets, two
    cords in the accessory list — **never described as redundant in any Christie document here.**
    One bench test with one cord pulled would settle it.
-3. **The second BNC beside `Genlock`** on the output board (§8.2). Present, unlabelled in the
+5. **The second BNC beside `Genlock`** on the output board (§8.2). Present, unlabelled in the
    photograph, unidentified.
-4. **Genlock behaviour** — signal type beyond "black burst" on the product page, menu path,
+6. **Genlock behaviour** — signal type beyond "black burst" on the product page, menu path,
    reference-loss behaviour, and how reference works across an expansion chain. Connector
    confirmed; everything else absent.
-5. **What "USB expansion" physically uses** (§12.5) — the output board's `Control` USB Type-B,
+7. **What "USB expansion" physically uses** (§12.5) — the output board's `Control` USB Type-B,
    the internal PC's USB, or something else. Confirmed to exist and carry inter-frame traffic;
    the cable and topology are undocumented.
-6. **The stereo VI contradiction** — this manual says SSO halves VI capacity; the SSO manual says
+8. **The stereo VI contradiction** — this manual says SSO halves VI capacity; the SSO manual says
    20 M per eye, 40 M total. See the stereoscopic document §2. **Unmeasured, and it changes stereo
    sizing by a factor of four.**
-7. **Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13). Affects what
+9. **Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13). Affects what
    raster an output will actually carry.
-8. **Two different VI capacity tables for the 200/300 series** in the same manual (§2).
-9. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
+10. **Two different VI capacity tables for the 200/300 series** in the same manual (§2).
+11. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
    display states.** `Home` / `Config` / `Health` / `T/L` / `B/R` / `Auto` are readable as labels
    and nothing more. The operator's manual is still not in hand.
-10. **How front-panel paging (eights, PG1–PG8) maps to the external protocol's register paging**
+12. **How front-panel paging (eights, PG1–PG8) maps to the external protocol's register paging**
     (page × 1000 + ID). Two different schemes, no stated relationship (§8.3).
-11. **Which rear DE-9 is which.** The manual names three RS-232 ports for external control; the
+13. **Which rear DE-9 is which.** The manual names three RS-232 ports for external control; the
     photograph shows several DE-9s on the factory-use PC panel with no functional marking.
-12. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level, no format
+14. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level, no format
     table. 3G-SDI is named as SMPTE 424M and nothing more.
-13. **What 4.0.7's "Dual link resources" fix actually was** (§12.2). One line, no detail, on the
+15. **What 4.0.7's "Dual link resources" fix actually was** (§12.2). One line, no detail, on the
     mechanism §5 depends on.
-14. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
+16. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
     20 Mpx on one output; nobody has run the arithmetic against a real configuration.
-15. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
+17. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
     written before 4.x existed, and no release note mentions it.
-16. **X20 accepted input format list** — the only format list in the manual sits under the 200/300
+18. **X20 accepted input format list** — the only format list in the manual sits under the 200/300
     section and may not be current for X20.
-17. **Montage II control surface** is named as a control option and never described.
-18. **DX4 output module** — appears only in protocol arguments. No specification, no statement of
+19. **Montage II control surface** is named as a control option and never described.
+20. **DX4 output module** — appears only in protocol arguments. No specification, no statement of
     which chassis take it, and **it is not visible on the photographed 1608.**
-19. **The FPGA version sets per release** (§12) are recorded in the notes; nothing explains what
+21. **The FPGA version sets per release** (§12) are recorded in the notes; nothing explains what
     mismatches cause or how to read the running set off a frame. The front panel shows the
     *software* version (§8.3), not the FPGA set.
 
@@ -866,7 +955,7 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 | §8.3 front panel | **Observed [Official]** — same basis. Layout, labels and the status-display fields are legible; **no behaviour is documented** |
 | §9 client install and network | Manual — **Verified [Official]**, 3.x era |
 | §10 feature set | Manual — **Verified [Official]**, 3.x era |
-| §11 output configuration | Manual — **Verified [Official]** |
+| §11 output configuration | Manual — **Verified [Official]** for Normal/OpMon/Scaled and all the blend, rotation and save behaviour. **§11.1's SourceConfig and SourceMon entries and §11.2 are Verified from a user observation of a running Advanced 4.1.0 client, 2026-08-10** — not from any Christie document. The supporting fragments are `[Official]` (product page, release notes); the synthesis is this document's |
 | §12 the 4.x line | **Release notes — Verified [Official]**, five documents read in full, **covering all nine releases with no gaps**. ⚠️ **Entries are one-line summaries**: a feature named here is confirmed to exist and nothing more. The grouping into 12.2–12.6 is this document's editorial arrangement, not Christie's |
 | §13 spec table | **Product page — [Official]** but marketing-grade, undated. Conflicts recorded rather than resolved |
 

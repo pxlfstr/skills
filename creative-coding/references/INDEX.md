@@ -151,7 +151,7 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **Open items:** ⚠️ **arguments for all eight new commands are undocumented**, as is the oversized-response code and what `OCC` actually does; serial line settings (baud, parity, stop bits) are never stated despite the pinout being given; no TCP interface is documented; whether UDP responses return to the source port is unanswered; no timing or rate-limit guidance beyond the explicit "do not poll `RCS` faster than 1 Hz"; response code 6 is reserved for a checksum that is never described. Two errors in the source are flagged in place rather than corrected — the chapter's own command table omits `KPS` and `RCR` while describing both in full, and alignment effect 12's description says "height" where the effect name says width.
 
-**Cites across to:** `digital-video/references/christie-spyder-x20.md` for every device, VI-capacity, HDCP and connector fact from the same manual.
+**Cites across to:** `digital-video/references/christie-spyder-open-questions.md` §3, which collects every protocol unknown in one place — **arguments for all eight 4.x commands**, the **1400-byte response ceiling** and its unstated response code, the **five-to-eight output modes** of which `OCM` documents three, and the fact that **no command reports the frame's software version**. Also `digital-video/references/christie-spyder-x20.md` for every device, VI-capacity, HDCP and connector fact from the same manual.
 
 ### `control-surface-authority.md`
 **Added:** 2026-08-04

@@ -19,7 +19,53 @@ Rule 1 applies only to `creative-coding`; everything else applies to all three.
 git -C /tmp/skills-repo log -1 --format='%h %ad %s' --date=short
 ```
 
-State the commit date in the reply. **Re-pull — `git -C /tmp/skills-repo pull` — when the user says they have committed, or when the answer turns on how current the library is.** The user commits mid-session; a clone from an hour ago can be stale on exactly the file under discussion.
+State the commit date in the reply.
+
+### Before every write, unconditionally
+
+```bash
+git -C /tmp/skills-repo fetch -q origin
+git -C /tmp/skills-repo log -1 origin/main --format='%h %ad %s' --date=short
+git -C /tmp/skills-repo log -1 --format='%h'          # compare
+```
+
+**No condition, no judgment call, no waiting to be told.** An earlier version of this rule said to re-pull *"when the user says they have committed"* — a conditional trigger, and it failed in practice: the user said "uploaded to github," the trigger was not noticed, and three commits went unfetched.
+
+**Do not gate this on elapsed time.** There is no clock between turns — the date in context does not tick, so a "pull if it has been an hour" rule fails silently. **Gate it on the event: any write.**
+
+If the remote SHA has moved:
+
+```bash
+git -C /tmp/skills-repo diff --stat HEAD origin/main    # which files
+git -C /tmp/skills-repo merge --ff-only origin/main
+```
+
+**Check again immediately before delivering a zip**, not only before starting. The user can commit while a file is being edited.
+
+### Why this is affordable — pull cheap, read expensive
+
+The cost of a tool call is **what lands in context**, not what lands on disk.
+
+| Operation | Context cost |
+|---|---|
+| `git clone --depth 1` (107 files, 1 MB) | ~30 tokens |
+| `git fetch` + `git log -1` | ~20 tokens |
+| `git diff --stat` | ~50 tokens |
+| **`cat digital-video/references/INDEX.md`** | **~5,000 tokens** |
+
+A fetch costs a rounding error; one INDEX read costs 250× that. **So there is never a token argument for skipping a pull** — the budget is spent on reading, and that is where selectivity belongs:
+
+- **Edit with scripted `str.replace`, not by reading the file first.** A 60 KB document can be revised without a byte of it entering context.
+- **Read into context only to reason about content**, never merely to change it.
+- **`grep -n` and `sed -n 'X,Yp'`** over `cat` for anything above a few KB.
+
+### Work in the clone — never a parallel copy
+
+**Edit the files inside `/tmp/skills-repo` and package from there.** Do not maintain a separate staging directory and hand-copy files into it.
+
+A parallel copy drifts from the repo silently and nothing detects it. Working in the clone makes drift structurally impossible: `git status` shows exactly what was changed, `git diff --stat HEAD origin/main` shows exactly what changed underneath, and the zip is built from the former.
+
+**This was a real failure, not a hypothetical.** A parallel `drop/` directory was maintained across a multi-session build; it happened to stay a clean superset of the repo, but nothing would have revealed it if it had not.
 
 ### Then again on every prompt, before writing anything
 
