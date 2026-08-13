@@ -394,10 +394,18 @@ every identifier here as `# UNVERIFIED:` until it is confirmed against a frame.
 | **`ASC`** | Advance Script Cue | **4.0.6** | Advance a script cue, with an **optional ±X** argument |
 | **`OCC`** | **Output Config Connection** | **4.0.7** | Named and expanded, nothing more. It joins `OCF` / `OCM` / `OCR` / `OCB` / `OCS` in the output-configuration family (§5e), and "Connection" most plausibly means **selecting which physical connector an output drives** — the manual's outputs can enable DVI and SDI simultaneously when the format allows (§5e), and nothing in the 3.x protocol exposes that choice. ⚠️ **That reading is inference. The note says six words.** |
 
-**`OCC` is the one that plugs a real hole.** Every other output property — format, mode, rotation,
-blending — has a command; which connectors are live has never had one. If the inferred meaning
-holds, `OCC` is what a control system needs to switch an output between its DVI and SDI connectors
-without a client PC. **Confirm it before relying on it.**
+**`OCC` is the one that plugs a real hole, and the case for the connector-selection reading got
+stronger on 2026-08-12.** Every other output property — format, mode, rotation, blending — has a
+command; which connectors are live has never had one.
+
+**The new evidence:** a user running Advanced 4.1.0 reports that **enabling both SDI and DVI on one
+output raises a warning and disables one of them.** So the two digital paths are **mutually
+exclusive**, not freely combinable as the manual's general rule implies (see
+`digital-video/references/christie-spyder-x20.md` §4). **A forced either/or choice is exactly the
+kind of state that needs a command**, and none of `OCF` / `OCM` / `OCR` / `OCB` / `OCS` touches it.
+
+⚠️ Still inference — the release note is six words — but it now rests on a documented behaviour
+rather than the command name alone. **Confirm before relying on it.**
 
 `RSCC`, `RSEC` and `RSCD` together are a **script introspection set** the 3.x protocol has no
 equivalent of — the manual can ask which cue a script is on (`SCR`) but not what is in it. For any

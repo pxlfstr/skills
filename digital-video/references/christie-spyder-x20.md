@@ -196,9 +196,49 @@ Only one connector / signal type can be selected per input at a time.
 
 Every output channel carries **DVI-I** and **SDI / HD-SDI / 3G-SDI**. **Confirmed on the chassis**
 (§8.2): the SDI BNC is silkscreened `3G/HD/SD-SDI`, and **odd outputs are marked `Dual DVI-I`
-while even outputs are marked `DVI-I`** — the dual-link split is readable off the back panel. Multiple output connectors
-can be enabled at once *provided the configured output format is valid for each* — the manual's
-example: SXGA 1280 × 1024 is valid on DVI and analog, invalid on SDI, composite and S-Video.
+while even outputs are marked `DVI-I`** — the dual-link split is readable off the back panel.
+
+**Three signal paths per output channel**, selected by checkbox in the output property panel:
+
+| Path | Ceiling | Notes |
+|---|---|---|
+| **DVI digital** (TMDS pins) | 165 MHz single link; dual link on odd outputs | |
+| **Analog** (DVI-I analog pins) | **165 MHz**, **10-bit** | RGB and component — see below |
+| **SDI** (dedicated BNC) | SD / HD / 3G | Broadcast rasters only |
+
+**Analog output formats are richer than the connector suggests.** The output format list names
+**Analog RGB (SOG, composite or separate sync)** and **Analog YUV** alongside the digital paths.
+Component is a colour-space setting, not a different connector — the same HD15 or 5× BNC breakout
+off the DVI-I analog pins carries RGBHV, RGsB, RGB-with-composite-sync, or YPbPr. ⚠️ **Composite
+and S-Video outputs do not exist on X20** — the format list marks them *"Comp/S-Vid Optional"*,
+the 200C/300C option on the legacy 2 RU and 3 RU frames only. That is why the Composite/S-Video
+checkbox in the output panel appears inert on X20.
+
+**Simultaneous connectors — the rule is narrower than the manual states.** The manual's general
+rule is *"multiple output connector types can be used simultaneously, provided that the video
+format is valid for the specific video connections,"* with exactly two examples: **DVI & Analog**
+for non-interlaced computer signals, and **SDI & Analog** at 480i/575i.
+
+⚠️ **Neither example pairs DVI with SDI, and the software refuses that combination.** **Verified —
+user observation of a running Advanced 4.1.0 client, 2026-08-12: enabling both SDI and DVI on one
+output raises a warning and disables one of them.**
+
+**The real rule is one digital path — DVI *or* SDI — plus analog.** Not any combination.
+
+**Why, marked as reasoning:** analog leaves via the DVI-I connector's analog pins through a
+separate DAC and is independent. DVI and SDI are both serialized digital outputs and appear to
+share **one digital output engine per output channel**. The SSO manual's output table supports
+this — its columns are **Analog** and **Digital**, a single digital column at 317 MHz, never DVI
+and SDI as separate paths.
+
+**This is likely why `OCC` exists.** 4.0.7 added **`OCC` — Output Config Connection** (protocol
+document §8.1). If DVI and SDI are mutually exclusive, connector selection is a real choice a
+control system must make, and no 3.x command exposes it. Stronger support for the
+connector-selection reading than the command name alone.
+
+⚠️ **Planning consequence.** One output cannot feed a projector on DVI and a router on SDI — that
+is two outputs. On an 8-output frame, minus an operator monitor, minus a SourceMon, the usable
+count drops faster than the spec table implies.
 
 ### 200/300 series — signal facts that do not carry over cleanly
 

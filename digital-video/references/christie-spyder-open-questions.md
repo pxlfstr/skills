@@ -138,7 +138,22 @@ thing exposed as a mode. A 4.0.6 note lists a *"Source Config monitor fix"*.
 work — brightness/contrast/hue/saturation, luma and chroma key clip and gain, input rastering —
 can be judged without putting it on program.
 
-**Two things unknown, and the second matters:**
+**How the source is chosen — resolved.** It is an explicit mode, not a plain click: *"A wrench
+symbol by a listed source indicates it is the current source in the input configuration mode.
+Right click the source and select 'Exit configure source' to exit."* One source at a time; the
+wrench marks which. The output itself is assigned by **right-clicking an output** in the patch
+grid, separately from setting an Operator's Monitor (which is done by **dragging a PixelSpace**
+onto an output).
+
+⚠️ **What "the same output can be used for source configuration and Operator's Monitor overlay"
+means is NOT resolved.** An earlier reading of this file claimed both appear **simultaneously**.
+**That was an overstatement** — the manual says the output *can be used for* both roles and never
+says both pictures appear at once, and physically they cannot: a config monitor shows one source
+at full raster, an op mon shows a program PixelSpace. **Likely reality, marked as inference:** the
+output serves as op mon normally and **switches to the source while configure-source mode is
+active.** One output, two roles, **by mode rather than overlaid.**
+
+**Still unknown:**
 - **Which "selected" drives it** — a plain click in the source list, or the explicit configure-source
   state the manual describes entering and exiting?
 - ⚠️ **What stage of the pipeline it shows.** For it to be useful it must be **raw input** —
@@ -395,7 +410,51 @@ internal PC's mic and speaker jacks, marked factory use only.
 
 **Plan shows as if audio does not survive the box.** ⚠️ Test before relying on it either way.
 
-### 4.7 SDI Level B on outputs
+### 4.7 Does a dual-link input consume the neighbour's SDI as well as its analog?
+
+**Tier: resolved toward the broad reading, still untested.** The manual: *"the preceding analog
+input connector is disabled... When a dual-link source is used on input 2, the system will utilize
+the resources from Input 1, therefore disabling the connector."*
+
+⚠️ **An earlier reading of this file treated "analog" as a precise carve-out sparing SDI. That was
+wrong.** Odd inputs have no DVI, so "the preceding analog input connector" is simply how Christie
+names the odd neighbour by its type. The second sentence — *"utilize the resources from Input 1,
+therefore disabling the connector"* — reads as **the whole input channel**, SDI included.
+
+**Mechanism:** DVI-I dual link carries all its TMDS pins on one connector, so it needs nothing
+physically from the neighbour. What it needs is **processing bandwidth** — twice the pixel rate has
+to be handled somewhere, so the X20 borrows the adjacent channel's input processing.
+
+**Plan on the broad reading.** **Test:** patch a dual-link source on input 2, then attempt autosync
+on input 1's SDI.
+
+### 4.8 Input pool vs output wiring — and the layer-pair puzzle
+
+**Tier: Theory (the asymmetry), Contradiction (the pairs).**
+
+The two sides behave oppositely, and the silkscreen shows why: **every X20 DVI input is marked
+`Dual DVI-I`, but only odd outputs are.**
+
+| | Behaviour |
+|---|---|
+| **Inputs** | A **resource pool** — 16 dual-capable connectors on a 1608, only **6** simultaneous dual-link sources, each consuming the preceding odd input and an adjacent layer |
+| **Outputs** | **Fixed wiring** — even outputs were never dual-capable, so nothing is taken from anything. All 8 connectors remain available; only the raster they carry changes |
+
+⚠️ **The layer-pair table does not map cleanly onto physical inputs.** Dual-link layer pairs are
+given as **1/2, 4/5, 7/8, 9/10, 12/13, 15/16** — skipping 3 and 6. But the DVI must sit on an even
+channel, and pair 4/5 would place it on an odd one. Either layer numbering is not 1:1 with input
+numbering (plausible — the crosspoint routes sources to layers), or the table is loose. **This
+decides which physical inputs can actually carry six dual-link sources on a 1608.**
+
+### 4.9 Does a dual-link output cost anything?
+
+**Tier: Theory.** Nothing states what a dual-link output consumes, if anything. The odd/even split
+reads as fixed capability rather than contention, and the SSO output table lists odd and even
+connectors working at the same rates simultaneously — which would be impossible if odd stole from
+even. **Test:** set output 1 to a dual-link format and check whether output 2 still passes video,
+and whether output 1's SDI checkbox greys out or merely fails.
+
+### 4.10 SDI Level B on outputs
 
 **4.0.4 added SDI Level B on inputs.** Nothing states the output side. Unknown whether X20 outputs
 level A, level B, or either.
@@ -458,6 +517,10 @@ failures repeat**, not just the facts.
 | **Blackmagic Videohub is not supported** | `BlackMagic VideoHub` is in the Router Type dropdown | Built an "inventory" from release notes. **Release notes are a changelog** — anything shipping before 4.0.0 is invisible to them |
 | The **Sierra driver is probably serial-only** | Both `Sierra` and `Sierra IP` exist | Inferred from the absence of an "IP" suffix in the release notes. Same root cause as above |
 | Use the **Single Widescreen** template for one 1080p output | **Individual Screens → Add Additional Discreet Screen**. Widescreen is for one PixelSpace spanning multiple outputs with a blend overlap | Reached for the first template named in the manual's worked example without checking its purpose |
+| **Any output connector combination works** if the format is valid for each | **DVI and SDI are mutually exclusive** — Advanced warns and disables one. The rule is one digital path plus analog | Quoted the manual's general sentence without noticing that **both of its own examples pair analog with one digital path**, never DVI with SDI |
+| A dual-link input disables only the neighbour's **analog**, sparing its SDI | The **whole input channel** is consumed | Read "the preceding analog input connector" as a precise carve-out. Odd inputs have no DVI — "analog" is just how Christie names that neighbour |
+| One output can be a config monitor and a layer-labelled op mon **simultaneously** | It can be **assigned** both roles; nothing says both images appear at once, and they cannot | Turned "can be used for" into "at the same time" |
+| X20 outputs do **RGBHV only** on the analog pins, no component | **Analog RGB (SOG, composite or separate sync) and Analog YUV** are both in the output format list | Described the DVI-I pin arrangement and mistook it for the format list |
 | The `Op Mon Input` capture path probably needs a **physical output loopback** | **Internal is more likely** — no Christie document mentions looping an output back, and the still server needs the physical port because its source is an external PC | Over-weighted the connector's name |
 
 **The recurring failure is treating a partial source as complete** — a changelog as an inventory,
