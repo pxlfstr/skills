@@ -979,6 +979,47 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 
 ---
 
+## 15. Used-unit vetting and maintenance — `[Practice, not manufacturer-sourced]`
+
+⚠️ **None of this section comes from Christie documentation.** The manual and release notes contain
+no used-equipment checklist, no maintenance schedule, and no cleaning procedure. Everything below
+is general broadcast/AV hardware practice applied to what §1–§14 establish about the X20
+specifically. Tag stays **`[Practice]`** throughout — do not let it read as `[Official]`.
+
+**First-boot vetting:**
+- Record the frame's current firmware/Advanced version (§12) before changing anything — a version
+  mismatch blocks the client from connecting at all
+- Clear any static IP/hostname left from the previous owner's network (§9)
+- Confirm every populated I/O slot is recognized in Vista Advanced; feed a test pattern to each
+  input and verify it reaches an output — cheapest way to catch a dead card
+- Bench-test both power supplies independently (§8.1) — pull one cord at a time with the unit
+  running to confirm the second actually carries the load; this is unverified as true redundancy
+  by Christie (§8.1, §14 item 4) and worth confirming empirically on your own unit
+- Reseat every I/O module — pull and reinsert each card for clean contact, especially after
+  shipping
+
+**Physical cleanup:**
+- Dust the chassis and fans — forced-air cooling on 4RU broadcast gear is the most common failure
+  point from accumulated dust, more so on units with touring/rental history
+- Inspect all connectors (BNC, DVI, RJ45, DE-9) for bent pins or corrosion
+- Check/clean any fan filters present
+
+**Software hygiene:**
+- Change the Cricket/Cricket login (§ Provenance item 3) if the frame will sit on a network where
+  that matters
+- Clear old show files/layouts left by the previous owner
+- Leave the embedded Windows OS unpatched unless Christie specifically directs an update —
+  broadcast/AV embedded builds are generally left alone for stability, and nothing in the manual
+  or release notes calls for OS updates
+
+**Ongoing:**
+- Keep frame firmware and every connecting client's Advanced version in sync (§12) — this is a
+  hard connection requirement per §9, not just good practice
+- Dust-out cadence should scale with duty cycle — more frequent for touring use than a fixed
+  install
+
+---
+
 ## Verification status
 
 | Section | Source and tier |
@@ -998,6 +1039,7 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 | §11 output configuration | Manual — **Verified [Official]** for Normal/OpMon/Scaled and all the blend, rotation and save behaviour. **§11.1's SourceConfig and SourceMon entries and §11.2 are Verified from a user observation of a running Advanced 4.1.0 client, 2026-08-10** — not from any Christie document. The supporting fragments are `[Official]` (product page, release notes); the synthesis is this document's |
 | §12 the 4.x line | **Release notes — Verified [Official]**, five documents read in full, **covering all nine releases with no gaps**. ⚠️ **Entries are one-line summaries**: a feature named here is confirmed to exist and nothing more. The grouping into 12.2–12.6 is this document's editorial arrangement, not Christie's |
 | §13 spec table | **Product page — [Official]** but marketing-grade, undated. Conflicts recorded rather than resolved |
+| §15 used-unit vetting and maintenance | **`[Practice]`** — general hardware practice, not manufacturer-sourced. Every line applies §1–§14 facts rather than restating a Christie document |
 
 **Nothing in this document is from memory.** Where every source is silent, §14 says so rather than
 filling the gap.
