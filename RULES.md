@@ -326,3 +326,21 @@ The gate in each skill's `SKILL.md` is a session-start rule. This is its mid-ses
 **The failure has a shape.** It happens deep in a working session, after a clone that felt like compliance, on a question that reads as a continuation of something already established. Momentum is the risk factor, not difficulty.
 
 **What is allowed without a lookup:** the user's own stated facts, bench results recorded in this conversation, arithmetic, and reasoning explicitly labelled as reasoning under Rule 8. Everything else about a vendor's behaviour is looked up or marked `# UNVERIFIED:`.
+
+**Tier: Designed — added 2026-08-26 after a real failure, not yet tested across a session.** A prose reply naming a device fact (an X-Touch fader's CC, a channel assignment, a control's physical existence) was answered from the session's established pattern — bank/channel conventions correctly recalled from earlier bench work — instead of from the document that actually covers that specific control. The pattern was real; the number was not checked. Asked once, re-asked, wrong both times, corrected only on a third ask.
+
+**Rule 5 already diagnosed why a behavioural instruction alone does not hold:** *"a rule with no artifact does not fire... neither party can tell from the output whether the lookup happened."* Rule 9 had no artifact. It was a correct instruction with nothing to check it against, which is why restating it more firmly is not the fix — the same shape of fix Rule 5 already uses for code is.
+
+**So: any reply that states a fact about a specific device, operator, protocol identifier or endpoint carries a one-line check trail immediately before the claim**, plain text, not a code block:
+
+```
+[checked: xtouch-compact-midi-map.md line 64 — Faders 1–9 | 0–8 | 1–9]
+```
+
+**File and line/section are the load-bearing part**, same reasoning as Rule 5's page date — a claim with nothing after it is guessable, a line number is not.
+
+**Two states, never three, same as Rule 5:** every device-specific claim in a reply is either preceded by a check line or carries `(unverified — not found in the reference)` in place of one. A claim in neither is the violation, and it has to be visible by reading the reply, not inferred from whether the answer sounds right.
+
+**Scope — same restraint as Rule 5's own scope note:** this applies to identifiers, not to reasoning, arithmetic, or facts the user just stated in this conversation. A reply that never names a specific control, endpoint or vendor number carries no check lines, same as a file of pure logic carries no source block under Rule 5. Reflex output on everything is exactly as fabricatable here as there.
+
+**Open, unresolved:** whether writing the check line first actually forces the file open, or whether it can itself be produced from pattern once the habit sets in — the same risk Rule 5 flags as the leading cause of invented code (`sendMIDI` felt certain because adjacent names were real). This is the failure mode to watch for if this rule stops catching anything.
