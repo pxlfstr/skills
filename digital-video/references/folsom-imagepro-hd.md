@@ -2,6 +2,8 @@
 
 **Verified [Official]** — *ImagePRO – Multi Format Image Processor Manual*, Folsom Research (a Barco company), document # 26-0302000-00 Revision E, 121 pages, user-supplied PDF. Read in full: overview/features (all three variants), rear-panel connectors and pinouts for all three variants, video input/output connection detail, DVI-I pinout, genlock submenu in full, output formats submenu, technical specification appendix. **Not read:** the remote command reference (manual pages 64–94, serial/Ethernet command list) — this is control-protocol material and, per this repo's boundary rule, belongs in `creative-coding/references/` if extracted, not here. Not extracted into this document; flagged as present in the source if a future session needs it. No open contradictions found in what was read.
 
+**Second source, folded in additively:** *ImagePRO product datasheet*, doc 31-0302000-00, Barco Events USA, dated February 2005, user-supplied PDF, read in full (6 pp.). A shorter marketing/spec document covering all three variants side-by-side — not ImagePro-HD-exclusive despite being supplied while discussing the -HD unit. Facts below are tagged by what this document itself scopes them to (line-wide vs. variant-specific), not by which unit the user happened to be discussing. This source contains **no new pixel-clock, MHz, or delay-in-fields figures** — both open items below (progressive-source delay, DVI-I pixel clock) remain open after this source.
+
 **⚠️ Correction recorded in place, not silently fixed:** an earlier pass through this same manual (same session) initially described ImagePro as configurable "as ADC or DAC" — a single-direction role you set the box to. That's wrong. Rear panel and spec-table evidence (§2, §5) show ImagePro-HD is **simultaneously bidirectional** on every port — analog, SDI, and DVI-I input all present alongside analog, SDI, and DVI-D output on the same chassis, all the time. It isn't switched between modes.
 
 **⚠️ Second correction recorded in place:** a resolution comparison between the DVI-I input's UXGA (1600×1200) and 1080p (1920×1080) entries was initially asserted in the wrong direction without computing pixel counts. 1920×1080 = 2,073,600 px; 1600×1200 = 1,920,000 px — 1080p is larger. Per Rule 3a (added to `RULES.md` this session), no such comparison is made anywhere in this document without the multiplication shown.
@@ -19,6 +21,10 @@ Folsom's description, direct from the manual: "a high performance digital video 
 | **ImagePRO-HD** | +SD/HD-SDI in and out (not 3G — see §2 and open items). +DVI-I input (analog or digital, with loop-through). +DVI-D output |
 
 **No 3G-SDI, no HDMI connector, no dual-link DVI stated anywhere in this manual, on any variant.** This is a real ceiling worth checking against source formats before patching — see §7.
+
+**The underlying scaler is branded "Athena™"** — Folsom's proprietary processing engine, named in the datasheet but not mentioned anywhere in the full manual. Datasheet describes it as "designed from the ground up to provide the highest possible image quality while minimizing processing delays," supporting 1:1 video sampling at 10 bits/color — line-wide, not stated as HD-specific.
+
+**Output port counts, stated as flat totals (datasheet, line-wide table):** (4) outputs on base ImagePRO, (5) on ImagePRO-SDI, **(6) on ImagePRO-HD.** Input counts: (3) on base, (4) with SDI or on -HD. These are simple totals corroborating, not contradicting, the per-connector breakdown in §2 below — the manual describes connectors by type/location, the datasheet gives the same information as flat counts.
 
 ## 2. Rear-panel I/O, by variant
 
@@ -43,6 +49,8 @@ Accepts and outputs sync-on-video (sync-on-green), separate composite sync, or s
 | SC Phase | −180° to +180°, relative to genlock source. Only valid when source is Blk Burst or input decoded video |
 
 **"Input Video" as a genlock source means ImagePro can lock to its own incoming signal without a separately distributed external reference** — relevant when chaining two ImagePro units, since the second unit can lock to what the first is feeding it rather than needing house sync run to both.
+
+**Vertical Lock has a second, explicitly stated purpose beyond artifact avoidance** (datasheet, line-wide — not flagged as HD-specific): *"Vertical locking eliminates frame rate conversion problems that would otherwise result in motion artifacts **or allows multiple units to have their outputs timed together.**"* The second clause is new relative to the manual's own genlock submenu text — direct confirmation that Vertical Lock is a deliberate mechanism for timing multiple ImagePro units to each other, not just a single-unit motion-artifact fix. Directly relevant to a two-unit round-trip chain (e.g. ATEM → ImagePro → analog → ImagePro → X20): this is the datasheet's own stated use case for that topology.
 
 ## 6. Video processing delay
 
@@ -92,13 +100,16 @@ No entry in any of these lists is asserted as "the highest" without a computed p
 | MAD/Field-to-Frame delay figures | **Verified [Official]** — manual read directly, §Video Processing Delay |
 | Resolution lists by category | **Verified [Official]** — manual read directly, Appendix Technical Specifications, corrected to per-category attribution this session |
 | No 3G-SDI / no HDMI / no dual-link | **Verified negative** — absent from every I/O section and the spec table; not found despite looking |
-| Progressive-source delay | **Not available in this document** |
-| DVI-I pixel clock / dual-link | **Not available in this document** |
+| Progressive-source delay | **Not available in either source read this session** (manual or datasheet) |
+| DVI-I pixel clock / dual-link | **Not available in either source read this session** (manual or datasheet) |
+| Athena scaler name, 1:1 sampling, 10-bit | **Verified [Official]** — datasheet, technology-brief section, line-wide (not flagged HD-specific in source) |
+| Output port counts by variant (4/5/6) | **Verified [Official]** — datasheet spec table, corroborates §2's connector-level detail from the manual |
+| Vertical Lock enabling multi-unit output timing | **Verified [Official]** — datasheet, "Genlock/Vertical Lock" section, stated line-wide |
 
 ## Not yet verified — open items
 
-- **Progressive-source (e.g. 1080p59.94) processing delay** — the single highest-value gap. No figure in this manual; would need a separate datasheet, a Folsom/Barco support inquiry, or a bench measurement.
-- **DVI-I input pixel clock ceiling and dual-link support** — not stated. A separate ImagePro-HD datasheet (shorter form than this full manual) may state it; not yet supplied.
+- **Progressive-source (e.g. 1080p59.94) processing delay** — the single highest-value gap. No figure in the manual or the datasheet; would need a Folsom/Barco support inquiry or a bench measurement.
+- **DVI-I input pixel clock ceiling and dual-link support** — not stated in the manual or the datasheet. A different document (an install guide, if one exists) may state it; not yet supplied.
 - Remote command set — present in source, not yet extracted into `creative-coding/references/`.
 
 ## Cross-references

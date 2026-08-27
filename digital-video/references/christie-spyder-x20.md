@@ -260,6 +260,7 @@ Connector confirmed to exist; **its type and behaviour are documented nowhere.**
 ## 5. Dual link on X20
 
 - Certain X20 inputs and outputs support **2560 × 1600 @ 60 Hz, or up to 330 MHz**.
+- ⚠️ **Separate from the above — a software-imposed ceiling, not a signal-path spec.** Vista Advanced 4.1.0's custom-VESA-format editor will not let the user *define* a custom resolution larger than **2560 × 2160**, at any frame rate, without loading a custom EDID to override it. This is the UI's own input limit on the format-creation tool, not a measurement of what the DVI link can carry — no signal at this resolution has been captured or observed running on hardware. Tier: **Lead** (reported from the software UI, not bench-confirmed). Do not conflate with the 2560×1600/330 MHz figure above, which is a different kind of fact (a stated link/raster ceiling) from a different source.
 - **All X20 DVI inputs can take dual-link**, but a dual-link source **disables the preceding analog
   input connector** — it consumes that input's resources. Dual-link on input 2 kills input 1.
 - **Dual-link-capable layers: 1, 4, 7, 9, 12, 15.** Each consumes the next adjacent layer as well;
