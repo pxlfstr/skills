@@ -1,4 +1,4 @@
-# Christie / Vista Systems Spyder — X20, and the 200/300 series it replaced
+# Christie / Vista Systems Spyder X20
 
 Device and signal facts. The ASCII external control protocol is **not** here — it lives in
 `creative-coding/references/protocols/christie-spyder-external-control.md`.
@@ -67,8 +67,6 @@ Device and signal facts. The ASCII external control protocol is **not** here —
 
 | Family | Chassis | I/O modules | Notes |
 |---|---|---|---|
-| Spyder 200 series | 2 RU | 4 | `[Official]` |
-| Spyder 300 series | 3 RU | 8 | `[Official]` |
 | Spyder X20 | modular, smallest chassis is three slots; 4 RU chassis specified | factory-populated, slots need not all be filled | second-generation line |
 
 **Lineage — why the nameplate says URS.** The X20 was announced at InfoComm, June 2009, as a merger
@@ -85,14 +83,6 @@ only two model names Christie ever published are X20-0808 and X20-1608. Given th
 an 08/09 unit is among the earliest production, and the string is most plausibly a
 Vista-Systems-era or transitional designation predating the settled marketing names. ⚠️ **The `4`
 and the `i` are not decoded** — do not assume `4` means four slots without counting the bays.
-
-**200 series sample configurations** — 240 (4 in / 0 out), 204 (0 / 4), 222, 213, 231.
-**300 series sample configurations** — 380 (8 / 0), 308 (0 / 8), 344, 353, 362.
-Both all-input and all-output models (240, 204, 380, 308) are **available only with the control
-expansion option**; fixed-control versions of those are not offered.
-
-Reading the number: leading digit is the series, remaining digits are input count then output
-count.
 
 **X20 model names.** The manual names exactly two — **X20 1608** and **X20 0808** — and never
 states their I/O counts directly.
@@ -126,22 +116,6 @@ the audience-facing raster is a region of the VI, not the format of any one sour
 **X20 VI capacity — 20,000,000 pixels at every listed frame rate:** NTSC, PAL, 23.98, 24, 25,
 29.97, 30, 48, 50, 60. Frame rate does **not** trade against VI size on X20. That is the headline
 difference from the older families.
-
-**200/300 series VI capacity by frame rate** (system-introduction table):
-
-| Frame rate (Hz) | Pixels available |
-|---|---|
-| 23.97 | 16,500,000 |
-| 25 | 15,800,000 |
-| 29.97 | 13,200,000 |
-| 48 | 8,200,000 |
-| 50 | 7,900,000 |
-| 59.94 | 6,600,000 |
-
-⚠️ **The manual contradicts itself.** Its expansion chapter gives a second, coarser table for the
-same 200/300 hardware — 59.94 → 6.6 M, 29.97 → 13 M, 50 → 8 M, 25 → 16 M, 24 → 16.5 M. Both
-tables are in the same document. Unresolved; use the finer table above and flag the discrepancy if
-a job depends on it.
 
 Other VI rules:
 
@@ -210,9 +184,9 @@ while even outputs are marked `DVI-I`** — the dual-link split is readable off 
 **Analog RGB (SOG, composite or separate sync)** and **Analog YUV** alongside the digital paths.
 Component is a colour-space setting, not a different connector — the same HD15 or 5× BNC breakout
 off the DVI-I analog pins carries RGBHV, RGsB, RGB-with-composite-sync, or YPbPr. ⚠️ **Composite
-and S-Video outputs do not exist on X20** — the format list marks them *"Comp/S-Vid Optional"*,
-the 200C/300C option on the legacy 2 RU and 3 RU frames only. That is why the Composite/S-Video
-checkbox in the output panel appears inert on X20.
+and S-Video outputs do not exist on X20** — the format list marks them *"Comp/S-Vid Optional"*, an
+option card for a different chassis. That is why the Composite/S-Video checkbox in the output
+panel appears inert on X20.
 
 **Simultaneous connectors — the rule is narrower than the manual states.** The manual's general
 rule is *"multiple output connector types can be used simultaneously, provided that the video
@@ -223,12 +197,27 @@ for non-interlaced computer signals, and **SDI & Analog** at 480i/575i.
 user observation of a running Advanced 4.1.0 client, 2026-08-12: enabling both SDI and DVI on one
 output raises a warning and disables one of them.**
 
-**The real rule is one digital path — DVI *or* SDI — plus analog.** Not any combination.
+**Corrected rule — "plus analog" is wrong as a blanket statement, but the replacement isn't
+confirmed either.** Analog and DVI digital are alternate uses of the same DVI-I connector's pin
+sets — DVI digital rides TMDS pins, analog rides a separate DAC on the same connector — so driving
+both at once off one DVI-I jack isn't a real combination regardless of what else is true. That much
+follows from the connector's own construction. What is **not** established from any X20-specific
+source: whether SDI + analog actually runs simultaneously on a real X20 output. The manual's "SDI &
+Analog at 480i/575i" example is part of a general rule whose X20-specificity is unconfirmed by this
+document's provenance — it may describe behaviour carried over from the wider Vista Spyder line
+rather than something tested on X20 hardware.
 
-**Why, marked as reasoning:** analog leaves via the DVI-I connector's analog pins through a
-separate DAC and is independent. DVI and SDI are both serialized digital outputs and appear to
-share **one digital output engine per output channel**. The SSO manual's output table supports
-this — its columns are **Analog** and **Digital**, a single digital column at 317 MHz, never DVI
+| Combination | Status |
+|---|---|
+| DVI digital + SDI | **No — Verified** by observation on a running 4.1.0 client; software disables one |
+| DVI digital + analog (same DVI-I jack) | **No — Derived** from the connector's own construction (one connector, two mutually exclusive pin sets) |
+| SDI + analog (DVI-I connector set to analog mode) | **⚠️ Unverified** — the manual's general-rule example names this combination, but no X20-specific test or observation confirms it. Treat as unconfirmed until checked on hardware or a clearer source |
+| DVI digital alone / SDI alone / analog alone | Yes |
+
+**Why the two confirmed no's, marked as reasoning:** DVI and SDI are both serialized digital
+outputs and appear to share **one digital output engine per output channel**, which is the observed
+mechanism behind the DVI+SDI exclusivity. The SSO manual's output table supports this — its columns
+are **Analog** and **Digital**, a single digital column at 317 MHz, never DVI
 and SDI as separate paths.
 
 **This is likely why `OCC` exists.** 4.0.7 added **`OCC` — Output Config Connection** (protocol
@@ -236,21 +225,9 @@ document §8.1). If DVI and SDI are mutually exclusive, connector selection is a
 control system must make, and no 3.x command exposes it. Stronger support for the
 connector-selection reading than the command name alone.
 
-⚠️ **Planning consequence.** One output cannot feed a projector on DVI and a router on SDI — that
-is two outputs. On an 8-output frame, minus an operator monitor, minus a SourceMon, the usable
-count drops faster than the spec table implies.
-
-### 200/300 series — signal facts that do not carry over cleanly
-
-- **Pixel clock ceilings: analog 165 MHz, digital 330 MHz.**
-- **Only odd inputs have de-interlacers.** SDI and HD-SDI are available on odd inputs only.
-- **Interlaced sources cannot be used on the DVI connector.**
-- Accepted formats listed: 24p, NTSC, PAL, SECAM; analog RGB (sync-on-green, composite or separate
-  sync); analog YUV; SDI; HD-SDI; DVI single-link; DVI dual-link; stereo sync.
-- Output-side format list adds DVI twin link and pairs of single/dual link.
-- Simultaneous output connector examples: DVI + analog for non-interlaced computer formats,
-  SDI + analog at 480i/575i, HD-SDI + analog at 1080i.
-- **200C / 300C option** adds composite (BNC) and S-Video (SVHS) on every input and output.
+⚠️ **Planning consequence.** One output cannot feed a projector on DVI and a router on SDI at the
+same time — that's two outputs. On an 8-output frame, minus an operator monitor, minus a
+SourceMon, the usable count drops faster than the spec table implies.
 
 ⚠️ The manual gives **no X20-specific accepted-format table and no SDI rate table** — 3G-SDI is
 named on the connector list and nowhere else, with no bitrate and no cable length. **On SDI level:
@@ -952,30 +929,36 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
    sizing by a factor of four.**
 9. **Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13). Affects what
    raster an output will actually carry.
-10. **Two different VI capacity tables for the 200/300 series** in the same manual (§2).
-11. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
+10. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
    display states.** `Home` / `Config` / `Health` / `T/L` / `B/R` / `Auto` are readable as labels
    and nothing more. The operator's manual is still not in hand.
-12. **How front-panel paging (eights, PG1–PG8) maps to the external protocol's register paging**
+11. **How front-panel paging (eights, PG1–PG8) maps to the external protocol's register paging**
     (page × 1000 + ID). Two different schemes, no stated relationship (§8.3).
-13. **Which rear DE-9 is which.** The manual names three RS-232 ports for external control; the
+12. **Which rear DE-9 is which.** The manual names three RS-232 ports for external control; the
     photograph shows several DE-9s on the factory-use PC panel with no functional marking.
-14. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level, no format
+13. **No SDI rate detail for X20** — no bitrate, no cable length, no output-side level, no format
     table. 3G-SDI is named as SMPTE 424M and nothing more.
-15. **What 4.0.7's "Dual link resources" fix actually was** (§12.2). One line, no detail, on the
+14. **What 4.0.7's "Dual link resources" fix actually was** (§12.2). One line, no detail, on the
     mechanism §5 depends on.
-16. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
+15. **What the two 4.1.0 4K output formats cost the VI budget.** 3840 × 2160 @ 29.97 is 8.3 Mpx of
     20 Mpx on one output; nobody has run the arithmetic against a real configuration.
-17. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
+16. **Whether the 1860 px still/shape restriction survives 4.x** — the manual says "all versions",
     written before 4.x existed, and no release note mentions it.
-18. **X20 accepted input format list** — the only format list in the manual sits under the 200/300
-    section and may not be current for X20.
-19. **Montage II control surface** is named as a control option and never described.
-20. **DX4 output module** — appears only in protocol arguments. No specification, no statement of
+17. **X20 accepted input format list** — the manual gives no accepted-format table specific to X20;
+    it is not established whether the general format list stated for the wider Vista Spyder product
+    line is current for X20.
+18. **Montage II control surface** is named as a control option and never described.
+19. **DX4 output module** — appears only in protocol arguments. No specification, no statement of
     which chassis take it, and **it is not visible on the photographed 1608.**
-21. **The FPGA version sets per release** (§12) are recorded in the notes; nothing explains what
+20. **The FPGA version sets per release** (§12) are recorded in the notes; nothing explains what
     mismatches cause or how to read the running set off a frame. The front panel shows the
     *software* version (§8.3), not the FPGA set.
+21. **Whether SDI + analog actually runs simultaneously on one X20 output** (§4). The manual's
+    general "multiple output connector types" rule names this pairing as an example, but nothing
+    in this document confirms that example is X20-specific rather than inherited wording from the
+    wider Vista Spyder line. Only the DVI+SDI exclusivity has been observed on real X20 hardware.
+    **A one-output test — enable SDI and analog together, check whether both carry signal —
+    would settle it in under a minute.**
 
 ---
 
