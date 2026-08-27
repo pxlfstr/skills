@@ -5,7 +5,8 @@ Device and signal facts. The ASCII external control protocol is **not** here —
 
 ## Provenance
 
-**Six source groups. Four documents read in full, one rendered product page, two product photographs.**
+**Seven source groups. Four documents read in full, one rendered product page, one product
+brochure, two product photographs.**
 
 1. *Spyder X20 User Manual*, Christie document **020-000916-01 Rev. 1 (04-2016)** `[Official]` —
    supplied by the user as a 180-page PDF (a manualslib.com capture of the Christie PDF, page
@@ -39,6 +40,11 @@ Device and signal facts. The ASCII external control protocol is **not** here —
    photograph is not a specification.** §8 states exactly what is legible and marks what is not.
    The unit photographed is a **2008 demo chassis running 3.2.4** — connector layout is unlikely
    to have changed, but the possibility is not excluded.
+7. **Christie Spyder X20 product brochure**, **CHRI4546_SpyderX20_Brochure_DEC_21_EN**
+   (copyright 2022) `[Official]` — supplied by the user as a PDF, read in full. **The only source
+   in this library that lists input and output signal support separately and explicitly by
+   chassis** — its spec table settled §4's composite/S-Video question (below) by giving a real,
+   X20-specific per-connector signal list rather than a general product-line format table.
 
 - **Sourcing tier:** §1–§13 are **Verified [Official]** except where a line is marked **Derived**,
   **Inferred** or **Observed** in place. Each section names its source. **"Observed" means read off
@@ -161,8 +167,8 @@ Other VI rules:
 
 | Input | Connectors |
 |---|---|
-| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC. **On the chassis these are four BNCs marked `Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync` under "Analog", plus one marked `3G/HD/SD-SDI` under "Digital"** (§8.2) |
-| **Even** (2, 4, 6 …) | DVI-I (analog and digital on one connector) · Stereo sync input on 3-pin DIN |
+| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC. **On the chassis these are four BNCs marked `Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync` under "Analog", plus one marked `3G/HD/SD-SDI` under "Digital"** (§8.2). **Confirmed [Official] by the product brochure's spec table: exactly half the inputs on both chassis (4 of 8 on X20-0808, 8 of 16 on X20-1608) are listed as "supporting composite, S-video, component analog, HDSDI, SDI, and 3G SDI" — composite/S-Video are standard on these inputs, not optional or gated by an add-on card** |
+| **Even** (2, 4, 6 …) | DVI-I (analog and digital on one connector) · Stereo sync input on 3-pin DIN. Brochure confirms these as "progressive DVI and progressive RGBHV" inputs |
 
 Only one connector / signal type can be selected per input at a time.
 
@@ -182,11 +188,19 @@ while even outputs are marked `DVI-I`** — the dual-link split is readable off 
 
 **Analog output formats are richer than the connector suggests.** The output format list names
 **Analog RGB (SOG, composite or separate sync)** and **Analog YUV** alongside the digital paths.
-Component is a colour-space setting, not a different connector — the same HD15 or 5× BNC breakout
-off the DVI-I analog pins carries RGBHV, RGsB, RGB-with-composite-sync, or YPbPr. ⚠️ **Composite
-and S-Video outputs do not exist on X20** — the format list marks them *"Comp/S-Vid Optional"*, an
-option card for a different chassis. That is why the Composite/S-Video checkbox in the output
-panel appears inert on X20.
+Component is a colour-space setting, not a different connector — on the **output** side this rides
+the DVI-I connector's analog pins directly (RGBHV, RGsB, RGB-with-composite-sync, or YPbPr), via
+whatever HD15/BNC breakout cable is used to reach it. ⚠️ **This is not the same physical connector
+as the input side's 4-BNC breakout** (`Cr-Pr-C` / `B-Pb` / `G-Y-Comp` / `Comp Sync`, confirmed on
+the chassis, §8.2, line 164 above) — no document in this library confirms a dedicated multi-BNC
+analog breakout on X20 outputs; the analog output is DVI-I only. ⚠️ **Composite / S-Video output — resolved: no.** The product brochure gives an explicit,
+X20-specific output signal list — **"Analog RGB, component · DVI, single-link and dual-link · SDI,
+HD-SDI and 3G-SDI"** — and composite/S-Video is not in it, on either X20-0808 or X20-1608. This is
+the same brochure that separately **confirms composite/S-Video as standard on half the inputs**
+(line 164 above), so the omission on the output side is a deliberate, specific listing, not a gap
+in the brochure's coverage. **Confirmed [Official] — Christie Spyder X20 product brochure
+(CHRI4546_SpyderX20_Brochure_DEC_21_EN), output spec table.** This overturns the earlier
+"unresolved, disputed" status: input supports composite/S-Video natively, output does not.
 
 **Simultaneous connectors — the rule is narrower than the manual states.** The manual's general
 rule is *"multiple output connector types can be used simultaneously, provided that the video
