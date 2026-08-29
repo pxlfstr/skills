@@ -17,11 +17,11 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 | `protocols/` | Vendor and protocol facts — operator parameters, MIDI maps, API endpoints, ports, packet structure | `[Official]` / `[Forum]` / `[Lead]` |
 | `patterns/` | Structures the user developed | Shipped / Bench-verified / Designed / Abandoned |
 
-`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md` · `christie-spyder-external-control.md`
+`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md` · `christie-spyder-external-control.md` · `nvidia-tensorrt-polygraphy.md`
 
 `protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
 
-`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md`
+`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md` · `touchdesigner-python-env-dependencies.md` · `touchdesigner-TDDepthAnything.md`
 
 **Every document opens with a `## Provenance` block, heading exact, above the first content heading.** As of 2026-08-04 all documents in `protocols/` and `patterns/` pass the mechanical check in `RULES.md` Rule 2.
 
@@ -44,6 +44,47 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 ---
 
 ## Documents
+
+### `patterns/touchdesigner-python-env-dependencies.md`
+**Added:** 2026-08-29
+
+**Covers:** TDPyEnvManager's per-project isolated `.venv`, and why the textport's `python >>>` prompt queries TD's own base interpreter instead of it — `pip list` in the textport silently returns the wrong environment's package list rather than erroring. Always target the venv's `python.exe` explicitly via `subprocess.run`. Plain PyPI's default `torch` wheel is CPU-only even with a CUDA extra-index-url present in requirements.txt; pip's resolver does not treat CPU-vs-CUDA as a version difference, so `pip install torch` reports "already satisfied" against a CPU build — `--force-reinstall` is required to actually replace it. `torchvision` pins an exact `torch==` version as a dependency; installing the two separately risks a resolver conflict, fixed by reinstalling both together from the same CUDA index in one operation. `subprocess.run()` blocks TouchDesigner's UI thread for the full duration of a large install (observed: a ~2.8 GB torch wheel) — this is a freeze, not a hang, and should be confirmed via `nvidia-smi`/Task Manager/disk I/O rather than assumed stuck. Unpinned `requirements.txt` lines re-resolve on every environment rebuild and can silently reintroduce a previously-fixed incompatibility.
+
+**Use for:** any TouchDesigner project using TDPyEnvManager with a Python dependency stack (torch, TensorRT, or similar) that needs CUDA; diagnosing "package not found" when a package was definitely installed; diagnosing `torch.cuda.is_available()` returning `False` despite a working NVIDIA driver; recognizing a large-install UI freeze as expected rather than broken.
+
+**Confidence:** Bench-verified throughout — every step ran on the user's machine this session, TouchDesigner Build 2025.32820, RTX A5500 Laptop GPU.
+
+**Open items:** whether routing long installs through TouchDesigner's Thread Manager DAT avoids the UI freeze — reasoned as plausible, not tried. Whether TDPyEnvManager re-triggers full environment recreation on every project reopen or only on explicit "Create from requirements.txt."
+
+---
+
+### `protocols/nvidia-tensorrt-polygraphy.md`
+**Added:** 2026-08-29
+
+**Covers:** `polygraphy`'s FP16 `CreateConfig` call fails outright on `tensorrt-cu12` 11.2.1.2 — `[!] fp16 in CreateConfig is not available on TensorRT version 11.2.1.2`, raised from `polygraphy/backend/trt/config.py`'s `_configure_flags` → `try_set_flag("FP16")`. Same script, same machine, same model builds successfully end to end on `tensorrt-cu12==10.9.0.34` with `polygraphy` 0.53.4 unchanged — full build log for a Depth-Anything-V2-Small engine at 518×518 included, 312 seconds on an RTX A5500 Laptop GPU. `pip install tensorrt-cu12==10.9.0.34` correctly resolves matching `tensorrt_cu12_libs`/`tensorrt_cu12_bindings` sub-versions in the same operation. A `CUDA is not available; skipping TF32 enablement` warning during the build correlates with a CPU-only torch install in the same venv rather than indicating the TensorRT build itself is failing or CPU-bound — TensorRT manages its own CUDA context independent of torch. What `nvidia-smi` shows during an active, healthy build (bursty, 6–10% GPU-Util, P1 power state, ~1.2–1.3 GB memory) so a quiet console during tactic search isn't mistaken for a stall.
+
+**Use for:** any TensorRT engine build via Polygraphy that fails on an FP16 (or possibly other precision) flag; deciding which TensorRT version to pin when a project's instructions don't specify one; distinguishing a genuinely stalled build from Polygraphy's normal quiet tactic-search phase.
+
+**Confidence:** `[Bench]` — a single empirical data point (11.2.1.2 breaks, 10.9.0.34 works), not cross-checked against NVIDIA or Polygraphy release notes. The true version boundary between the two is unknown.
+
+**Open items:** the actual version boundary where the break starts — nothing between 10.9.0.34 and 11.2.1.2 was tested. Whether the fix is a TensorRT downgrade specifically or would also resolve via a Polygraphy upgrade — not tried. Root cause not read from either project's source.
+
+---
+
+### `patterns/touchdesigner-TDDepthAnything.md`
+**Added:** 2026-08-29
+
+**Covers:** `jetXS/TDDepthAnythingRT` — Depth Anything V2 monocular depth estimation in TouchDesigner via TensorRT, TDPyEnvManager, and Thread Manager. The repo's shipped `requirements.txt` versus the working pinned version, all three breakages of which were invisible from the file itself and surfaced only at runtime: unpinned `tensorrt-cu12` (see `protocols/nvidia-tensorrt-polygraphy.md`), unpinned `torch` resolving to CPU-only (see `patterns/touchdesigner-python-env-dependencies.md`), and `torchaudio` — pulled in only as an unused transitive import inside `transformers`' `audio_utils.py`, and prone to crashing on load with a `.pyd` FileNotFoundError/OSError on version mismatch, which manifested as a DAT compile error blocking the whole extension. `torchaudio` should be removed from requirements.txt entirely, not version-matched — it regresses back in on every "Create from requirements.txt" otherwise. The resolution set before clicking Accelerate is baked into the compiled engine's fixed input profile and can't be changed without a full rebuild. The one-time setup steps (env create, download, accelerate) versus the per-session steps (Upload Model to GPU, Active) once the engine/weights persist on disk. Completion signals for each step, none of which the README documents explicitly — what a successful Download Model, Accelerate, and (partially, not yet fully confirmed) Upload Model to GPU actually look like in the textport. A Designed-only Blur→Level TOP pre-processing chain for reducing bright-moving-light-induced depth flicker on live camera input, including a build-specific note that this TouchDesigner build's Blur TOP has no Method H/V dropdown (unlike the current Derivative wiki page) and uses Filter Scale instead.
+
+**Use for:** setting up or debugging TDDepthAnythingRT; any project combining TDPyEnvManager, TensorRT, and HuggingFace Transformers where an unrelated transitive dependency (audio, in this case) causes an unrelated-looking crash; smoothing noisy/bright live-lighting input before depth or similar ML inference in TouchDesigner.
+
+**Confidence:** Bench-verified for setup, environment fixes, and one successful engine build/run. The pre-processing chain is **Designed only** — reasoned, never tested against this pipeline's actual output.
+
+**Depends on:** `patterns/touchdesigner-python-env-dependencies.md` for the general TDPyEnvManager/pip mechanics, and `protocols/nvidia-tensorrt-polygraphy.md` for the TensorRT version break — neither restated here.
+
+**Open items:** Upload Model to GPU not yet confirmed to a successful completion line after the torch/CUDA fix. No confirmation yet that Active/live inference produces correct output or that GPU-Util climbs during live inference. The Blur/Level chain has no before/after comparison.
+
+---
 
 ### `multi-layer-controller-led-feedback.md`
 **Added:** 2026-08-01
