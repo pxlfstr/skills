@@ -126,6 +126,7 @@ difference from the older families.
 Other VI rules:
 
 - **Physical input and output module count has no effect on VI size.** Capacity is a frame
+- **⚠️ System-wide frame rate is a real, configurable setting — user-reported, not yet found stated this plainly in the manual itself.** Per the user: setup requires a single rate to be set that applies **across all X20 frames** in the system, consistent with how most high-resolution switchers operate. This is a different claim from the "20M pixels at every listed frame rate" capacity-independence statement above — that line says capacity doesn't shrink at any given rate, not that multiple simultaneous rates can coexist freely across frames. **`Server → Frame Configuration` in Vista Advanced is confirmed as genlock's location (see §6 below)** — the same menu now confirmed to hold Enable Genlock, Hardware Assist for Autosync, Lookup from User Configs, and Auto Raster. Whether system-wide frame rate is itself one of these four named settings, or a separate setting in the same menu, is still not confirmed. Tier: **User-reported** (bench/operational knowledge from the user, not yet cross-checked against the manual's own text on this point).
   property, not an I/O property.
 - ⚠️ **Stereoscopic (SSO): this manual says "VI capacity is halved" and that an SSO system must
   always run the higher (NTSC) frame rate. The dedicated SSO manual says something different and
@@ -250,6 +251,15 @@ establishes that level B input support exists and dates it, but states nothing a
 gives no format table. Before 4.0.4, level B inputs were not supported.
 
 **Genlock:** the main manual never mentions a reference input. **A genlock connector is visible on
+
+**⚠️ Menu path confirmed — user-reported, closes the previously-open item at §14.** `Server → Frame Configuration` in Vista Advanced is genlock's actual location — the same menu path already documented for HDCP (below) also holds genlock. Confirmed contents, with hover-text definitions read directly from a running Advanced client:
+
+- **Enable Genlock** — toggle, self-evident from the name.
+- **Hardware Assist for Autosync** — hover text: *"additional format detection capabilities."* **This is the same Autosync described at §10** ("detects source type and properties") — the connection flagged as unconfirmed two passes ago is now settled: this menu toggle adds *additional* detection capability to that same per-input mechanism, it is not a separate feature.
+- **Lookup from User Configs** — hover text: *"prefers user configs when detecting signal."* Plausibly ties to the saved-format/custom-configuration system referenced elsewhere in this document, though that link itself is still not directly confirmed.
+- **Auto Raster** — hover text: *"raster detection will be performed on analog inputs."* Confirms this is analog-input-specific — consistent with the earlier finding that Autosync more broadly appears to be an analog-detection concern (digital inputs carry their own format metadata via EDID/embedded timing and don't need the same auto-detection).
+
+Tier: **Verified [Official]** for the four names and their hover-text definitions — read directly from a running Vista Advanced client, the same evidentiary standing as other in-client observations already in this document (e.g. §11's SourceConfig/SourceMon findings). **Still not documented anywhere:** default states, what happens with each disabled, and — for Lookup from User Configs specifically — which "user configs" it means and how detection preference actually resolves when signal properties conflict with a saved config.
 the X20 output board** in the SSO manual's back-panel figure, alongside the stereo sync DIN, the
 Op Mon input and the InfiniBand port — see `christie-spyder-x20-stereoscopic.md` §6. The product
 page states the capability as **free-run or vertically referenced to NTSC/PAL black burst** (§13).
@@ -933,8 +943,7 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
    One bench test with one cord pulled would settle it.
 5. **The second BNC beside `Genlock`** on the output board (§8.2). Present, unlabelled in the
    photograph, unidentified.
-6. **Genlock behaviour** — signal type beyond "black burst" on the product page, menu path,
-   reference-loss behaviour, and how reference works across an expansion chain. Connector
+6. **Genlock behaviour** — signal type beyond "black burst" on the product page. ~~menu path~~ **Closed — `Server → Frame Configuration`, confirmed user-reported, see §5.** ~~what each of the four confirmed menu settings does~~ **Closed — hover-text definitions read directly from Advanced, see §5.** Still open: reference-loss behaviour, how reference works across an expansion chain, default states for the four settings, and how "Lookup from User Configs" resolves a conflict between detected signal properties and a saved config. Connector
    confirmed; everything else absent.
 7. **What "USB expansion" physically uses** (§12.5) — the output board's `Control` USB Type-B,
    the internal PC's USB, or something else. Confirmed to exist and carry inter-frame traffic;
