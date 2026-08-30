@@ -63,13 +63,24 @@ typical or measured, but **no source says that.**
 
 **Test:** a clamp meter on a loaded frame.
 
-### 1.3 Output DVI pixel clock — 265 or 330 MHz
+### 1.3 Output DVI pixel clock — 265 or 330 MHz — **CLOSED 2026-08-30**
 
-The manual states 330 MHz for dual link generally, without separating input from output. The
-product page states **DVI up to 265 MHz on outputs, 330 MHz on inputs.** This determines what
-raster an output will actually carry.
+The manual stated 330 MHz for dual link generally, without separating input from output. The
+product page stated **DVI up to 265 MHz on outputs, 330 MHz on inputs.**
 
-**Test:** attempt an output format between the two ceilings and see whether it takes.
+**Settled without the test.** The 4.1.0 `3840x2160 @29.97Hz` output factory format, read off a
+running client, has HTotal 4000 × VTotal 2191 × 29.97 = **262.66 MHz** — 2.3 MHz under the product
+page's ceiling and 67 MHz under the manual's. Christie would not build a shipped factory format to
+land just beneath a limit that was not real. **Product page believed; the manual's 330 MHz output
+figure is treated as wrong.** Full timing in `christie-spyder-x20.md` §5.1.
+
+⚠️ **Not closed by measurement.** No format between 265 and 330 MHz was ever attempted, so the
+ceiling itself remains uncrossed — this is a strong inference from a shipped artefact, not a bench
+result. The original test still stands if a frame is ever available.
+
+**New question opened by the same screenshots:** that format sets **SyncType TriLevel** and
+**UseAlternateOutputSynchro True**, neither of which appears in any Christie X20 document; §13
+describes output sync as free-run or vertically referenced to NTSC/PAL black burst only.
 
 ### 1.4 Weight
 

@@ -283,6 +283,45 @@ Connector confirmed to exist; **its type and behaviour are documented nowhere.**
 
 - **Outputs: dual-link on odd-numbered outputs** (1, 3, 5, 7).
 - **HDCP mode forces every output to single link, odd outputs included** (§6).
+
+### 5.1 The 4.1.0 4K output factory format — read off a running client, 2026-08-30
+
+4.1.0's release note says "two 4K output factory formats" and names neither (§12.1). One of the
+two is now captured in full from a live Vista Advanced output property panel:
+
+| Property | Value |
+|---|---|
+| Name | `3840x2160 @29.97Hz` |
+| HActive / HFrontPorch / HSyncWidth / HTotal | 3840 / 48 / 32 / **4000** |
+| VActive / VFrontPorch / VSyncWidth / VTotal | 2160 / 3 / 5 / **2191** |
+| RefreshRate | `FR_29_97` |
+| IsInterlaced | False |
+| Colorspace | RGB |
+| SyncType | **TriLevel** |
+| UseAlternateOutputSynchro | True |
+
+**Pixel clock, computed this session:** 4000 × 2191 × 29.97 = **262.66 MHz** (262.92 MHz at an
+exact 30.00 Hz). Blanking is CVT-RB-shaped — 160 px total H blanking, 31 lines V.
+
+**This closes the §13 output-pixel-clock conflict in favour of the product page.** 262.66 MHz sits
+just under the page's stated **265 MHz** DVI output ceiling and nowhere near the manual's 330 MHz.
+A format Christie shipped as a factory default would not be built to sit 2.3 MHz under a limit by
+coincidence. ⚠️ The manual's 330 MHz output figure is now treated as **wrong for outputs**, not
+merely a second reading — but no direct Christie statement says so, and the 330 MHz input figure
+is untouched.
+
+**It is unambiguously dual-link.** 262.66 > 165, so a single TMDS link cannot carry it. Therefore
+this format is available on **odd outputs only**, and **HDCP mode makes it unavailable entirely**
+(§6 forces single link).
+
+**SyncType TriLevel + UseAlternateOutputSynchro True** ⚠️ sit oddly against §13's "free-run or
+vertically referenced to NTSC/PAL black burst" — neither the manual nor the product page describes
+tri-level as an X20 output sync type, and `UseAlternateOutputSynchro` is documented nowhere. Open.
+
+Tier: **Bench-verified** — read from a running 4.1.0 client's output property panel, screenshots
+supplied by the user. The pixel clock is **Computed** from those values, not a Christie figure.
+
+⚠️ **The second 4K factory format is still unidentified.** Only one was captured.
 - The product page states the same constraint from the raster side: **any resolution above
   2048 × 1200 consumes two input channels** (§13). Same mechanism, stated as a rule about the
   picture rather than about the connector.
@@ -884,7 +923,7 @@ two* readings wherever it disagrees.
 |---|---|---|---|
 | Power | **1000 W max**, internal auto-resetting fuse | **900 W**, 9.0 A @ 100 VAC | ⚠️ Unresolved. The manual's figure is a maximum; the page's may be typical. Neither says which |
 | Weight | ~70 lb | **59 lb (27 kg)** and **70.5 lb (32 kg)** listed together, with 70.5 lb repeated as the shipping weight | ⚠️ Unresolved. Reads as unit vs shipping weight with the field mislabelled, but the page does not say so |
-| Output DVI pixel clock | 330 MHz, stated for the dual-link capability generally | **265 MHz on outputs**, 330 MHz on inputs | ⚠️ Unresolved and load-bearing for output raster planning |
+| Output DVI pixel clock | 330 MHz, stated for the dual-link capability generally | **265 MHz on outputs**, 330 MHz on inputs | **Resolved 2026-08-30 in favour of the product page** — the 4.1.0 4K factory format computes to 262.66 MHz, just under 265 (§5.1). Manual's 330 MHz output figure treated as wrong |
 
 **Lifecycle:** **end of production 2024-01-02.** Christie states support for three years from that
 date — **until 2027-01-02** — while parts last, or for the applicable warranty period if longer.
@@ -951,8 +990,9 @@ date — **until 2027-01-02** — while parts last, or for the applicable warran
 8. **The stereo VI contradiction** — this manual says SSO halves VI capacity; the SSO manual says
    20 M per eye, 40 M total. See the stereoscopic document §2. **Unmeasured, and it changes stereo
    sizing by a factor of four.**
-9. **Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13). Affects what
-   raster an output will actually carry.
+9. ~~**Manual vs product page on output DVI pixel clock** — 265 vs 330 MHz (§13).~~ **Closed
+   2026-08-30.** The 4.1.0 4K output factory format computes to 262.66 MHz, just under the product
+   page's 265 MHz — see §5.1. Product page believed; manual's output figure treated as wrong.
 10. **Front-panel behaviour.** The layout is known; **no menu structure, no key semantics, no
    display states.** `Home` / `Config` / `Health` / `T/L` / `B/R` / `Auto` are readable as labels
    and nothing more. The operator's manual is still not in hand.
