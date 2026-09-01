@@ -24,6 +24,10 @@ Companions:
   tested).
 - ⚠️ **No Spyder hardware was available.** Not one command was sent, not one menu opened. Every
   test below is proposed, none performed.
+- **Updated 2026-08-31**, additions dated inline: successor-platform corroboration for §2.2/§2.3
+  from the user-supplied Spyder Studio User Guide 020-102579-04 (X80; read in full, **not stored
+  in this library at the user's decision**), a user working assumption in §2.4, a third reading
+  in §2.9, and new §2.13.
 
 ---
 
@@ -139,6 +143,13 @@ array when inputs are unpopulated.
 **Test:** set a spare output to SourceMon, photograph the result, then check the VI budget before
 and after.
 
+**Successor corroboration, added 2026-08-31:** the Spyder Studio User Guide 020-102579-04
+(1-2019, X80 platform; user-supplied PDF, **not stored in this library at the user's decision**)
+documents the X80 multiviewer shipping with **default presets literally named `OPMON` and
+`SOURCEMON`**, recallable from a preset dropdown, with only **the fourth output on each card**
+multiviewer-capable there. ⚠️ X80 evidence — it confirms the names survived into the successor
+as first-class concepts, and settles **nothing** about the X20 unknowns above.
+
 ### 2.3 `SourceConfig` — the single-source monitor
 
 **Tier: Theory.** An output mode in 4.1.0. The manual separately describes setting an output as a
@@ -174,6 +185,11 @@ active.** One output, two roles, **by mode rather than overlaid.**
 **Test:** set an output to SourceConfig, click a source, then size that layer down to a small tile.
 If the monitor changes, it is showing the layer, not the input.
 
+**Successor note, added 2026-08-31:** unlike `OPMON`/`SOURCEMON` (§2.2), **no trace of a
+SourceConfig equivalent** was found in the X80's Spyder Studio guide — its multiviewer presets
+cover op-mon and source-tile views only. Weak negative evidence (one guide read), recorded because
+it is the only successor signal either way.
+
 ### 2.4 `Op Mon Input` and the capture path
 
 **Tier: Theory.** A DVI-D connector, one per output board. The manual mentions it **once**, and not
@@ -194,6 +210,10 @@ output back, and the still server needs the physical port precisely because its 
 
 **Test:** with SourceConfig set and **nothing cabled into `Op Mon Input`**, press Capture. A
 thumbnail means internal.
+
+**Working assumption, adopted 2026-08-31:** the user now operates on the reading that the port
+exists **purely for the Still Server** — i.e. the internal-capture reading above, taken one step
+further. Consistent with all evidence; still unproven until the no-cable capture test is run.
 
 ### 2.5 Devices — `Single Layer` vs `Dual Layer` vs `Mixer`
 
@@ -271,6 +291,14 @@ port, the internal PC's USB, or something else is stated nowhere.**
 
 **Certain:** USB carries inter-frame traffic in expanded systems, and 4.0.7 made it redundant.
 
+**Third candidate raised 2026-08-31 — a hardware control panel.** The port is silkscreened
+`Control` and is Type-B (the *device* end of a USB link, so it expects a host plugged into it).
+**No document in the library connects any Spyder to a USB control panel** — documented control is
+Ethernet (Vista Advanced, the UDP ASCII protocol) plus the frame's own front panel — so this stays
+a hypothesis alongside the expansion-traffic reading, which the release notes support and this
+does not. **Field test costing zero minutes:** on any rig that has a panel or console, look at
+what is cabled into the port.
+
 ### 2.10 Front panel behaviour
 
 **Tier: layout known, behaviour undocumented.** Labels are legible from a photograph — `Home`,
@@ -297,6 +325,27 @@ Vista-Systems-era or transitional designation. ⚠️ **The `4` prefix and `i` s
 decoded.** Do not assume `4` means four slots without counting bays.
 
 ---
+
+### 2.13 KeyFrame relative position — what ±1.0 pins to the PixelSpace edge
+
+**Tier: Theory. Added 2026-08-31.** The client's KeyFrame position is relative (−1.0 = left/top,
++1.0 = right/bottom, 0.0 = centre, measured from the **layer centre** against the containing
+PixelSpace — `christie-spyder-x20.md` §9). The conversion is plain arithmetic:
+`px = PixelSpaceWidth × (rel + 1) / 2`. **What the manual never states is which point ±1.0 puts
+at the edge:**
+
+| Reading | At −1.0 horizontal |
+|---|---|
+| **Centre-referenced** (manual's wording supports) | Layer **centre** at the left edge — layer half off-screen |
+| **Edge-referenced** | Layer's **left edge** flush with the PixelSpace's left edge |
+
+The formula above is exact under the first reading and wrong by half the layer width under the
+second. **The external protocol sidesteps this entirely** — `KPS`/`LSP` position in pixels from
+the PixelSpace top-left (`creative-coding/references/protocols/christie-spyder-external-control.md`
+§5b) — so the ambiguity bites only when translating a number read off the Vista Advanced UI.
+
+**Test:** set a layer to −1.0 horizontal in the client. Half off-screen settles it one way; flush
+to the edge settles it the other. Under a minute.
 
 ## 3. Protocol unknowns
 

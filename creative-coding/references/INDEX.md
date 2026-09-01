@@ -21,7 +21,7 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 
 `protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
 
-`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md` · `touchdesigner-python-env-dependencies.md` · `touchdesigner-TDDepthAnything.md` · `touchdesigner-pops-depth-geometry.md`
+`patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md` · `touchdesigner-python-env-dependencies.md` · `touchdesigner-TDDepthAnything.md` · `touchdesigner-pops-depth-geometry.md` · `spyder-operator-gui.md`
 
 **Every document opens with a `## Provenance` block, heading exact, above the first content heading.** As of 2026-08-04 all documents in `protocols/` and `patterns/` pass the mechanical check in `RULES.md` Rule 2.
 
@@ -232,3 +232,32 @@ number is restated.
 
 **Open items:** whether write-deduplication can drift out of step with a device that changes state
 on its own; whether the settle interval for motor writes generalises past one operator's taste.
+
+### `patterns/spyder-operator-gui.md`
+**Added:** 2026-08-31
+**Covers:** Design record for a browser-based operator GUI for the Christie Spyder X20 over the
+UDP ASCII protocol — the code itself is archived locally by the user and deliberately not in the
+repo. The whitelist-not-blacklist safety boundary (no shutdown, no save-to-non-volatile, no
+output or input-config writes reachable by construction). Browser-page-plus-UDP-bridge platform
+choice and the TD-as-bridge fallback. What the two Christie clients teach: one skeleton under two
+skins, the view-menu census (17 shared views, four Studio-only), and the operator view set kept
+vs the system views cut. Binding style decisions: Tahoma, Studio's dark skin with red/amber
+Program/Preview rules, Advanced's icon-gutter context menus. The approved Sources+Properties
+interaction spec — blank-until-clicked Properties, the new-source form, `<AutoSync>` config
+default with manual configuration left in Advanced, the four-item bank context menu, and
+take-over-the-bank drag semantics. The pixel-native gift: `KPS`/`LSP` speak pixels, so the client
+UI's ±1.0 relative space never needs implementing. First-hand operator testimony that Devices is
+a mix/transition control, exceeding the manual's framing.
+
+**Use for:** resuming or extending the Spyder GUI build; any future tool that must emulate a
+vendor's client software; scoping an operator surface against a config-capable protocol.
+
+**Confidence:** Designed throughout — mockups only, nothing ever sent to a frame.
+
+**Depends on:** `protocols/christie-spyder-external-control.md` for every command cited;
+`digital-video/references/christie-spyder-x20.md` and `christie-spyder-open-questions.md`
+(§2.13 for the ±1.0 ambiguity) for device and client facts.
+
+**Open items:** no protocol command lists input configs, so config auto-detection has no clean
+implementation; `Basic Presets` view contents unknown; whether un-saved runtime changes survive
+a frame restart.
