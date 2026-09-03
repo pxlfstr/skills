@@ -17,6 +17,12 @@ during the investigation and both are flagged below so they aren't repeated.
   - *HDMI-TPS-TX200 series User Manual* (164 pp., read via pdfplumber — §1.4–1.6, §3.2, §11 specs)
   - *TPS-TX200 series Quick Start Guide* (Doc. 2.4)
   - *Remote Power Compatibility Table*
+- **Verified [Official]** — two Lightware A&E specifications, user-supplied, read 2026-09-03:
+  - *SW4-TPS-TX240 Architectural and Engineering Specification* v1, 2026-08-03, 3 pp., read in full
+  - *MMX4x2-HT200 Architectural and Engineering Specification* v1, 2026-08-19, 4 pp., read in full
+- ⚠️ **The Remote Power Compatibility Table is named above but none of its content was ever written
+  into this document.** No device list, no pairing rules, nothing. It cannot be quoted or reasoned
+  from — see §8.3. Re-supply it if remote power matters to a job.
 - **Nothing bench-tested.** The user owns none of these; no unit has been measured.
 - **Not read:** the Lightware Device Controller (LDC) software manual, which is where the TPS Cable
   Diagnostics and the actual per-input pixel-clock readout live — that tool would answer the open
@@ -167,4 +173,76 @@ is a Vista-Advanced-output / signal-analyser question on the X20 side — see
   present the 4K30 as HDMI 1.4 or DP 1.2 instead of dual-link DVI, both TPS generations carry it with
   no dual-link ambiguity at all. Not investigated.
 - **RX-side output format.** This doc covers the TX (input) side. Which Lightware RX terminates the
-  link, and whether it outputs DVI or HDMI at the far end, was not worked through.
+  link, and whether it outputs DVI or HDMI at the far end, was not worked through. **Partly closed
+  2026-09-03** — §8 documents one receiving end in full, the `MMX4x2-HT200` matrix, which terminates
+  TPS and outputs HDMI on two independent ports. Dedicated `RX` units are still undocumented here.
+- **The contents of the Remote Power Compatibility Table.** Named in the Provenance block, never
+  transcribed. §8.3 needs it to move the `MMX4x2-HT200` PoE question from inferred-from-absence to
+  stated.
+
+**See §8** for a fully documented TX→RX pair at 4K30 and for why a power-compatibility listing is not
+a video-compatibility claim.
+
+---
+
+## 8. A TPS pair worked end to end — `SW4-TPS-TX240` → `MMX4x2-HT200` at 4K30
+
+Added 2026-09-03 from both A&E specifications. This is the first **matched pair** in this document
+where the receiving end is documented as well as the transmitting end, and it partly closes the
+"RX-side output format" open item in §7.
+
+### 8.1 The two devices
+
+| | `SW4-TPS-TX240` | `MMX4x2-HT200` |
+|---|---|---|
+| Role | 4-input transmitter/switcher, TPS out + mirrored local HDMI out | 4×2 matrix, **TPS in** + 3× HDMI in, 2× independent HDMI out |
+| Inputs | DP 1.2a, HDMI (DVI 1.0 / HDMI 1.4), DVI-D on a 29-pole DVI-I | 1× TPS (RJ45), 3× HDMI |
+| Max at 4:4:4, 8-bit | 4096×2048@30, **3840×2160@30** | same, stated identically for HDMI **and** the TPS input |
+| At 60 Hz | 4096×2048 / 3840×2160 **4:2:0 only** | same |
+| 12 bits/colour | 1920×1080@60 only | 1920×1080@60 only |
+| HDCP | 1.4 | 1.4 |
+| Delay | 0 frame, Pixel Accurate Reclocking | 0 frame, Pixel Accurate Reclocking |
+
+**Verdict: compatible at 3840×2160@30 4:4:4 8-bit.** Both ends state that raster explicitly on the
+TPS path, HDCP tiers match, and neither box scales — so the link either carries the source format or
+fails to lock; there is no silent down-conversion stage to hide a mismatch.
+
+The 300 MHz footnote in the TX200 spec table (§4) accommodates it with margin: CTA-861 4K30 totals
+4400 × 2250 × 30 = **297.000 MHz**, computed, against a stated 300 MHz ceiling.
+
+### 8.2 The mode caveat carries over unchanged
+
+§5 applies to this pair as to every other: **HDBaseT mode only.** Long Reach caps at 148.5 MHz and
+will not pass 4K30 at any distance. Neither A&E sheet mentions link modes at all — that fact lives in
+the TX200 manual's distance table, not in the A&E specs, which is a reason not to spec a run from an
+A&E sheet alone.
+
+### 8.3 Power is a separate axis from video — and a power table proves nothing about format
+
+**The `SW4-TPS-TX240`'s TPS port is a PoE *sink*, not a source.** Its spec states remote powering
+over the TPS output per IEEE 802.3af, taken either from a `TPS-PI-1P1` injector or from "a
+PoE-compatible TPS input port of the matrix or input board." Its Ethernet port carries no PoE at all.
+If both remote and local power are present, **the remote source wins** — stated.
+
+**The `MMX4x2-HT200` does not appear to source it.** Its powering section names only the external 12 V
+2 A adaptor and a 3.6 W / 9.6 W consumption range; **PoE is absent from the document entirely**, and a
+9.6 W ceiling leaves no headroom for a 15.4 W 802.3af port. ⚠️ Inferred from absence and from the
+budget, not stated — the *Remote Power Compatibility Table* is the document that would settle it, and
+its contents are not recorded here (see Provenance). Until it is re-read: **power the TX240 from its
+own 12 V adaptor.** Both units ship with one, so on this pair the question is moot.
+
+⚠️ **A remote-power compatibility table is a power-pairing table, not a video-format table.** Two
+devices co-listed there are stated to be safe to power one from the other — nothing more. Video
+ceilings are set per family and are not uniform across TPS: the TPS-95 generation tops out at
+1920×1200 over its DVI input (§1) while the TX200 generation reaches 4K30, and both generations sit
+on the same TPS/HDBaseT transport. **Never read "listed together for power" as "interoperable at
+4K30."** Check each end's own resolution table, every time.
+
+### 8.4 What this pair still does not establish
+
+- **Nothing about dual-link DVI.** §4 remains undetermined. The TX240 carries 4K30 from any of its
+  three inputs; that a *single-link-class* 4K30 rides the chain was never in doubt, and this pair
+  says nothing about a true two-link-bundle source such as the X20's odd output.
+- **No latency figure.** "0 frame" is stated on both, per stage. No end-to-end measurement exists.
+- **No cable spec in either A&E sheet.** The 70 m / CAT7 AWG23 figure for 4K30 UHD comes from the
+  TX200 distance table (§5), not from these documents.
