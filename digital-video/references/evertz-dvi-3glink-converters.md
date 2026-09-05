@@ -13,6 +13,18 @@
   (signal-type menu — GSDI / GLINK / RGBR / Auto), the 2430GDAC manual, a ManualsLib Evertz index,
   and the current Evertz/AV-iQ product pages for the 2430RX-J2K-IP, 2430RX2-10G, and MMA10G-TRS4K/
   TRM4K gateway family — all read via search extract 2026-09-01, none fetched in full.
+- **Verified [Official]** for §10 — *MMA10G-HUB In-Room AV Switch* datasheet, **Rev. 02, © 2017
+  Evertz Microsystems**, 2 pp., user-supplied 2026-09-03, read in full. Recovered from the Internet
+  Archive; the gen-1 HUB has been removed from Evertz's live site, and four searches (Evertz site
+  search, the `av.evertz.com/pdf/product/` path, AV-iQ, HDBaseT.org, ManualsLib, Manualzz) found no
+  live copy and **no instruction manual for any HUB generation** — Evertz publishes datasheets
+  publicly and gates manuals behind support.
+- **Verified [Official]** for §10.3's HUB2 column — *MMA10G-HUB2* datasheet, Rev. 06, © 2020,
+  fetched in full from `av.evertz.com/pdf/product/MMA10G-HUB2.pdf` 2026-09-03.
+- **Bench-observed [User]** for §10.1's connector layout — back-panel photograph of a used
+  `MMA10G-HUB-4S8X4-4`, S/N 7441550001, supplied 2026-09-03 and inspected enlarged. Pin field
+  counted at 3 rows × 8 columns fully populated plus 4 analog pins, i.e. a 29-pin DVI-I dual-link
+  receptacle. **The connector was counted; the electronics behind it were not tested.**
 - **What was NOT read in full:** the *body* of any instruction manual (only the signal-type and
   resolution passages surfaced by search); the GLINK format specification, if a public one exists.
   The 2430-series relatives and the 12G line are no longer unknowns — see §3.2–§3.3.
@@ -23,6 +35,12 @@
   copy-paste from the predecessor datasheet, not as two products — but Evertz has never corrected
   it, and both model numbers exist on the used market. ⚠️ Confirm the model on the chassis label,
   not the datasheet body.
+- **Corrected 2026-09-03:** §8 previously listed the **Analog Way VIO 4K as taking dual-link DVI in
+  at 4K30**. `analog-way-vio-4k.md` §1.4 — a primary manual extract already in this library —
+  contradicts it: the VIO's native DVI-DL input caps at **2560×1600@60**. The wrong line came from
+  reseller/summary copy. The **Barco ImagePRO-II** entry beside it has the same provenance and has
+  **not** been checked against a Barco document; it is [Lead], not [Official]. Consequence: **this
+  library currently confirms no device that accepts dual-link DVI at 4K30.**
 
 ---
 
@@ -125,6 +143,12 @@ and ST 2110 / IPMX**.
 **Every unit in that 12G family is HDMI-only or SDI-only on the video side. Not one has a DVI
 connector of any kind.** Checked across the TRS4K-2 / -2x2 / -4x2 / -HDMI / -2D / -2UH variants and
 the TRM4K-12G — all HDMI 2.0a and/or 12G-SDI, transported over 10GbE.
+
+⚠️ **Scope correction, 2026-09-03.** That claim is true of the **12G gateway family** and must not be
+read as "no DVI anywhere in MMA10G." The **first-generation `MMA10G-HUB` in-room switch has a DVI-I
+input** — see §10. It is a 10GE-era product, not 12G, and its DVI-I is a low-ceiling connector
+option rather than a dual-link path, so the dead end below is unaffected. But the blanket phrasing
+was wrong.
 
 **The dead end this creates inside Evertz:** the DVI-DL door (3G EFX boxes) and the 4K door (12G/IP
 gateways) are in different product generations with **no GLINK-to-12G bridge between them.** A
@@ -242,13 +266,25 @@ vendor page or datasheet was read, **[Lead]** where only reseller copy was seen.
 **The pattern: 2560×1600 is the ceiling of every cheap dual-link-input device found.** None reaches
 4K30.
 
-**Devices that do take dual-link DVI in at 4K30** — both full scalers, both priced accordingly:
+**Devices that do take dual-link DVI in at 4K30** — ⚠️ **this list is now down to one candidate, and
+that one is unconfirmed.**
 
-- **Analog Way VIO 4K** — DVI-DL input at 4K30; native outputs cap at 4K@30, and 4K@60 output
-  requires an `OPT-4K60P-*` card. See `analog-way-vio-4k.md`.
+- ~~**Analog Way VIO 4K** — DVI-DL input at 4K30.~~ **Wrong, corrected 2026-09-03.** The VIO manual
+  extract in this library contradicts it directly: `analog-way-vio-4k.md` §1.4 gives the native
+  **DVI Dual-Link input a ceiling of 2560×1600@60**, the same as the Evertz pair. Its 4K@30 inputs
+  are **DisplayPort and HDMI**, not DVI. The `OPT-OUT-VIO4K` card reaches 4K@30 on dual-link DVI but
+  is **output only**. This entry was written from reseller/summary copy while the primary manual
+  extract sat in the same directory saying otherwise — **read the device's own document before
+  listing it here.**
 - **Barco ImagePRO-II** (**not** the Jr — dual-link resolutions are unavailable on Jr) — DVI-DL
   input up to 300 MHz. ⚠️ Its 4K@30 support is on **dual-link DVI and DisplayPort only**; its HDMI
-  is 1.4 at 165 MHz and its SDI is 3G. A DVI-DL → HDMI job needs a second box after it.
+  is 1.4 at 165 MHz and its SDI is 3G. A DVI-DL → HDMI job needs a second box after it. ⚠️ **This
+  entry comes from the same reseller-copy sweep that produced the wrong VIO line above and has not
+  been checked against a Barco document.** Treat as [Lead], not [Official], until one is read.
+
+**So the honest state of the survey: no device in this library is confirmed to accept dual-link DVI
+at 4K30.** The claim that cheap options stop at 2560×1600 stands; the claim that expensive options
+clear it does not currently rest on anything primary.
 
 **Checked and does not do it:** Analog Way QuickVu and Pulse² (Midra platform, DVI-D single-link,
 2K ceiling); Analog Way LiveCore/Ascender (has DVI-DL, but discontinued and 4K is a quad-output
@@ -280,3 +316,70 @@ driving old 30″ monitors from new GPUs, not for feeding new gear from old sour
   §8; tvONE and Apantac were named as candidates and **never searched**. Reddit r/VIDEOENGINEERING
   could not be reached through the available search tool — a failed attempt, not an absence of
   content there.
+
+---
+
+## 10. The `MMA10G-HUB` gen 1 — the DVI-I in the MMA10G line, and why it doesn't help
+
+Added 2026-09-03 from the **first-generation MMA10G-HUB datasheet, Rev. 02, © 2017**, recovered from
+the Internet Archive after it was pulled from Evertz's live site, plus a back-panel photograph of a
+used unit (S/N 7441550001). §3.3's blanket "no DVI of any kind" was written before either existed.
+
+### 10.1 The DVI-I is real, and it is not its own input
+
+Every gen-1 model is specified as **"n HDMI (Type A) + 1 (either HDMI or DVI-I)"**. One input is
+dual-connectored — you pick HDMI *or* DVI-I for it, not both. The back-panel photo confirms this
+physically: HDMI jacks labelled 1, 2, 3, then a single bracket labelled `4` spanning both an HDMI
+jack and the DVI-I.
+
+| Model | Video inputs | Video outputs | 10GE |
+|---|---|---|---|
+| `MMA10G-HUB-4x2-2` | 3 HDMI + 1 (HDMI or DVI-I), 2 SDI | 2 HDMI | 2× SFP+ |
+| `MMA10G-HUB-4x2A-2` | same, + 32×32 Dante | 2 HDMI | 2× SFP+ |
+| `MMA10G-HUB-8x4-4` | 7 HDMI + 1 (HDMI or DVI-I), 4 SDI | 4 HDMI | 4× SFP+ |
+| `MMA10G-HUB-8x4A-4` | same, + 32×32 Dante | 4 HDMI | 4× SFP+ |
+
+**SDI inputs are not fitted by default** — they require `SFP3R-DIN2-3G` dual 3G-SDI DIN SFP
+receivers, ordered separately. This decodes the field-applied label on the used unit: **`4S8X4-4`
+reads as an `8x4-4` with four SDI SFPs fitted**, the `4S` being the SDI count the base ordering code
+omits.
+
+### 10.2 The ceiling kills it
+
+**`Supported Resolutions: HDMI: up to 1920x1200p @ 60 Hz`.** That is the entire video spec line for
+all four models. There is no 4K entry, no WQXGA entry, and **no separate ceiling stated for the
+DVI-I** — the datasheet gives one resolution row covering the HDMI path and never qualifies the
+DVI-I connector at all.
+
+So the dual-link question is moot on this box. 1920×1200@60 CVT-RB is a 154 MHz raster that rides one
+TMDS link with room to spare; nothing this switch accepts needs a second link, whatever the
+receptacle's pin count suggests. ⚠️ **A fully populated 24-pin DVI-I receptacle is not evidence of
+dual-link electronics** — this unit is the library's clearest demonstration of that, and the same
+caution applies to the Lightware `SW4-TPS-TX240`'s 29-pole DVI-I (`lightware-tps-hdbaset-dvi.md` §4).
+
+### 10.3 Gen 1 vs HUB2 — do not read one's spec table onto the other
+
+| | `MMA10G-HUB` (Rev. 02, 2017) | `MMA10G-HUB2` (Rev. 06, 2020) |
+|---|---|---|
+| Video ceiling | **1920×1200@60, all inputs** | 3840×2160@30 on odd inputs; 1920×1200@60 on even |
+| DVI | **1 shared HDMI/DVI-I input** | **none** |
+| HDBaseT | none | 2 or 4 ports on the `22x11` / `44x22` models |
+| SDI | 2 or 4, **SFP required** | 2 or 4, fitted |
+| Control Ethernet | 2× 10/100Base-T | 1–3× 10/100/1000Base-T |
+| Odd/even input split | **none — flat ceiling** | yes, odd inputs are the 4K ones |
+
+⚠️ The odd/even 4K split is a **HUB2-only** structure. It was briefly applied to gen 1 in session
+before the gen-1 datasheet was recovered, and that was wrong in an interesting way: gen 1 has no 4K
+inputs at all, so there is nothing for the split to divide.
+
+⚠️ **Open contradiction inside the gen-1 datasheet, kept not corrected:** the front-page model table
+gives `MMA10G-HUB-8x4A-4` **2 SDI**, while the specifications table on page 2 gives the same model
+**4 SDI**. The other three models agree across both tables. Read the spec table as authoritative on
+the strength of the ordering information, but confirm SFP count on the chassis.
+
+### 10.4 Verdict for a dual-link DVI source
+
+**Out.** Not on connector grounds — on raster grounds. A 1920×1200 ceiling is below every candidate
+raster in §8, below the Evertz GLINK pair's 2560×1600, and far below 4K30. The DVI-I on this box
+exists to take a legacy laptop or lectern PC into a meeting room, which is what the whole product is
+for.
