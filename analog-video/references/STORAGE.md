@@ -12,7 +12,7 @@ Follow this when the user agrees to save a document to the skill's reference lib
    - **Use for** — the kinds of questions this doc should be consulted for. This is what future sessions match against.
    - **Added** — today's date.
 
-3. **Confirm to the user** what was stored and how it'll be used next time.
+3. **Deliver, don't claim.** Hand the file over as a download for the user to commit, and say what it will be used for next time. It is not stored until committed — see *Persistence* below.
 
 ## Updating an existing document (additive, never lossy)
 
@@ -43,4 +43,4 @@ Therefore:
 1. Say up front, *before* doing storage work, that the file will need to be committed.
 2. Never describe a document as "stored" or "saved to the skill" on the basis of having written it to disk.
 3. Always deliver the file as a download via `present_files` so it can be committed.
-4. At session start, compare installed-skill file timestamps against the repo's latest commit and flag any gap.
+4. At session start, report the clone's latest commit date (per RULES.md). The installed `SKILL.md` is only a pointer to the repo, so there is no installed library to compare against.

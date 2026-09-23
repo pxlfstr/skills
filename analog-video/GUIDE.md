@@ -38,7 +38,29 @@ When this skill is active, follow this loop:
 
 4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning.
 
-5. **Flag the edges of competence.** When a question lands in a thin-knowledge area (see "Where Claude is limited" below), say so directly and then search — do not offer to. A short "⚠️ low confidence — verify against a datasheet" is more valuable than a confident guess.
+5. **Flag the edges of competence.** When a question lands in a thin-knowledge area (see "Where Claude is limited" below), say so directly. Read the repo and any document or URL the user supplied without asking. A web search needs the user's go-ahead first (RULES.md, *Reading vs. searching*): say what's missing and what would be searched, then wait. A short "⚠️ low confidence — verify against a datasheet" is more valuable than a confident guess.
+
+## Sourcing, vetting & citing data
+
+How a fact is sourced matters as much as the fact — the user is often about to patch, buy, or solder based on it.
+
+**Roles.** The user is the artist and decision-maker; Claude does verified processing. If the user states something factually wrong, flag it once with the backing source, then defer — no arguing, no filler.
+
+**No false, placeholder, or estimated numbers — the #1 requirement.** Every numeric term (HP, current draw, depth, voltage range, gain, frequency, price) must come from a source actually read this session. If a number isn't in hand, look for it first; only after genuinely failing, state what was checked and what's still needed. Never substitute a plausible figure, and state partial or unknown terms explicitly.
+
+**Verification tiers.**
+
+| Tier | Sources | Treat as |
+|---|---|---|
+| Verified | Datasheet, schematic, manufacturer doc/manual, the module's designer, or a measurement | Authoritative; cite it |
+| Lead (unverified) | Forum posts, Reddit, community threads, "someone said" | A pointer, not a fact — promote only by confirming against a Verified source or a measurement |
+| Memory | Claude's own recall | Fine for stable fundamentals (see below); **not** a source for module specs, pinouts or current products |
+
+**Trusted authoritative voices:** Lars Larsen (LZX), Nick (brownshoesonly / VH.S), Bastien Lavaud (Syntonie), Befaco, Fox Burroughs (Foxing Hour), and any module's own designer. A post by one of them about their own gear counts as Verified even when it's on a forum.
+
+**Citation style — descriptor format, not APA/MLA.** Name the source by the main heading of the article/thread (hyperlinked if online) or the PDF/document title, tagged `[Official]` or `[Forum]`. No years. In tables, use a **Source** column with descriptor + tag; in prose, name the source inline with its tag. Files the user uploads are cited by document title plus how they were read (e.g. OCR'd scan, photo transcription). Every cited number must be verified.
+
+**Library maintenance is additive and never lossy** — merge rather than replace; remove only what's shown to be wrong. Full protocol in `references/STORAGE.md`.
 
 ## Where Claude has deep knowledge
 

@@ -67,7 +67,7 @@ When this skill is active, follow this loop:
 
 4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning.
 
-5. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly and then fix it — search the manufacturer or standards source immediately rather than offering to. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
+5. **Flag the edges of competence.** When a question lands in a thin-knowledge or fast-moving area (see "Where Claude is limited" below), say so directly. Read the repo and any document or URL the user supplied without asking. A web search needs the user's go-ahead first (RULES.md, *Reading vs. searching*): name the manufacturer or standards source that would settle it, then wait. A short "⚠️ verify against the current manual — port counts and firmware behavior change per revision" is worth far more than a confident guess.
 
 ## Sourcing, vetting & citing data
 

@@ -13,9 +13,9 @@ run, and this document does not state a root cause.
 
 | Section | Tier |
 |---|---|
-| §1 downshift mechanism | **Bench-verified** on one adapter — property and default read off the user's machine; behaviour is reasoned |
+| §1 downshift mechanism | **Verified [Forum]** as of 2026-09-17 — mechanism from a kernel mailing-list thread; property and default read off the user's machine |
 | §2 forcing method | **Bench-verified** — the forced-rate test was performed and produced a result |
-| §3 adapter facts | **Verified**, user-reported — PowerShell output pasted verbatim into the session |
+| §3 adapter facts | **Verified**, user-reported — PowerShell output pasted verbatim. §3.2 identifications **Verified** 2026-09-17 against PCI ID databases |
 | §4 switch facts | **[Lead]** — retailer and distributor copy, not TP-Link's own documentation |
 | §5 case record | Session transcript; **unresolved** |
 | §6 2.5GBASE-T fragility | **[Lead]** — community lore, no standards document read |
@@ -34,32 +34,77 @@ run, and this document does not state a root cause.
 or firmware notice; TP-Link's own TL-SG608S-M2 datasheet or manual; any
 Gigabyte motherboard manual or BIOS release note; the PCI ID repository.
 
-⚠️ **Every chip- and vendor-identification claim in §3.2 is Claude recall and
-is marked unverified.** They were stated confidently in session before being
-marked. Do not quote them.
+**Verification pass run 2026-09-17**, same day, after the first draft. Sources
+added: the Linux Kernel Driver DataBase (`CONFIG_AQTION`,
+`CONFIG_NET_VENDOR_AQUANTIA`), DeviceHunt PCI vendor/device pages,
+linux-hardware.org probe records, coreboot mailing-list archives (2007-05) and
+an lspci capture for the Gigabyte subsystem ID, a Marvell AQtion driver
+changelog reproduced on a third-party archive, and a Linux kernel mailing-list
+thread on PHY downshift behaviour.
+
+**Result: §3.2's three identifications are now Verified, and the AQC107
+firmware-bug claim is RETRACTED** — a targeted search found nothing supporting
+it. §1's mechanism moved from reasoned to sourced, and **the conclusion it
+supports changed** (see §1.1 and §5).
+
+⚠️ **Still unsourced:** IEEE 802.3bz itself, and therefore the four-pair
+requirement for 2.5GBASE-T stated in §1.1.
 
 ---
 
 ## §1 — Downshift: the mechanism that hides the failure
 
 Marvell AQtion drivers expose an advanced property **`Downshift retries`**,
-default **4** on the adapter examined (§3.1).
+default **4** on the adapter examined (§3.1). It is a documented driver
+feature — see §3.2a for the changelog entry.
 
-**Behaviour as understood — reasoned, not measured:** the PHY attempts the
-highest common rate, and after the configured number of failed attempts drops
-to a lower rate and stays there. The link comes up, traffic flows, nothing is
-logged where anyone looks, and the only symptom is a link speed nobody
-notices until a transfer is slower than budgeted.
+### §1.1 — What downshift actually does — **VERIFIED 2026-09-17**
 
-**Why it matters for video work:** a link that silently self-demotes is worse
-than one that fails. An NDI or 2110 bandwidth budget written against 2.5 Gb/s
-runs on 1 Gb/s and the discovery happens under load.
+Described on the Linux kernel mailing list, in a thread on a PHY whose
+downshift was misbehaving. Paraphrasing the explanation given there: gigabit
+operation requires all four pairs in the cable to work; **if a link
+negotiates at 1 Gb/s and then fails to establish because a pair is broken,
+some PHYs downshift** — dropping to 100 Mb/s, which needs only two working
+pairs. Done correctly, the PHY also stops advertising the higher rate so the
+link partner follows it down.
+
+**This is the important part, and it reverses the session's framing.**
+Downshift is not a vague "negotiation didn't work" fallback. It is
+specifically **a response to a physically bad cable pair.** A PHY that
+downshifts is telling you something about the copper.
+
+Scale it up one tier: **2.5GBASE-T likewise uses all four pairs**, so the same
+mechanism applies — a link that cannot hold 2.5G on a damaged pair drops to
+1000BASE-T, which also uses four pairs but at a far lower symbol rate and with
+correspondingly more margin.
+
+⚠️ **Tier:** the quoted mechanism is [Forum] — a kernel mailing-list
+discussion between developers, which is strong for mechanism and is not a
+standards document. **IEEE 802.3bz was not read.** The four-pair requirement
+for 2.5GBASE-T is stated here from general knowledge and is **not sourced**.
+
+### §1.2 — Why it matters for video work
+
+A link that silently self-demotes is worse than one that fails. An NDI or
+ST 2110 bandwidth budget written against 2.5 Gb/s runs on 1 Gb/s, and the
+discovery happens under load.
+
+### §1.3 — The anomaly in the §5 case
 
 ⚠️ **On the adapter in §5, setting `Downshift retries` to `Disabled` did not
-change the outcome — the link still came up at 1 Gb/s.** Whatever demoted
-that link, disabling this property did not stop it. The mechanism above is
-the documented-sounding explanation; it did not predict this machine's
-behaviour.
+change the outcome — the link still came up at 1 Gb/s.**
+
+Under §1.1's mechanism that is genuinely odd: with downshift off, a PHY that
+cannot hold 2.5G should fail to link rather than quietly settle at 1 Gb/s.
+Two readings, neither confirmed:
+
+- The property did not take effect on the hardware, only in the driver.
+- Something other than downshift is selecting 1 Gb/s.
+
+**Both are consistent with the forced-rate result** (§2 — forcing 2.5G gave no
+link at all), which does show the path refusing 2.5G. **Recorded as an open
+anomaly, not resolved.**
+
 
 ---
 
@@ -125,23 +170,65 @@ PnP identity, both entries:
 PCI\VEN_1D6A&DEV_14C0&SUBSYS_E0001458&REV_03
 ```
 
-### §3.2 — Identification ⚠️ UNVERIFIED
+### §3.2 — Identification — **VERIFIED 2026-09-17**
 
-**None of the following was checked against the PCI ID repository, a Marvell
-datasheet or any vendor document. All are Claude recall, stated in session
-before being marked.**
+All three were Claude recall when first written. All three now have sources.
 
-- `VEN_1D6A` → Aquantia (acquired by Marvell) — **unverified**
-- `DEV_14C0` → AQC113 / AQC113C generation — **unverified**
-- `SUBSYS` vendor `1458` → Gigabyte — **unverified**
-- **"AQC107-generation cards have a known firmware bug where 2.5G/5G
-  negotiation fails against certain switches while 10G and 1G work"** —
-  **unverified community lore.** Asserted several times in session as though
-  established. It may be real; nothing in this library confirms it, and it was
-  used to argue *against* a firmware theory once the device ID was read, which
-  compounds the error.
+| Field | Resolves to | Source |
+|---|---|---|
+| `VEN_1D6A` | **Aquantia Corp.** (acquired by Marvell) | Linux Kernel Driver DataBase `CONFIG_NET_VENDOR_AQUANTIA`; DeviceHunt PCI vendor 1D6A |
+| `DEV_14C0` | **AQC113C** — "NBase-T/IEEE 802.3an Ethernet Controller [Marvell Scalable mGig]" | lkddb `CONFIG_AQTION`; DeviceHunt PCI 1D6A:14C0; linux-hardware.org probe records |
+| `SUBSYS` vendor `1458` | **Giga-byte Technology** | coreboot mailing list (2007-05, Gigabyte vendor id stated as 0x1458); an lspci capture rendering `Subsystem: Giga-byte Technology Device [1458:5000]` |
 
-**A single lookup in the PCI ID repository settles the first three.**
+So the adapter is an **AQC113C on a Gigabyte board** — recall was right, and is now sourced rather than asserted.
+
+⚠️ **Tier note:** these are community ID databases and mailing-list archives, not
+Marvell or Gigabyte documents. Three independent databases agree on `14C0` and
+two independent sources agree on `1458`, which is strong for an ID lookup, but
+no vendor document was read.
+
+**The AQC107 negotiation bug: RETRACTED.**
+
+It was asserted repeatedly in session as an established firmware defect —
+that AQC107-generation parts negotiate 10G and 1G but skip 2.5G/5G against
+certain switches. **A targeted search on 2026-09-17 found no support for it
+whatsoever** — not in Marvell material, not in driver changelogs, not in the
+forum threads that surfaced. It was community lore at best and possibly a
+conflation with the Intel i225-V stepping problems, which *are* widely
+reported (B0/B1/B2 steppings, dropouts) and are a different vendor and
+different part entirely.
+
+**Do not repeat the AQC107 claim.** It entered this session as a confident
+diagnosis and led the troubleshooting toward firmware for several turns.
+
+### §3.2a — Downshift is a documented driver feature (Verified)
+
+The Marvell FastLinQ Edge (AQtion) driver changelog records, under
+**v3.0.10.0, dated 2020-02-05**:
+
+> Add downshift support
+
+Listed alongside thermal shutdown support and link-interrupt support in the
+same release. **So `Downshift retries` is a deliberate feature with a vendor
+changelog entry, not an obscure tuning knob.** [Lead tier on the hosting —
+read from a third-party driver archive reproducing Marvell's release notes,
+not from Marvell's own site.]
+
+### §3.2b — AQC113 firmware updates separately from the BIOS — **corrects §8**
+
+A standalone **AQC113 / AQC113C / AQC113CS firmware package, version 1.5.48**,
+is distributed publicly, with users reporting flashing it onto *onboard*
+controllers on Asus motherboards and seeing throughput change. **This
+contradicts the session's claim that an onboard AQtion's firmware is carried
+by the motherboard BIOS and can only be updated that way.**
+
+⚠️ **[Forum] tier and a real caution:** the package is hosted on a third-party
+driver archive, not Marvell, and the posted procedure involves editing a
+subsystem code ID to match the board before flashing. **This library does not
+endorse flashing it.** The finding that matters is narrower and solid — **the
+firmware is a separate updatable component from the BIOS**, so "wait for a
+Gigabyte BIOS release" was the wrong advice.
+
 
 ### §3.3 — Ghost adapter entries
 
@@ -198,12 +285,19 @@ uplinked to a 1G Netgear M4250. All 2.5G devices sit on the unmanaged switch.
 
 **Not established, because the test was never run:** whether the *server's own*
 cable and switch port carry 2.5G. The laptop's working cable and port were
-never moved to the server. **Everything above is consistent with a bad server
-cable, a bad termination, and with a NIC or firmware fault — the evidence does
-not separate them.**
+never moved to the server.
 
-⚠️ **Do not read this document as saying the NIC was at fault.** Two
-explanations remain open and one free test discriminates between them.
+**Weighting revised 2026-09-17 after §1.1 was sourced.** Downshift is
+specifically a response to a bad cable pair, and the forced-rate test returned
+no link at all — both point at the copper rather than at the controller. **The
+cable explanation is now the stronger of the two.** It is still not confirmed,
+because the discriminating test was never performed, and §1.3 records a real
+anomaly the cable theory does not by itself explain.
+
+⚠️ **Do not read this document as saying the NIC was at fault** — that was the
+session's working theory and it rested partly on a claim since retracted
+(§3.2). Do not read it as saying the cable was at fault either. **One free
+test settles it.**
 
 **Note on the topology, arithmetic rather than diagnosis:** with a 1 Gb/s
 uplink between the two switches, any traffic crossing between them is capped

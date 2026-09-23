@@ -1,6 +1,6 @@
 # Pendulum — Dual Animator (Expedition)
 
-Series: **Expedition** (the owner's strongest-preference series). 10 HP · 32 mm · +12 V 80 mA / −12 V 65 mA. Functions: animation, fader, router, waveform generator.
+Series: **Expedition** (owner preference: soft tiebreaker — see `../functional-map.md`). 10 HP · 32 mm · +12 V 80 mA / −12 V 65 mA. Functions: animation, fader, router, waveform generator.
 
 ## What it does
 Two things in one, both video-rate:

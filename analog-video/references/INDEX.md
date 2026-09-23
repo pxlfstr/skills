@@ -26,12 +26,6 @@ Produced in session on **2026-06-30** and written into the container, but never 
 
 ---
 
-## Known stale entries
-
-- **`my-rack.md`** — the entry below records 18 modules / 184 HP. The authoritative ModularGrid data sheet (2026-06-20) gives **19 modules / 172 HP**, two rows, all-video; power +12V 1270 mA, -12V 1098 mA. The June 20 correction never reached the file. Verify and update `my-rack.md` itself, then amend this entry.
-
----
-
 ## Stored documents
 
 ### patch-techniques.md — credibility-weighted patch knowledge
@@ -45,14 +39,14 @@ Produced in session on **2026-06-30** and written into the container, but never 
 - **Added:** 2026-06-03
 
 ### my-rack.md — the user's actual rack ("fstrvsn")
-- **Topic:** the user's current Eurorack video system — 18 modules / 184 HP, LZX-centric, anchored by Visual Cortex; modules grouped by function, plus a spec table and an Auditioning (not-owned) section
+- **Topic:** the user's current Eurorack video system — 19 modules / 172 HP in two rows (per ModularGrid data sheet 2026-06-20), LZX-centric, anchored by Visual Cortex; modules grouped by function, a spec table, a separate-rack section (ES-9, SY1), and an Auditioning (not-owned) section
 - **Use for:** any question about *their* setup, signal flow through gear they own, what to patch, or what to add. **Keep it current:** update when the user says they've added/removed/swapped a module; keep not-yet-owned modules in the Auditioning section, never in the owned list.
 - **Added:** 2026-06-03
 
 ### lzx/ — LZX Industries reference pack
 - **Topic:** LZX video synthesizer product line — module specs, signal standard, per-module circuit/interface detail, functional/substitution map, glossary
 - **Type:** distilled from official LZX GitHub docs (`lzxtm` Technical Manual + `lzxdocs`, `lzxmodular`, `lzxcadet`)
-- **Use for:** any LZX module question — what a module does, exact specs (HP/power/sync), how its controls and jacks behave, signal levels and patching, and which modules can play similar roles. **Start at `lzx/README.md`** for the map of the pack. `functional-map.md` includes the **owner's module preference filter** (strongest preference: Expedition). `expedition/` holds the Expedition manuals; `visionary.md` and `castle.md` cover those non-Orion series; `keying-dictionary.md` disambiguates keying across all series; `vhs.md` + `brownshoesonly.md` cover that maker's two brands; `third-party-video.md` covers 18 other video makers (LZX-compatible and standalone) with format tags; `open-source-repos.md` catalogs those makers' GitHub repos and the circuit building-blocks their BOMs reveal. `cadet.md` + `cadet-circuits.md` cover the Cadet series and the canonical LZX circuit building blocks (useful for explaining any module's analog stages).
+- **Use for:** any LZX module question — what a module does, exact specs (HP/power/sync), how its controls and jacks behave, signal levels and patching, and which modules can play similar roles. **Start at `lzx/README.md`** for the map of the pack. `functional-map.md` includes the **owner's module preference filter** (revised: all generations judged on merit; Expedition is a soft tiebreaker only). `modules/` holds per-module docs for the 25 active Gen3 + P-series modules. `expedition/` holds the Expedition manuals; `visionary.md` and `castle.md` cover those non-Orion series; `keying-dictionary.md` disambiguates keying across all series; `vhs.md` + `brownshoesonly.md` cover that maker's two brands; `third-party-video.md` covers 26 other video makers (LZX-compatible and standalone) with format tags; `open-source-repos.md` catalogs those makers' GitHub repos and the circuit building-blocks their BOMs reveal. `cadet.md` + `cadet-circuits.md` cover the Cadet series and the canonical LZX circuit building blocks (useful for explaining any module's analog stages).
 - **Currency note:** reflects the product line as of ingest (lzxtm updated within days). Not authoritative for price/stock. Full manual + Cadet schematics remain at github.com/lzxindustries for on-demand deep dives.
 - **Added:** 2026-06-02
 

@@ -116,26 +116,15 @@ These are infrastructure: ESG3 = "way out" (to a display/recorder), TBC2 = "way 
 
 The owner has a specific taste. When suggesting what to buy/patch, sort by it; don't just name the "textbook" module if it conflicts.
 
-**Strongest preference: the Expedition series** — lead with Expedition options when one fits (see `expedition/` for per-module docs).
+**Revised:** the old rule (Expedition strongest; prefer against Gen3 and Orion unless redeemed) is **retired**. Judge every generation on merit and function.
 
-**P-series is acceptable** (no longer prefer-against).
-
-**Prefer-against:** Gen3 and Orion modules — *unless* one of these redeems it:
-- **(a) Unique use case** — e.g. Matte (owned, liked, as an RGB picker).
-- **(b) All jacks/switches, no knobs — *Gen3 only.*** (A knob-free Orion module is not redeemed by this.)
-- **(c) Encoder or decoder — any generation** is fine.
-
-**Also prefers:** 4–8 HP modules. Owns and dislikes **FKG3** (don't recommend it as a default keyer for this owner).
-
-**Cadet** is favored both as small 4 HP building blocks *and* as a circuit reference: its open BOMs/schematics (`cadet.md`, `cadet-circuits.md`) explain how other LZX modules work.
-
-**What this means in practice:**
-
-| Verdict | Modules |
-|---|---|
-| ⭐ Lead with | **Expedition** (Arch, Bridge, Color Chords, Curtain, Doorway, Liquid TV, Marble Index, Navigator, Polar Fringe, Prismatic Ray, Shapechanger, Staircase, Visual Cortex, War of the Ants, etc.) — favor 4–8 HP ones |
-| ✅ Also good | Cadet (4 HP, incl. encoder/decoder); Castle (4 HP); P-series (any); VH.S (LZX-compatible third-party, mostly 6–12 HP — see `vhs.md`); **Matte** (owned); any encoder/decoder (ESG3, TBC2, Cadet I/II/III) |
-| ⚠️ Only if Gen3 + knob-free | Gen3 jack/switch-only: **PGO**(4HP), **Swatch**(8HP), DSG3(12HP), Angles(12HP), Sum/Dist(12HP), Switcher(18HP) — check against 4–8 HP pref |
-| 🚫 Deprioritize | Gen3 with knobs and no unique case: Contour, Factors, **FKG3**, Keychain, Proc, Ribbons, Scrolls, SMX3, Stacker, Stairs, DWO3. Orion generally (unless unique-use / encoder-decoder / Gen3-only knob rule doesn't apply to it) |
+- **Gen3 is no longer filtered.** The knob objection is resolved by swapping in Davies 1900 D-shaft knobs (recommended by Lars / LZX `[Official]`). Expedition, Syntonie and VH.S ship with Selco knobs, which are fine as-is.
+- **Expedition keeps soft tiebreaker weight only** — when two options are otherwise equal, lean Expedition.
+- **Back in consideration on merit:** Contour (Gen3 edge / highpass), Swatch (Gen3 knob-free colorspace).
+- **P-series:** fine. **Cadet:** valued, both as 4 HP building blocks and as a circuit reference (`cadet.md`, `cadet-circuits.md`).
+- **Matte:** owned and liked.
+- **Also prefers:** 4–8 HP modules.
+- **Dislikes FKG3** — don't recommend it as a default keyer for this owner.
+- **Syntonie Cadrans:** dropped — don't resurface it.
 
 When the favored answer lacks control detail in this pack, say so and offer to fetch it. Expedition docs are in `expedition/`; Cadet in `cadet.md` + `cadet-circuits.md`.

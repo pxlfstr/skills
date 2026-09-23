@@ -12,7 +12,7 @@ Distilled from the official LZX Industries GitHub documentation (the `lzxtm` Tec
 | `functional-map.md` | Modules grouped by role, with substitution notes **+ the owner's preference filter** | "what else can do X," "which module should I use for Y," planning a system |
 | `cadet.md` | Cadet series (all 4 HP, non-Orion DIY) — full C1 manual detail + C2–C10 functions/specs | any Cadet question; a favored series under the owner's preference |
 | `cadet-circuits.md` | Canonical LZX circuit building blocks distilled from Cadet BOMs (LM6172, TL431, LM1881, LM361, AD724, LT1251…) | "how does LZX do X," reasoning about any module's analog stages, repair/DIY |
-| `expedition/*.md` | Per-module Expedition docs (owner's manuals / reference cards), incl. Visual Cortex technical manual and **Pendulum** (dual animator) | the owner's **strongest-preference** series — controls, jacks, specs, patches |
+| `expedition/*.md` | Per-module Expedition docs (owner's manuals / reference cards), incl. Visual Cortex technical manual and **Pendulum** (dual animator) | Expedition controls, jacks, specs, patches (owner preference: soft tiebreaker — see `functional-map.md`) |
 | `visionary.md` | The original Visionary series (~19 modules) — functions, specs, TVF&KG patch cookbook | legacy non-Orion modules; encoders/decoders (CVE/CTBC/TVI) |
 | `castle.md` | Castle DIY binary/logic series (8 modules, all 4 HP) — 3-bit concept, specs, build note | logic/binary patching, posterize/pixelate, a favored 4 HP series |
 | `sandin.md` | LZX Sandin IP adaptations (Differentiator, Function Generator; 4 HP) | edge extraction & tone/solarization waveshaping; Sandin IP lineage |
@@ -21,7 +21,7 @@ Distilled from the official LZX Industries GitHub documentation (the `lzxtm` Tec
 | `brownshoesonly.md` | brownshoesonly — **verified full catalog** (14 entries, MSRP/HP) for the earlier brand by the **same maker as VH.S**; VH.S successor map | third-party LZX support modules; comparing his two brands |
 | `third-party-video.md` | 26 other video makers — Dave Jones, Erogenous Tones, Foxing Hour, Gieskes, Lone Vidiot, Luix, Malekko, Martin Devices, Melted, mfb, Nonlinearcircuits, Omiindustriies, Plankton, Razmasynth, Reverse Landfill, Scopic Modular, Sismo, Sleepy Circuits, Soundmachines, Special Stage Systems, Steady State Fate, Synthrotek, Syntonie, Teletect, Tsyklon, Visible Signals | any non-LZX/non-VH.S video maker; format tags (LZX vs audio-rate vs standalone) |
 | `open-source-repos.md` | GitHub repo catalog for third-party makers + circuit building-blocks from their BOMs (Teletect, Martin Devices, Foxing Hour, Reverse Landfill, Syntonie archives, Ming Mecca) | open-source designs; how a module works from its parts; DIY |
-| `modules/*.md` | Per-module docs (overview, key specs, panel controls, jacks) for the 26 active modules | detailed control/jack behavior for a specific module |
+| `modules/*.md` | Per-module docs (overview, key specs, panel controls, jacks) for the 25 active Gen3 + P-series modules (DC Distro, the Vessel cases and Chromagnon have no per-module doc) | detailed control/jack behavior for a specific module |
 | `what-is-a-video-synthesizer.md`, `your-first-patch.md` | Conceptual intros | onboarding context, explaining fundamentals |
 
 ## How to use it

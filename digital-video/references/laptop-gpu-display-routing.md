@@ -16,7 +16,7 @@ end; no controlled bench test was run.
 | §1 mirroring finding | **Bench-verified**, user-reported — observed on the user's own machine, resolved by the user |
 | §2 spec-sheet method | **Derived** — arithmetic performed in this session from §3's figures |
 | §3 P16 Gen 1 figures | **Verified [Official]**, ⚠️ **snippet-tier** — Lenovo PSREF, read as a search extract, not as the PSREF PDF |
-| §4 graphics-mode switching | **[Lead]** — third-party spec aggregator and Claude recall; no Lenovo document read |
+| §4 graphics-mode switching | **Verified [Official]** for the P16 Gen 1 BIOS path as of 2026-09-17 — Lenovo's own P16 Gen 1 User Guide. Legion side still **[Lead]** |
 | §5 Control Panel absent | **[Lead] / Memory** — Claude recall plus one third-party repair blog; see the warning in that section |
 | §6 corrections log | Session transcript |
 
@@ -42,9 +42,23 @@ Control Panel sections.
 (§1) was made on a *Legion*, not the ThinkPad the spec research covers. Do not
 read §1 and §3 as describing the same machine.
 
-**Open contradiction left in place:** §4 states the ThinkPad graphics-mode
-switch lives in BIOS, on the strength of a third-party page quoting a Lenovo
-phrase. No Lenovo source was read. It is plausible and unconfirmed.
+**Verification pass run 2026-09-17**, same day, after the first draft. Added:
+the **ThinkPad P16 Gen 1 User Guide** (`p16_gen1_ug_en.pdf`, Lenovo download
+server) — read as a search extract covering the specification-notes section,
+**not end to end**; a Lenovo P43s/P53s Ubuntu whitepaper; a ThinkPads.com forum
+thread; a Qubes OS forum hardware report for the P16 Gen 2; and a third-party
+blog on hybrid-graphics display lag.
+
+**Result: §4's BIOS menu path is now Verified [Official]**, and §2's
+spec-sheet inference picked up independent [Forum]-tier corroboration on the
+adjacent generation (§4.2).
+
+**Open contradiction left in place:** Lenovo's own documents label the setting
+**"Graphic Devices"** (P16 Gen 1 guide) and **"Graphics Device"** (P43s/P53s
+whitepaper, forum reports). Recorded both ways, not normalised — see §4.1.
+
+⚠️ **Still unverified:** §5 in full; the PSREF Power Delivery line; and
+whether §1's mirroring finding reproduces anywhere.
 
 ---
 
@@ -157,18 +171,56 @@ The same two-ceiling pattern §2 relies on.
 
 ## §4 — Where the graphics-mode switch lives differs by product line
 
-**[Lead] — no Lenovo document read for either claim.**
+### §4.1 — ThinkPad P16 Gen 1 — **VERIFIED [Official] 2026-09-17**
 
-| Line | Reported location |
-|---|---|
-| ThinkPad P-series | BIOS setup |
-| Legion | Lenovo Vantage / Legion Space |
+From the **ThinkPad P16 Gen 1 User Guide** (`p16_gen1_ug_en.pdf`, Lenovo's own
+download server), in the display specification notes. The guide states that
+for a non-OLED display, HDR works only under Hybrid Graphics mode, and gives
+the switching procedure:
 
-The ThinkPad side rests on third-party aggregator pages quoting a Lenovo
-phrase — Intel UHD Graphics "Utilized via *Hybrid Mode* in BIOS" — against
-both P16 Gen 1 and Gen 2. That the phrase names BIOS is real; that the menu
-path is `Config → Display → Graphics Device` is **Claude recall and was
-asserted in session without a source. Treat it as unverified.**
+1. Restart the computer. At the logo screen, press **F1** for the UEFI BIOS menu.
+2. Select **Config ➙ Display ➙ Graphic Devices** and follow the on-screen
+   instructions.
+
+⚠️ **Note the exact wording: the P16 Gen 1 guide says "Graphic Devices"**
+(no *s* on Graphic, plural Devices). A Lenovo whitepaper for the P43s/P53s and
+several forum reports give it as **"Graphics Device"** singular. **Both are
+recorded as found and neither is normalised** — the label evidently varies by
+model or BIOS vintage, and the two options offered are consistently **Hybrid
+Graphics** and **Discrete Graphics**.
+
+This confirms the claim made in session; the menu path was Claude recall at
+the time and is now sourced. ⚠️ The **Legion** side (Lenovo Vantage / Legion
+Space) remains **[Lead]** — no Lenovo document was read for it.
+
+### §4.2 — Corroboration for §2's spec-sheet method
+
+A user report on a **P16 Gen 2** running Linux states that selecting
+integrated graphics in BIOS **loses HDMI output entirely, because the HDMI
+port is wired to the discrete GPU.** [Forum] tier — one user, one machine —
+but it is an independent observation reaching the same conclusion §2 reaches
+from the published resolution figures, on the adjacent generation of the same
+model. **Two different methods, same answer.**
+
+The same report notes brightness controls failing under discrete mode with the
+nouveau driver, which is a driver matter rather than a routing one.
+
+### §4.3 — Discrete-only mode for show machines
+
+Reasoned, not measured:
+
+- Removes the hybrid-graphics handoff from the display path entirely.
+- Costs battery life and keeps the fans up, since the dGPU no longer idles.
+- On a P16 Gen 1 with a non-OLED panel, **Lenovo's own guide says HDR works
+  only in Hybrid mode** — so discrete-only costs HDR on the internal display.
+  Verified [Official], same source as §4.1.
+
+⚠️ **No latency or frame-timing figure is claimed here.** The argument that
+discrete-only gives more predictable behaviour is mechanism-level reasoning.
+Nothing in this library measures it. One third-party blog describes severe lag
+on a ThinkPad T15g when display topology changes at runtime in hybrid mode,
+with the frame path running NVIDIA → Intel framebuffer → output; **[Lead],
+one blog, one machine, and not a measurement.**
 
 **Discrete-only mode for show machines — reasoned, not measured:**
 
@@ -213,7 +265,7 @@ Recorded per `RULES.md` Rule 6 — cause, not state.
 |---|---|---|
 | "USB-C and Thunderbolt are almost always iGPU; HDMI is the dGPU port" | **Wrong on the user's Legion** — USB-C → DP ran through the NVIDIA GPU once mirroring was cleared | Generalised a consumer-laptop pattern into a rule and stated it without a source for either machine |
 | "Control Panel showing only 3D Settings means the dGPU drives no display" | **Wrong in this case** — mirroring produced it | Reasoned from one plausible mechanism and presented the conclusion as diagnosis, with no second cause offered |
-| P16 BIOS path `Config → Display → Graphics Device` | **Unverified** | Written from recall; no Lenovo source read |
+| P16 BIOS path `Config → Display → Graphics Device` | **Verified 2026-09-17 — and the label was slightly wrong.** Lenovo's P16 Gen 1 guide says `Graphic Devices` | Written from recall and happened to be close; the near-miss on the exact label is what recall does |
 | Advice framed for a Legion while the user's spec question was about a P16 | Two machines conflated for several turns | Did not ask which machine each symptom belonged to |
 
 **The general lesson worth keeping: port-to-GPU routing varies by model and by

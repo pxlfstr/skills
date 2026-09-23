@@ -1,11 +1,16 @@
 # My Rack — "fstrvsn" (current system)
 
-ModularGrid: **fstrvsn** (user *pxlfstr*). **21 modules · 196 HP** (was 18 / 184 before the June 2026 Syntonie additions below). Draw before additions: +12 V ≈ 1663 mA, −12 V ≈ 1124 mA, +5 V 0 mA — **refresh from ModularGrid for exact new totals** (added draws: Sawtooth Oscillator 35/20 mA, Dual Ramp Phase Shifter 55/50 mA, Quad Frequency Doubler draw TBD). Row placement of the new modules is TBD.
+ModularGrid: **fstrvsn** (user *pxlfstr*). **19 modules · 172 HP, two rows, all-video.** Power: +12 V 1270 mA, −12 V 1098 mA. Source: ModularGrid data sheet (2026-06-20) — authoritative for layout and totals.
+
+- **Row 1 (100 HP, max depth 65 mm):** Bridge · Gainbrain · Dual Ramp Phase Shifter · Quadrature Oscillator · SUBMIX · Staircase · Doorway · Prismatic Ray · Mapper · Visual Cortex
+- **Row 2 (72 HP, max depth 55 mm):** Bridge · Quad Frequency Doubler · GAMMA · Sawtooth Oscillator · Passage · Arch · bajascillator · hexadirectional crossfader · Matte
+
+*History:* this file previously read 21 modules / 196 HP because it counted the ES-9 and SY1, which now live in a separate rack: 21 − 2 = 19 modules; 196 − (16 + 8) = 172 HP. Earlier still: 18 / 184 before the June 2026 Syntonie additions.
 
 > **Maintenance:** this changes over time. When the user says they've added/removed/swapped a module, update this file (and the memory note). Modules we're only *considering* go in the **Auditioning** section below — never mix not-yet-owned gear into the owned list. **Naming:** refer to Syntonie modules by full name (Quadrature Oscillator, Sawtooth Oscillator, Dual Ramp Phase Shifter, Quad Frequency Doubler, …), not the VU00x code — the user can't track the codes; keep the code only as a parenthetical.
 
 ## What this system can do
-A complete, performance-oriented LZX video instrument: take an external source in, **decode → shape / oscillate → do math → colorize → key → mix → encode out**, all anchored by the Visual Cortex (which provides sync, input decode, output encode and a hard keyer). It can run as a pure synth (oscillators → colorize → out), as a processor for live video, and it reaches *outside* the screen too — an ES-9 bridges CV/audio to a computer (capture, audio-reactivity, external control) and the SY1 drives DMX stage lighting from rack voltages. Quadrature oscillation opens rotations / circular motion / rescan-style moves; the hexadirectional crossfader invites feedback and multi-source blends.
+A complete, performance-oriented LZX video instrument: take an external source in, **decode → shape / oscillate → do math → colorize → key → mix → encode out**, all anchored by the Visual Cortex (which provides sync, input decode, output encode and a hard keyer). It can run as a pure synth (oscillators → colorize → out), as a processor for live video, and — via the ES-9 and SY1 in a separate rack (see below) — it can reach *outside* the screen: CV/audio to a computer, and DMX stage lighting from rack voltages. Quadrature oscillation opens rotations / circular motion / rescan-style moves; the hexadirectional crossfader invites feedback and multi-source blends.
 
 ## Owned — by function
 
@@ -37,6 +42,10 @@ A complete, performance-oriented LZX video instrument: take an external source i
 - **LZX Mapper** (10 HP) — polar-to-cartesian colorizer: hue rotation, colorspace remap, radial/thermal colorizing.
 - **LZX Matte** (8 HP) — static voltage generator / color picker: solid color fields, key fills, fixed offsets. *(The one Gen3 module you keep — fits the "owned/likes Matte" note.)*
 
+## Owned — separate rack (not installed in fstrvsn)
+
+Owned, but moved out of fstrvsn. Keep distinct from the installed list above.
+
 **Interface / capture / lighting**
 - **Expert Sleepers ES-9** (16 HP) — USB audio interface: CV ↔ computer and audio I/O — capture, external control, and an audio-reactivity bridge.
 - **Soundmachines SY1 Synesthesia** (8 HP) — DMX light controller: drive stage lighting straight from rack CV, syncing lights to the patch.
@@ -45,32 +54,35 @@ A complete, performance-oriented LZX video instrument: take an external source i
 
 ## Owned — spec table (for rack planning)
 
+Row numbers per the ModularGrid data sheet (2026-06-20). ES-9 and SY1 are in a separate rack and not counted in fstrvsn totals.
+
 | Module | Maker | Row | HP | Depth | +12V | −12V |
 |---|---|---|---|---|---|---|
 | Bridge | LZX | 1 | 8 | 32 mm | 30 | 30 |
 | Bridge | LZX | 1 | 8 | 32 mm | 30 | 30 |
 | Gainbrain | Visible Signals | 1 | 4 | 43 mm | 40 | 40 |
 | Quadrature Oscillator (VU006) | Syntonie | 1 | 4 | 50 mm | 30 | 29 |
-| Passage | LZX | 1 | 10 | 32 mm | 40 | 40 |
+| Passage | LZX | 2 | 10 | 32 mm | 40 | 40 |
 | SUBMIX | VH.S | 1 | 8 | 30 mm | 120 | 0 |
-| bajascillator | brownshoesonly | 1 | 8 | 25 mm | 35 | 51 |
-| hexadirectional crossfader | brownshoesonly | 1 | 18 | 36 mm | 120 | 120 |
+| bajascillator | brownshoesonly | 2 | 8 | 25 mm | 35 | 51 |
+| hexadirectional crossfader | brownshoesonly | 2 | 18 | 36 mm | 120 | 120 |
 | Mapper | LZX | 1 | 10 | 45 mm | 100 | 100 |
 | Visual Cortex | LZX | 1 | 26 | 45 mm | 180 | 220 |
 | Arch | LZX | 2 | 8 | 32 mm | 65 | 65 |
 | GAMMA | Foxing Hour | 2 | 4 | 50 mm | 32 | 26 |
-| Prismatic Ray | LZX | 2 | 16 | 32 mm | 120 | 90 |
-| Doorway | LZX | 2 | 10 | 32 mm | 80 | 80 |
-| Staircase | LZX | 2 | 10 | 32 mm | 70 | 70 |
+| Prismatic Ray | LZX | 1 | 16 | 32 mm | 120 | 90 |
+| Doorway | LZX | 1 | 10 | 32 mm | 80 | 80 |
+| Staircase | LZX | 1 | 10 | 32 mm | 70 | 70 |
 | Matte | LZX | 2 | 8 | 32 mm | 50 | 0 |
-| ES-9 | Expert Sleepers | 2 | 16 | 50 mm | 451 | 133 |
-| SY1 Synesthesia | Soundmachines | 2 | 8 | 30 mm | 70 | 0 |
-| Sawtooth Oscillator (VU009) | Syntonie | new | 4 | 55 mm | 35 | 20 |
-| Dual Ramp Phase Shifter (VU008) | Syntonie | new | 4 | 65 mm | 55 | 50 |
-| Quad Frequency Doubler (VU002) | Syntonie | new | 4 | — | — | — |
+| ES-9 | Expert Sleepers | separate rack | 16 | 50 mm | 451 | 133 |
+| SY1 Synesthesia | Soundmachines | separate rack | 8 | 30 mm | 70 | 0 |
+| Sawtooth Oscillator (VU009) | Syntonie | 2 | 4 | 55 mm | 35 | 20 |
+| Dual Ramp Phase Shifter (VU008) | Syntonie | 1 | 4 | 65 mm | 55 | 50 |
+| Quad Frequency Doubler (VU002) | Syntonie | 2 | 4 | — | — | — |
 
 ## Proposed layout — Vessel (Navigator top / Shapechanger bottom)
 **WORK IN PROGRESS — not settled.**
+⚠️ **Written while the ES-9 and SY1 were still in the rack.** They've since moved to a separate rack, so conflicts 2 and 4 below, the ES-9/SY1 I/O-corner placement, and the ES-9 power/quadrant notes no longer apply to fstrvsn. The power budget below (≈1.75 A on +12 V) predates that move; the current ModularGrid total is +12 V 1270 mA. Kept for the Vessel geometry and depth reasoning.
 **Vessel geometry (verified specs + user):** 208 HP = two **104 HP rows**; the case ends are **45° angled faces (left AND right)**, so the **shallow zone is only ~one Bridge module (≈8 HP) wide at each far edge** (≈32 mm at the very edge, rising to the full ≈64 mm just inboard). The **entire center of each row is full ≈64 mm depth.** The Malekko bus sits in that shallow edge zone.
 **→ Rule: a shallow module at each of the 4 edge slots (far-left + far-right of both rows); everything else sits center with no depth limit.** Far-left edges = **Bridges** (32 mm; Bridge #1 mults H/V). Deep modules (oscillators 50–55, GAMMA 50, ES-9 50, Mapper/VC 45, Gainbrain 43) all live in the full-depth center. Only hard depth limit: **65 mm never fits** (over the ~64 mm max). (This is why GAMMA at 50 mm can't sit over the shallow-edge bus — it belongs in the center.)
 - **Deep (center-only), by depth:** Dual Ramp Phase Shifter ~65 mm ⚠️ *(over the max — likely won't fit anywhere)*, Sawtooth Oscillator 55, Quadrature Oscillator / GAMMA / ES-9 50, Mapper / Visual Cortex 45, Gainbrain 43.
