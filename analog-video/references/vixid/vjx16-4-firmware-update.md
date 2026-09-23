@@ -21,8 +21,17 @@ How the VJX16-4 is flashed, what the two known updaters contain, and why updatin
 - **User-stated:** users report updating fails on anything after Windows XP.
 - **`[Forum]` — one field report**, relayed by the user, poster not named. See *Field reports*.
   A lead, not a fact.
-- **Memory, not verified this session** — marked ⚠️ in *Routes on 64-bit Windows*. No web
-  source read.
+- **Memory, not verified this session** — marked ⚠️ in *Routes on 64-bit Windows*.
+- **`[Official]` — Texas Instruments, read 2026-09-23** (section *The processor and U mode*):
+  - *Using the TMS320VC5506/C5507/C5509/C5509A USB Bootloader* — application report
+    SPRA840C, dated October 2008 on the document. Fetched as PDF from ti.com, text read in
+    full.
+  - *TMS320VC5509A* product page, ti.com — fetched 2026-09-23; the page shows no
+    last-edited date. Feature list and document list read.
+  - **Not read:** the general bootloader note *Using the TMS320VC5503/C5506/C5507/C5509/
+    C5509A Bootloader* (SPRA375, Rev. F); the data manual (SPRS205, Rev. K); the USB module
+    reference guide (SPRU596); the SPRA840 example-code zip.
+- **User-stated:** the mixer's processor is a TI TMS320VC5509A.
 - **Open contradictions:** none known.
 - **Revised 2026-09-23, additive audit:** INF class/service detail, the libusb package's own
   tools, and three further updater strings added.
@@ -47,6 +56,51 @@ How the VJX16-4 is flashed, what the two known updaters contain, and why updatin
 
 The updater's own closing text says to put the switch "in the bottom position" before
 powering up.
+
+## The processor and U mode
+
+**Processor: TI TMS320VC5509A**, 16-bit fixed-point DSP. **Confirmed** — two independent
+sources: the user's statement, and the INF's device ID matching TI's documented ROM
+bootloader ID below.
+
+[TI product page, ti.com [Official]]
+
+| Item | Value |
+|---|---|
+| Core | TMS320C55x, 16-bit fixed point, 108 / 144 / 200 MHz |
+| On-chip memory | 128K × 16-bit RAM · 32K × 16-bit ROM |
+| USB | Full-speed (12 Mbps) slave: bulk, interrupt, isochronous |
+| Debug | JTAG boundary scan; on-chip scan-based emulation logic |
+| TI status | Active part; **no ongoing design support** from TI |
+
+[*Using the … USB Bootloader*, SPRA840C [Official], Table 1, §§2, 4, 6, 9.1]
+
+| Item | Value |
+|---|---|
+| Where the bootloader lives | **On-chip ROM**, byte address 0xFF0000 |
+| USB vendor / product ID in USB-boot mode | **0x0451 / 0x9001** — identical to `VJX16-4.inf` |
+| How USB-boot is selected | BOOTM[3:0] pins = **0010b** at reset (the same pins as GPIO0 and GPIO[3:1]) |
+| Host sends | A boot table to **bulk OUT endpoint 0x06** |
+| After the transfer | The DSP disconnects itself from USB and runs the loaded code |
+| Reserved RAM during boot (5509/5509A) | Byte addresses 0x03F800–0x03FFFF |
+| Input clock | 12.0 MHz |
+| Can the ROM bootloader change? | **No** — TI: it resides in ROM and cannot be changed; every device uses the same VID/PID |
+
+What follows:
+
+- **U mode is the DSP's own ROM USB-boot mode.** ⚠️ That the rear U switch drives BOOTM[3:0]
+  is inferred from the matching ID; not traced on the board.
+- **A failed flash cannot erase U mode.** Whatever the update overwrites, the ROM bootloader
+  is untouched, so retrying from U mode stays possible while the switch and USB work. This is
+  the documented basis for the recovery in *Field reports*.
+- ⚠️ **How the update probably runs**, inferred: the updater sends `DownloaderTab` (14,848
+  bytes, identical in both updaters) as the boot table; it runs from RAM and then receives and
+  writes the main program, FPGA code and presets.
+- **Driver choice binds to fixed ROM code.** Any driver on VID 0451 / PID 9001 talks to the
+  same unchangeable bootloader, which lowers the risk of the newer-driver route below. Its
+  compatibility with the updater itself is still unverified.
+- ⚠️ **Last resort, reasoning only:** the chip has JTAG and on-chip emulation. Whether the
+  mixer's board brings JTAG out to a header is unknown.
 
 ## USB identity and driver
 
@@ -147,7 +201,8 @@ Updater error strings, for diagnosis: `Error: could not find the VJX16-4` ·
 
 What it does and doesn't settle:
 
-- **A failed mid-flash appears recoverable** by staying in U mode and retrying. One report.
+- **A failed mid-flash appears recoverable** by staying in U mode and retrying. One report —
+  now backed by TI's documentation that U mode is ROM code (see *The processor and U mode*).
 - ⚠️ "7 or later" failing isn't fully explained. Unsigned drivers explain 64-bit Windows;
   32-bit Windows 7 normally allows unsigned drivers after a warning. Unknown which the poster
   used.
@@ -164,8 +219,10 @@ Manager sync request (see the MIDI doc). If it does, there may be nothing to gai
 ## Not yet verified — open items
 
 - Any of the three Windows routes, end to end.
-- Whether a failed flash is recoverable by re-entering **U** mode — the manual doesn't say;
-  one `[Forum]` report says yes.
+- Recovery by re-entering **U** mode: one `[Forum]` report says yes, and TI documents the
+  USB bootloader as unchangeable ROM. Not tested on this unit.
+- Whether the U switch drives BOOTM[3:0] directly; whether a JTAG header is on the board.
+- What the updater sends first, and in what order (the boot-table sequence is inferred).
 - What the firmware tables contain beyond their size and whether they match (not decoded).
 - Whether the beta B11.8r3d carries a different downloader or FPGA code than v2.00/v2.12.
 - Where the mixer displays its firmware version.
@@ -176,4 +233,5 @@ Manager sync request (see the MIDI doc). If it does, there may be nothing to gai
 | USB ID, driver version, signature state | `[Official]` files, inspected directly |
 | Updater contents | Strings, headers and symbol tables; firmware arrays compared byte for byte; not disassembled or run |
 | Field report | `[Forum]`, single source |
+| Processor and U mode | `[Official]` TI application report + product page; switch-to-pins link and update sequence ⚠️ inferred |
 | Windows routes | ⚠️ Memory; unverified |
