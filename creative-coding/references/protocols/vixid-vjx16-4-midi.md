@@ -17,7 +17,8 @@ Decoder: `vixid-vjx16-4-snapshots/vsbk_to_syx.py` (this folder).
   2012-02-14), user-supplied, decompiled with CFR 0.152. Classes read: the mixer MIDI class,
   the controller MIDI class, the 5 × 128 state class, the send-flag class, the bank reader and
   writer, the OSC receiver. Class names in the jar are obfuscated, so none are cited here.
-  The **licence/registration code was deliberately not read.**
+  The **licence/registration code was deliberately not read.** The supplied file was the jar
+  with a 723,968-byte launcher stub in front of it.
 - **§4 cross-check:** four VIXID example banks (`Outputs routing`, `PInP and Split Screens`,
   `Color Variants`, `FXs on Track1`, 48 snapshots) decoded and compared against VIXID's own
   description text in each snapshot. Results in §4.
@@ -26,6 +27,9 @@ Decoder: `vixid-vjx16-4-snapshots/vsbk_to_syx.py` (this folder).
 - **Not committed:** the application, the manuals, the example banks and the decompiled
   source. Vendor material; only derived facts are here.
 - **Not bench-tested.** No SysEx in this document has been sent to a mixer.
+- **Revised 2026-09-23, additive audit:** full initial-state table, MIDI Learn detail,
+  permanent-bank MIDI reach, the MIDI map / prefs / shortcuts file formats, keyboard
+  shortcuts, visualization panel, and remaining UI behaviour added.
 - **Open contradictions:** the manual's channel-5 CC 5 label (resolved in §1 by the
   recall layout); two example-bank descriptions that disagree with their own data (§4).
 
@@ -103,8 +107,18 @@ tolerance/transition 10–11 ↔ 42–43, keyer colour 14–16 ↔ 46–48. [dec
   128 / 100 / 60 where the data holds CC 64 / 50 / 30 (128/64 = 100/50 = 60/30 = 2). So
   **CC 64 = neutral**.
 - ⚠️ Gain assumed the same: CC 64 = panel 128 = unity. Inferred from the pattern, not stated.
-- Neutral state in the Snapshot Manager's initial table: opacity 127, gain 64, RGB and BCS 64,
-  scroll X/Y 64, layers A–D = CC 0 / 32 / 64 / 96.
+- **The Snapshot Manager's initial state table** (its model before any sync) — every
+  non-zero value [decoded]:
+
+| Where | CC = value |
+|---|---|
+| Every track | 4, 5 = 64 (scroll centre) · 6, 7 = 28 · 8, 9 = 22 (blow) · 10 = 17 (tol) · 11 = 1 (tran) · 12, 13 = 63 (picker) · 70 = 127 (opacity) · 71 = 64 (gain) · 75–83 = 64 (RGB, BCS) · 85 = 32 (Slowmo) · 86 = 5 · 87 = 25 · 88, 89 = 48 · 110 = 64 (Picker mode) · 113 = 64 (Scroll) · 114, 115 = 2 · 117, 118 = 14 |
+| Every track, low halves | 38, 39 = 38 · 40, 41 = 16 · 42 = 25 · 43 = 55 · 44 = 75 · 45 = 92 |
+| Per track | 73 (layer) and 104 (keyer source) = 0 / 32 / 64 / 96 for tracks 1–4 |
+| Channel 5 | 1 = 0 (Out1 Master1) · 2 = 8 · 3 = 64 (Out2 Preview) · 4 = 8 (T1 PostFx) · 5 = 96 (Out3 Auto Preview) · 6 = 40 (T2 PostFx) |
+
+  ⚠️ The low halves at 38–45 imply 14-bit pairs for blow and picker too, which the recall
+  message doesn't carry. Whether this table mirrors the mixer's factory state is unknown.
 
 ### MIDI Out
 
@@ -216,6 +230,15 @@ Track *n* (0-based) starts at 13 + 51 × *n*. 13 + 4 × 51 = 217 = position of `
 - Per-snapshot send flags ("SendEnv") map one-to-one to the §3 apply flags, plus per-track
   enables.
 - Snapshot Chase: auto-steps a range at an interval in seconds.
+- Snapshot operations: Rec stamps the date into the description and returns to Load;
+  right-click Copy / Paste / Edit / Reset (Reset clears state, description and colour);
+  per-snapshot button colour; bank and snapshot names and descriptions. [manual]
+- **Visualization panel** shows, for each opacity fader and gain knob, three positions: the
+  physical control, the value the mixer is actually using, and the value stored in the
+  snapshot under the pointer. The software updates it from incoming CC 70 and CC 71.
+  [manual + decoded]
+- Activation dialog shows a **Computer ID** and asks for a **License Key**; it asks to be run
+  with administrator rights. [strings in the jar's message bundle]
 - Operator-fader "hang up": after a recall, a physical fader is ignored until it reaches the
   recalled value. ⚠️ Stated in the Snapshot Manager manual; unknown whether the mixer does this
   itself or only under the software.
@@ -228,7 +251,12 @@ Track *n* (0-based) starts at 13 + 51 × *n*. 13 + 4 × 51 = 217 = position of `
 | OSC | `/bankX/snapshotY`, one float = **1.0**; X 1–10, Y 1–12; UDP port set by user (> 1023) | manual + decoded |
 
 - **The permanent bank is not reachable over OSC** — the receiver drops any bank above 10.
-  [decoded]
+  [decoded] **It is reachable over MIDI:** learned notes map to a global snapshot index,
+  banks 0–119 (bank × 12 + slot) and permanent 120–123. [decoded]
+- MIDI Learn: toggle it (Ctrl+M), click a snapshot, send a Note On. One MIDI channel is used
+  for all triggers. A note already in use prompts **Continue** (move it) or **Cancel**.
+  The controller monitor shows only Note On, Note Off and CC. [manual]
+- The trigger controller gets its own MIDI In, separate from the two mixer ports. [manual]
 - The manual's example `/ bank3/snapshot10` has a stray space; the parser expects none.
 
 ### `.vsbk` bank file
@@ -249,6 +277,13 @@ XML, one bank:
   order channel 1 CC 0 … channel 5 CC 127.
 - No `<SendEnv>` → every flag on (the send-flag class defaults all true).
 - `<SendEnv>` text format: ⚠️ not decoded; none of the four example banks carries it.
+- **MIDI map file** (Save / Load MIDI Mapping):
+  `<MidiMap><Header><Version>MidiMap-v1.0</Version></Header><MidiChannel/>` then one
+  `<Snapshot><Nb/><Note/></Snapshot>` per assignment. [decoded; no file examined]
+- **Other files it writes** [decoded, names only]: preferences `<Prefs><MIDI_IO><MIDI_In/>
+  <MIDI_Out/><MIDI_Ctrl_In/></MIDI_IO><LoadProject/><History><Path0/>…<Path9/></History>`;
+  shortcuts `<Shortcuts><Snapshot><Number/><KeyCode/>…</Snapshot></Shortcuts>` for the 12 load
+  keys; a language file; a licence file.
 - Projects wrap banks in `<Project><Version/><OSC><Enable/><IncomingPort/></OSC><Banks>…
   </Banks><PreferredBank/><MidiMap/></Project>`. ⚠️ Element names read from the writer only; no
   project file examined.
@@ -269,6 +304,25 @@ XML, one bank:
 - *Outputs routing* #4 and #12: described as 75 % and 50 % opacity; both store about 80
   (80/127 = 63 %).
 
+### Keyboard shortcuts
+
+[Snapshot Manager User Manual, appendix]
+
+| Keys | Action |
+|---|---|
+| Ctrl press / release | Toggle Rec / Load |
+| `1`–`9`, `0`, `-`, `=` | Load snapshot 1–12 of the current bank |
+| Ctrl + the same keys | Record snapshot 1–12 |
+| Ctrl+Backspace | Reset snapshot |
+| Arrows · Enter / Space | Choose snapshot · load it |
+| Ctrl+C / Ctrl+V | Copy / paste snapshot |
+| Page Up / Page Down | Previous / next bank |
+| Ctrl+E · Esc | Edit / finish edit · cancel edit |
+| Alt+Left / Right | Change right-panel tab |
+| Ctrl+N / O / S | New / open / save project |
+| Ctrl+M | Toggle MIDI Learn |
+| Alt+F / C / H | File / Communication / Help menu |
+
 ## Not yet verified — open items
 
 - **Bench test:** send the sync request and one recall to a mixer; capture the reply.
@@ -277,6 +331,9 @@ XML, one bank:
 - `<SendEnv>` text format.
 - Whether "hang up" pickup happens on CC-driven changes, SysEx recalls, or neither.
 - Wipe type CC values; audio-section CCs.
+- Whether the initial-state table mirrors the mixer's factory defaults; the 38–45 low halves.
+- MIDI map `<Note>` numbering (the learn code stores note + 1 in one place) — check against a
+  saved map file.
 
 | Section | Status |
 |---|---|

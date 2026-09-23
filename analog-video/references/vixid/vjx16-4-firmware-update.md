@@ -13,12 +13,26 @@ How the VJX16-4 is flashed, what the two known updaters contain, and why updatin
   `libusb-win32-device-bin-0_1_12_1.rar`. Method: INF read as text; PE headers, import tables,
   build timestamps and digital-signature directories read with `pefile`; readable strings
   extracted; the .rar unpacked and its binaries compared. **The updaters were not
-  disassembled and not run.** The firmware images inside them were not extracted.
+  disassembled and not run.**
+- **Firmware tables — located and compared, 2026-09-23:** each updater's COFF symbol table
+  names four arrays in its `.data` section; each was sliced out by symbol address and the two
+  updaters compared byte for byte (§ *What each updater carries*). Contents not decoded.
 - **Not committed:** none of the vendor files above are in this repository.
 - **User-stated:** users report updating fails on anything after Windows XP.
+- **`[Forum]` — one field report**, relayed by the user, poster not named. See *Field reports*.
+  A lead, not a fact.
 - **Memory, not verified this session** — marked ⚠️ in *Routes on 64-bit Windows*. No web
   source read.
 - **Open contradictions:** none known.
+- **Revised 2026-09-23, additive audit:** INF class/service detail, the libusb package's own
+  tools, and three further updater strings added.
+- **Revised 2026-09-23, correction:** the audit revision said v2.12's `fErase` and
+  `fIncUpdate` strings "suggest erase and incremental-update modes". **Wrong.** In the debug
+  information they sit inside `tagPAINTSTRUCT` (`hdc`, `fErase`, `rcPaint`, `fRestore`,
+  `fIncUpdate`, `rgbReserved`) — Windows' standard screen-painting structure, nothing to do
+  with firmware. Cause: the names were read without checking the surrounding symbols. The line
+  is removed and replaced below. Also added: firmware-table comparison, the answer to
+  "step through v2.00 first?", and the field report.
 
 ---
 
@@ -44,6 +58,13 @@ powering up.
 | x64 driver | `libusb0_x64.sys` / `libusb0_x64.dll` inside the .rar only; **no Authenticode signature** (PE security directory empty) | inspected |
 | x86 driver | loose `libusb0.sys` / `libusb0.dll` are byte-identical to the .rar's `bin/` copies; unsigned | inspected |
 
+- INF class `LibUsbDevices`, ClassGUID `{EB781AAF-9C70-4523-A5DF-642A87ECA567}`; kernel
+  service `libusb0`, demand-start (StartType 3). Useful for finding and removing the driver
+  later. [`VJX16-4.inf`]
+- The .rar also carries libusb-win32's own tools: `testlibusb-win.exe` and `testlibusb.exe`
+  (list USB devices the driver can see), `inf-wizard.exe` (builds an .inf for a device),
+  `install-filter.exe`, plus headers and libs. ⚠️ Using `testlibusb-win.exe` to confirm the
+  mixer is visible before running an updater is my suggestion, not VIXID's.
 - The INF's x64 section needs `libusb0_x64.sys` and `libusb0_x64.dll` **in the same folder as
   the .inf**. The loose files supplied are the 32-bit pair only.
 - ⚠️ Why post-XP fails: 64-bit Windows refuses unsigned kernel drivers, so the mixer never
@@ -61,8 +82,7 @@ powering up.
   Strings name the libusb-0.1 calls they use: `usb_bulk_write`, `usb_bulk_read`,
   `usb_claim_interface`, `usb_close`.
 - Strings state the build was "designed using version 0.1.12.1 of the Libusb-win32 library".
-- ⚠️ The firmware image is embedded in each .exe (the ~400 KB data section and an
-  `UpdateData` build folder). Inferred, not extracted.
+- The firmware is embedded in each .exe — see *What each updater carries*.
 - ⚠️ "sm1.0" / "sm1.2.1" read as the matching Snapshot Manager version. The Snapshot Manager
   (build 2012-02-14) asks for mixer firmware **v2.11** or later — see
   `creative-coding/references/protocols/vixid-vjx16-4-midi.md`.
@@ -71,19 +91,72 @@ powering up.
 - **No read-back or backup function** appears in either updater's strings. ⚠️ Flashing
   replaces whatever is on the unit with no way back.
 
+- `FlashStartAdress`, `StartAdress`, `ReadPtr`, `BlocSize` and `Swap` in both updaters are
+  variable names in the flashing code, from its debug information. Not features.
+
+### What each updater carries
+
+Four arrays per updater, named in the symbol table and built from the `UpdateData/` source
+folder. Sizes are the distance between consecutive symbol addresses in `.data`.
+
+| Array | v2.00 | v2.12 | Compared |
+|---|---|---|---|
+| `DSPMainTab` — main program | 102,688 bytes | 103,808 bytes | **Different** (23,686 of 102,688 bytes equal) |
+| `DownloaderTab` | 14,848 bytes | 14,848 bytes | **Identical** |
+| `FPGACodeTab` / `FPGATab` — FPGA code | 291,104 bytes | 291,104 bytes | **Identical** |
+| `PresetTab` — factory presets | 2,688 bytes | 2,688 bytes | **Identical** |
+
+- Arrays are 16-bit words (`short unsigned int` in v2.00's debug info). v2.00's debug info
+  gives element counts for three of them: 51,342 / 7,422 / 145,539. × 2 bytes = 102,684 /
+  14,844 / 291,078 — each fits its slot with 4 / 4 / 26 bytes spare.
+- **Each updater is a complete package.** v2.12 differs from v2.00 only in the main program.
+- **Stepping v2.00 → v2.12 gains nothing:** v2.00 would write the same downloader, FPGA code
+  and presets that v2.12 writes anyway, then be overwritten — one extra flash, one extra
+  chance to fail. Neither the procedure PDF nor either updater's text mentions a required
+  order.
+- ⚠️ Not established: whether every run rewrites all four parts (the send routine is named
+  `SendDspFPGACode`), or whether the updater checks what is already on the unit.
+
 Updater error strings, for diagnosis: `Error: could not find the VJX16-4` ·
 `Error: usb communication failed` · `Error (%d) loading libusb0.dll` ·
 `Make sure that the libusb library is correctly installed.`
 
 ## Routes on 64-bit Windows
 
-⚠️ **All from memory, none verified or tried.** Verify before use.
+⚠️ **The first three rows are from memory, none verified or tried.** Verify before use.
 
 | Route | How | Risk |
 |---|---|---|
 | Driver-signature enforcement off for one boot | Advanced Startup → Disable driver signature enforcement; install the original .inf with the x64 files beside it | Closest to what the updater was built for; reverts on reboot |
 | Newer signed libusb-win32 1.2.x | Bind the device with Zadig (libusb-win32 option); put the matching 32-bit `libusb0.dll` beside the updater | API compatibility with a 0.1.12.1-era app assumed; do not mix an old DLL with a new driver |
 | Windows XP virtual machine | USB passthrough (VMware / VirtualBox) with the original package | A USB dropout mid-flash could brick the unit |
+| **Physical Windows XP machine** | Original package, as VIXID intended | The only route with a reported success — see *Field reports* |
+
+## Field reports
+
+**One user report `[Forum]`**, relayed 2026-09-23, poster not named:
+
+- Drivers would only work on a Windows XP machine — not "7 or later", which the poster
+  expected to work.
+- The update **failed about a third of the way through, leaving the mixer unusable**.
+- Reinstalling the drivers and restarting, about three times, then retrying, **completed the
+  update**.
+- The poster's understanding: the update was for Snapshot Manager compatibility.
+- The Snapshot Manager, on that XP machine, asked for registration once the mixer was
+  connected by MIDI.
+
+What it does and doesn't settle:
+
+- **A failed mid-flash appears recoverable** by staying in U mode and retrying. One report.
+- ⚠️ "7 or later" failing isn't fully explained. Unsigned drivers explain 64-bit Windows;
+  32-bit Windows 7 normally allows unsigned drivers after a warning. Unknown which the poster
+  used.
+- ⚠️ The driver-reinstall loop resembles VIXID's own warning that a second driver prompt can
+  make the update fail. Consistent, not established.
+
+Precautions, **reasoned from the above, not tested:** physical XP machine; USB straight to a
+port, no hub; mains power, sleep off; install the driver and reboot **before** running the
+updater; on failure, stay in U mode and retry rather than power-cycling and giving up.
 
 **Before flashing at all:** check whether current firmware already answers the Snapshot
 Manager sync request (see the MIDI doc). If it does, there may be nothing to gain.
@@ -91,13 +164,16 @@ Manager sync request (see the MIDI doc). If it does, there may be nothing to gai
 ## Not yet verified — open items
 
 - Any of the three Windows routes, end to end.
-- Whether a failed flash is recoverable by re-entering **U** mode (the manual doesn't say).
-- Firmware versions actually inside each updater (not extracted).
+- Whether a failed flash is recoverable by re-entering **U** mode — the manual doesn't say;
+  one `[Forum]` report says yes.
+- What the firmware tables contain beyond their size and whether they match (not decoded).
+- Whether the beta B11.8r3d carries a different downloader or FPGA code than v2.00/v2.12.
 - Where the mixer displays its firmware version.
 
 | Section | Status |
 |---|---|
 | Procedure | `[Official]` |
 | USB ID, driver version, signature state | `[Official]` files, inspected directly |
-| Updater contents | Strings and headers only — not disassembled or run |
+| Updater contents | Strings, headers and symbol tables; firmware arrays compared byte for byte; not disassembled or run |
+| Field report | `[Forum]`, single source |
 | Windows routes | ⚠️ Memory; unverified |

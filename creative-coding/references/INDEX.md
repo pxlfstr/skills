@@ -56,6 +56,8 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 
 **Confidence:** CC map `[Official]` from the User Guide. SysEx, layout and file format decoded from vendor software and consistent with all 48 example snapshots — **never sent to a mixer**. Sync-as-readback, the apply-flag semantics and gain scaling are ⚠️ inferred.
 
+**Revised 2026-09-23 (additive audit):** adds the Snapshot Manager's full initial-state table, MIDI Learn detail (permanent bank reachable by MIDI note, not OSC), MIDI map / prefs / shortcuts file formats, keyboard shortcuts and the visualization panel.
+
 **Open items:** bench test of sync and recall; which firmware answers sync (software wants v2.11+); SysEx header byte 4; `<SendEnv>` text format; whether fader pickup ("hang up") is the mixer's or the software's; wipe-type and audio CCs.
 
 ---
