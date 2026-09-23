@@ -17,9 +17,11 @@ Manifest of stored pattern documents. Read this first when the skill is active.
 | `protocols/` | Vendor and protocol facts — operator parameters, MIDI maps, API endpoints, ports, packet structure | `[Official]` / `[Forum]` / `[Lead]` |
 | `patterns/` | Structures the user developed | Shipped / Bench-verified / Designed / Abandoned |
 
-`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md` · `christie-spyder-external-control.md` · `nvidia-tensorrt-polygraphy.md`
+`protocols/` — `touchdesigner-resolume-operators.md` · `resolume-control-interfaces.md` · `behringer-x-touch-compact.md` · `behringer-xtouch-compact-resolume.md` · `xtouch-compact-midi-map.md` · `christie-spyder-external-control.md` · `nvidia-tensorrt-polygraphy.md` · `vixid-vjx16-4-midi.md`
 
 `protocols/xtouch-compact-config/` — the four raw X-Touch Editor `.bin` layer exports the map document is decoded from, plus `decode.py` and its own `README.md`. The Editor saves straight into this folder, so every change to the device is a commit. Binaries, so the provenance rule does not apply to them; the folder README carries the format decode.
+
+`protocols/vixid-vjx16-4-snapshots/` — `vsbk_to_syx.py` (Snapshot Manager bank → SysEx recall `.syx` files + readable CSV) and its `README.md`. VIXID's own banks are not committed.
 
 `patterns/` — `midi-for-show-control.md` · `osc-for-show-control.md` · `touchdesigner-integration.md` · `touchdesigner-arena-sequencer.md` · `resolume-companion-glue.md` · `multi-layer-controller-led-feedback.md` · `atem-supersource-simulator.md` · `control-surface-authority.md` · `touchdesigner-python-env-dependencies.md` · `touchdesigner-TDDepthAnything.md` · `touchdesigner-pops-depth-geometry.md` · `spyder-operator-gui.md`
 
@@ -44,6 +46,19 @@ Maintenance is **additive and never lossy** — merge rather than replace, promo
 ---
 
 ## Documents
+
+### `protocols/vixid-vjx16-4-midi.md`
+**Added:** 2026-09-23
+
+**Covers:** Driving a VIXID VJX16-4 video mixer without VIXID's software (company defunct, Snapshot Manager activation no longer obtainable). The full documented CC map — channels 1–4 per track, channel 5 master, every value bin — with the manual's errors corrected (channel-5 CC 5 is Out3, not Out2). **Undocumented, decoded from VIXID's Snapshot Manager:** CC 32–48 as 14-bit LSB partners for crop, scroll, keyer colour, tolerance and transition; SysEx manufacturer bytes `00 20 6C`; the 7-byte sync request `F0 00 20 6C 00 01 F7`, after which the software treats every incoming CC as mixer state and expects channel 4 CC 64 within 1.5 s — i.e. a state readback; the 218-byte full-state recall with its apply-flag bytes, track-exclude bits, packed output config and four 51-byte track blocks, bit by bit. RGB/BCS scaling (panel = 2 × CC, CC 64 neutral) computed from VIXID's example banks. The Snapshot Manager's OSC address `/bankX/snapshotY` (float 1.0; permanent bank unreachable) and MIDI-note triggers. The `.vsbk` bank XML and its 1,280-hex-character `<Data>` state dump. A cross-check of 48 VIXID example snapshots against their own descriptions, with two disagreements left in place.
+
+**Use for:** building a snapshot/recall tool for the VJX16-4 in TouchDesigner or anything else; reading the mixer's current state; converting old `.vsbk` banks; any VJX16-4 MIDI mapping. Device behaviour is in `analog-video/references/vixid/vjx16-4.md`.
+
+**Confidence:** CC map `[Official]` from the User Guide. SysEx, layout and file format decoded from vendor software and consistent with all 48 example snapshots — **never sent to a mixer**. Sync-as-readback, the apply-flag semantics and gain scaling are ⚠️ inferred.
+
+**Open items:** bench test of sync and recall; which firmware answers sync (software wants v2.11+); SysEx header byte 4; `<SendEnv>` text format; whether fader pickup ("hang up") is the mixer's or the software's; wipe-type and audio CCs.
+
+---
 
 ### `patterns/touchdesigner-python-env-dependencies.md`
 **Added:** 2026-08-29
