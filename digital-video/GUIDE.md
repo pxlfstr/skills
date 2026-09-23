@@ -131,3 +131,7 @@ The `references/` folder holds the user's curated documents. Two helper files go
 - `references/STORAGE.md` — how to add a new document to the library and update the index (including the additive/non-lossy update rule).
 
 If `references/` is empty except for those two files, that's expected for a fresh skill — the library grows as the user feeds it material.
+
+**Canonical source: https://github.com/pxlfstr/skills** (`digital-video/references/`). The repo is authoritative; the copy in this container is a snapshot.
+
+**Nothing written to `references/` persists.** This container is discarded when the session ends; the only durable copy is the GitHub repository above. Never tell the user a document has been "stored" or "saved to the skill" on the basis of having written it to disk. Produce the file, deliver it as a download, and say plainly that it needs to be committed.

@@ -34,7 +34,7 @@ When this skill is active, follow this loop:
 
 2. **Offer to store new documents.** If the user provided new material this turn that looks reusable (a schematic, a manual, a spec sheet, build notes, a reading list), ask whether to save it to the library — e.g., "Want me to store this in the skill so it's available next time?" Don't store automatically; the user curates their own library. When they say yes, follow `references/STORAGE.md`.
 
-3. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). Cite which document a specific fact came from when it came from a stored doc, so the user can trace it.
+3. **Answer from the right source.** Combine the references with Claude's own deep knowledge (see the map below). Cite which document a specific fact came from when it came from a stored doc — or from a manufacturer/designer source pulled this session — so the user can trace it. Never blend a verified number and a remembered one without marking which is which.
 
 4. **Be terse.** Tables for multi-attribute items and side-by-side comparisons; single-idea bullets for lists; never prose where a table will do. Keep units consistent down a column. Lead with the answer, not the reasoning.
 
@@ -59,6 +59,8 @@ How a fact is sourced matters as much as the fact — the user is often about to
 **Trusted authoritative voices:** Lars Larsen (LZX), Nick (brownshoesonly / VH.S), Bastien Lavaud (Syntonie), Befaco, Fox Burroughs (Foxing Hour), and any module's own designer. A post by one of them about their own gear counts as Verified even when it's on a forum.
 
 **Citation style — descriptor format, not APA/MLA.** Name the source by the main heading of the article/thread (hyperlinked if online) or the PDF/document title, tagged `[Official]` or `[Forum]`. No years. In tables, use a **Source** column with descriptor + tag; in prose, name the source inline with its tag. Files the user uploads are cited by document title plus how they were read (e.g. OCR'd scan, photo transcription). Every cited number must be verified.
+
+**Notability standard.** Every module, maker, device, or technique deserves equal investigation regardless of perceived prominence. It is not Claude's place to judge what is "notable" — a one-person maker's 4 HP module gets the same rigor as an LZX flagship.
 
 **Library maintenance is additive and never lossy** — merge rather than replace; remove only what's shown to be wrong. Full protocol in `references/STORAGE.md`.
 
