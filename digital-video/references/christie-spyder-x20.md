@@ -66,6 +66,11 @@ brochure, two product photographs.**
   without arguments, ranges or behaviour. A command named in §12 is **confirmed to exist and
   nothing more** — never write one from the name alone.
 - **Open contradictions and gaps:** conflicts between the manual and the spec page are in §13; everything still unanswered is in §14. Both left in place, not resolved.
+- **Updated 2026-10-08 — two bench observations from the user's own X20, user-reported**
+  (Bench-verified tier): **composite enters on the `G-Y-Comp` BNC**, and **NTSC composite reports
+  as 720 × 486** in Vista Advanced. Added to §4; **§8.2's earlier `Cr-Pr-C` reading corrected in
+  place** on that authority. Chassis model and software version for the observation were not
+  stated and are not recorded.
 
 ---
 
@@ -168,10 +173,20 @@ Other VI rules:
 
 | Input | Connectors |
 |---|---|
-| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC. **On the chassis these are four BNCs marked `Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync` under "Analog", plus one marked `3G/HD/SD-SDI` under "Digital"** (§8.2). **Confirmed [Official] by the product brochure's spec table: exactly half the inputs on both chassis (4 of 8 on X20-0808, 8 of 16 on X20-1608) are listed as "supporting composite, S-video, component analog, HDSDI, SDI, and 3G SDI" — composite/S-Video are standard on these inputs, not optional or gated by an add-on card** |
+| **Odd** (1, 3, 5 …) | Analog on 3- or 4-wire BNC · Composite / S-Video (shares the BNC used for the composite analog sync signal — manual's wording; **on hardware composite enters on `G-Y-Comp`**, see below) · SDI / HD-SDI / **3G-SDI** on a dedicated BNC. **On the chassis these are four BNCs marked `Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync` under "Analog", plus one marked `3G/HD/SD-SDI` under "Digital"** (§8.2). **Confirmed [Official] by the product brochure's spec table: exactly half the inputs on both chassis (4 of 8 on X20-0808, 8 of 16 on X20-1608) are listed as "supporting composite, S-video, component analog, HDSDI, SDI, and 3G SDI" — composite/S-Video are standard on these inputs, not optional or gated by an add-on card** |
 | **Even** (2, 4, 6 …) | DVI-I (analog and digital on one connector) · Stereo sync input on 3-pin DIN. Brochure confirms these as "progressive DVI and progressive RGBHV" inputs |
 
 Only one connector / signal type can be selected per input at a time.
+
+**Composite input, settled on hardware — Bench-verified, user-reported 2026-10-08:**
+
+| Question | Answer | Notes |
+|---|---|---|
+| Which BNC takes composite | **`G-Y-Comp`** | Not `Comp Sync`, which the manual's "shares BNC with composite analog sync signal" wording suggested, and not `Cr-Pr-C`, which §8.2 previously claimed (corrected there) |
+| Active raster NTSC composite reports as | **720 × 486** | Matches BT.601's 486 active lines for 525/60, not the 480-line DV/MPEG convention. **Every vertical number for a composite source in a layout — window height, 4:3 pillarbox, tiling — uses 486** |
+
+⚠️ **S-Video pin assignment is still untested.** Reading the labels, Y would sit on `G-Y-Comp` and C
+on `Cr-Pr-C` — **Theory only, from the silkscreen, not observed.**
 
 ### X20 outputs
 
@@ -479,9 +494,14 @@ Board boundaries are real and they are at input 8.
 | **Odd** (1, 3, 5 …) | Four analog BNCs grouped under **Analog** — labelled **`Cr-Pr-C`**, **`B-Pb`**, **`G-Y-Comp`**, **`Comp Sync`** — plus one BNC under **Digital**, labelled vertically **`3G/HD/SD-SDI`** |
 | **Even** (2, 4, 6 …) | A 3-pin mini-DIN labelled **`Stereo Sync`**, and a DVI connector labelled **`Dual DVI-I`** |
 
-The four-BNC analog cluster is the manual's "3 or 4 wire BNC" made concrete: **`Cr-Pr-C` carries
-the composite/S-Video signal that shares the BNC with composite analog sync**, which is why the
-manual describes composite as sharing a connector rather than having its own.
+The four-BNC analog cluster is the manual's "3 or 4 wire BNC" made concrete. **Composite enters on
+`G-Y-Comp` — Bench-verified, user-reported 2026-10-08** (§4).
+
+⚠️ **Corrected 2026-10-08.** This section previously stated that **`Cr-Pr-C` carries the
+composite/S-Video signal that shares the BNC with composite analog sync.** That was wrong: composite
+was fed on the user's own X20 and enters on `G-Y-Comp`. The error came from reading the manual's
+"shares BNC with composite analog sync signal" as naming a connector and then picking a label from
+the photograph to fit it — the photograph shows labels, not which pin decodes composite.
 
 **Per-output connectors — and this is the useful one:**
 
@@ -1074,12 +1094,12 @@ specifically. Tag stays **`[Practice]`** throughout — do not let it read as `[
 | §1 families, model numbers | Manual — **Verified [Official]**. X20 input counts **Derived** from the dual-link layer table; **output counts Verified from the product page** |
 | §2 VI capacity and budgeting | Manual — **Verified [Official]**; budgeting formula restated is **Derived** from the manual's own worked example and checks exactly. Two contradictions flagged in place, one internal and one against the SSO manual |
 | §3 layers, priority, backgrounds | Manual — **Verified [Official]** |
-| §4 connectors and formats | Manual — **Verified [Official]**; SDI Level B from the 4.0.4 notes; genlock from the SSO manual's figure and the product page, marked in place |
+| §4 connectors and formats | Manual — **Verified [Official]**; SDI Level B from the 4.0.4 notes; genlock from the SSO manual's figure and the product page, marked in place. **Composite on `G-Y-Comp` and the 720 × 486 NTSC raster are Bench-verified, user-reported 2026-10-08**; S-Video pin assignment remains Theory |
 | §5 dual link | Manual — **Verified [Official]**; the ">2048 × 1200 costs two input channels" restatement is from the product page |
 | §6 HDCP | Manual — **Verified [Official]**; §12.3 adds the software history |
 | §7 expansion | Manual — **Verified [Official]**; the USB-expansion question from the notes is flagged, not resolved |
 | §8.1 physical and power | Manual — **Verified [Official]**; the product page and **the chassis nameplate** give two further, conflicting figures, all three recorded. **Dual power supplies are Observed from a photograph and described as redundant nowhere** |
-| §8.2 rear panel | **Observed [Official]** — read off a Christie product photograph of an X20-1608 demo chassis, connector labels transcribed as silkscreened. Layout and labels only; **no specification is derived from the image.** One BNC left unidentified rather than guessed |
+| §8.2 rear panel | **Observed [Official]** — read off a Christie product photograph of an X20-1608 demo chassis, connector labels transcribed as silkscreened. Layout and labels only; **no specification is derived from the image.** One BNC left unidentified rather than guessed. **The earlier `Cr-Pr-C`-carries-composite line broke that rule and was wrong — corrected 2026-10-08 from a bench observation** |
 | §8.3 front panel | **Observed [Official]** — same basis. Layout, labels and the status-display fields are legible; **no behaviour is documented** |
 | §9 client install and network | Manual — **Verified [Official]**, 3.x era |
 | §10 feature set | Manual — **Verified [Official]**, 3.x era |

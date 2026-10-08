@@ -28,6 +28,11 @@ Companions:
   from the user-supplied Spyder Studio User Guide 020-102579-04 (X80; read in full, **not stored
   in this library at the user's decision**), a user working assumption in §2.4, a third reading
   in §2.9, and new §2.13.
+- **Updated 2026-10-08 — first answers from hardware.** The user ran two tests on their own X20:
+  **§4.3 and §4.5 are closed** (composite on `G-Y-Comp`; NTSC reports 720 × 486), both
+  **Bench-verified, user-reported**, promoted to `christie-spyder-x20.md` §4 and struck here.
+  The "no hardware" line above describes the original compilation; **every other item is still
+  untested.** One corrections-log row added (§6).
 
 ---
 
@@ -433,14 +438,17 @@ the input's connector selection.
 how long the input takes to re-detect and re-lock. **This is not a clean switch and should not be
 rehearsed as one.**
 
-### 4.3 Which BNC actually carries composite
+### ~~4.3 Which BNC actually carries composite~~ — CLOSED 2026-10-08
 
-The chassis silkscreen groups four analog BNCs as **`Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync`**.
+**Answer: `G-Y-Comp`. Bench-verified, user-reported 2026-10-08** — composite fed on the user's own
+X20. Promoted to `christie-spyder-x20.md` §4; §8.2's conflicting `Cr-Pr-C` line corrected there.
+
+~~The chassis silkscreen groups four analog BNCs as **`Cr-Pr-C`, `B-Pb`, `G-Y-Comp`, `Comp Sync`**.
 `G-Y-Comp` reads as composite on the G/Y position, standard for Spyder. ⚠️ **But the manual says
-composite *"shares BNC with composite analog sync signal,"*** which points at `Comp Sync` instead.
+composite *"shares BNC with composite analog sync signal,"*** which points at `Comp Sync` instead.~~
 
-**Test:** feed composite to `G-Y-Comp` first. If nothing, try `Comp Sync` before suspecting a
-cable.
+~~**Test:** feed composite to `G-Y-Comp` first. If nothing, try `Comp Sync` before suspecting a
+cable.~~
 
 ### 4.4 Does SD-SDI work reliably on X20 outputs?
 
@@ -452,11 +460,15 @@ HD.
 **If SD-SDI out misbehaves, that is the reason.** Safer path for CVBS: let the X20 stay at HD and
 put the standards conversion in a dedicated box.
 
-### 4.5 What active raster does Spyder present NTSC composite as?
+### ~~4.5 What active raster does Spyder present NTSC composite as?~~ — CLOSED 2026-10-08
 
-720 × 480 or 720 × 486? BT.601 defines 486 active lines for 525/60; 480 is the DV and MPEG
+**Answer: 720 × 486. Bench-verified, user-reported 2026-10-08** — read in Vista Advanced from a
+composite source on the user's own X20. The BT.601 count, not the DV/MPEG 480. Promoted to
+`christie-spyder-x20.md` §4.
+
+~~720 × 480 or 720 × 486? BT.601 defines 486 active lines for 525/60; 480 is the DV and MPEG
 convention. **No X20 format table exists**, so which one the input reports is unknown — and it
-shifts every vertical number in a tiling layout.
+shifts every vertical number in a tiling layout.~~
 
 ### 4.6 Does audio pass through?
 
@@ -581,6 +593,7 @@ failures repeat**, not just the facts.
 | A dual-link input disables only the neighbour's **analog**, sparing its SDI | The **whole input channel** is consumed | Read "the preceding analog input connector" as a precise carve-out. Odd inputs have no DVI — "analog" is just how Christie names that neighbour |
 | One output can be a config monitor and a layer-labelled op mon **simultaneously** | It can be **assigned** both roles; nothing says both images appear at once, and they cannot | Turned "can be used for" into "at the same time" |
 | X20 outputs do **RGBHV only** on the analog pins, no component | **Analog RGB (SOG, composite or separate sync) and Analog YUV** are both in the output format list | Described the DVI-I pin arrangement and mistook it for the format list |
+| **`Cr-Pr-C` carries composite** (`christie-spyder-x20.md` §8.2), while §4.3 here offered **`Comp Sync`** as the alternative to `G-Y-Comp` | **`G-Y-Comp`** — bench-verified, user-reported 2026-10-08 | Read the manual's *"shares BNC with composite analog sync signal"* as naming a connector, then fitted a silkscreen label to it. **Two documents drew two different wrong candidates from the same sentence** and never noticed they disagreed |
 | The `Op Mon Input` capture path probably needs a **physical output loopback** | **Internal is more likely** — no Christie document mentions looping an output back, and the still server needs the physical port because its source is an external PC | Over-weighted the connector's name |
 
 **The recurring failure is treating a partial source as complete** — a changelog as an inventory,
@@ -603,7 +616,7 @@ If a Spyder is ever available, this is the order:
 6. **Arguments for the eight 4.x commands** (§3.1) via the Console Simulator. Longest task,
    highest value for any future control work.
 7. **Stereo VI ceiling** (§1.1). Build until it refuses.
-8. **Composite on `G-Y-Comp` vs `Comp Sync`** (§4.3).
+8. ~~**Composite on `G-Y-Comp` vs `Comp Sync`** (§4.3).~~ **Done 2026-10-08 — `G-Y-Comp`.**
 9. **Clamp meter on a loaded frame** (§1.2).
 10. **Pull one power cord** (§5.2).
 
