@@ -22,7 +22,8 @@ a later revision exists has not been checked.
 specification, Quartz **MANUAL-05** (Q-Link panels, named in §3.10), the WinSetup
 help system, or any Evertz/Quartz source giving network port numbers.
 
-**One user-reported bench result** (§6.3) — the only non-manual fact here.
+**Two user-reported bench results** (§6.3) — the only non-manual facts here:
+the EQT's ports are not open, and **TCP 255 is**.
 
 **Contradictions internal to this manual, kept unresolved:** frame depth (§2),
 DIP switch numbering (§7), and whether third-party control runs over Ethernet
@@ -214,6 +215,15 @@ different, later product sharing only the WinSetup editor.
 reachable (no ping result recorded), so this rules out those ports **only if
 the address was right.** UDP was not tested.
 
+**User-reported, 2026-10-08 — TCP port 255 open.** An Nmap TCP scan of the
+user's QT-3232N at its configured address (nmap reported the host up) found
+**port 255 open**. ⚠️ Caveats, all open:
+- A full-range `-T4 --min-rate 1000` scan hit Nmap's retransmission cap
+  (the frame dropped probes), so **other open ports may have been missed**.
+- **What 255 does is unknown** — WinSetup setup download, router control, or
+  both. The manual names both functions over TCP/IP and gives no port.
+- Not yet tested from WinSetup.
+
 ### 6.4 ⚠️ Third-party control path — manual contradicts itself
 
 | Source | Says |
@@ -324,20 +334,22 @@ an SC-500E check; nothing equivalent here).
 | §6.1–§6.2 Q-Link, serial | **Verified [Official]** | §2.3.4–§2.3.7, §3.8.1 |
 | §6.3 no port numbers | **Verified negative** | Full text layer + WinSetup figures |
 | §6.3 EQT ports not open | **User-reported**, IP reachability unconfirmed | 2026-10-08 |
+| §6.3 TCP 255 open | **Bench-observed, user-reported**; function unknown, scan lossy | Nmap, 2026-10-08 |
 | §6.4 control path | **Contradiction, unresolved** | §1.1 vs §3.8.1 |
 | §7 DIP / address | **Verified [Official]**, numbering contradiction | §2.3.6 vs §2.5.1 |
 | §8 WinSetup | **Verified [Official]** | §5, Figures 5-1–5-5 |
 | §8 38400 vs 9600 | **Reasoned** | Not stated |
 
-**Nothing bench-tested** beyond the §6.3 port check.
+**Nothing bench-tested** beyond the §6.3 port checks.
 
 ---
 
 ## 10. Not yet verified — open items
 
-1. **The Topaz Ethernet port numbers** — for setup download and for control.
-   Not in this manual. Evertz service, a later manual, the WinSetup F1 help, or
-   a full port scan of the frame would settle it. **Highest-value item.**
+1. **What TCP 255 is, and whether it is the only port.** A scan found 255 open
+   (§6.3). Settle by a WinSetup download pointed at it, and a slow rescan
+   (`--max-rate 100`) to catch anything the lossy scan missed. Evertz service or
+   the WinSetup F1 help would confirm. **Highest-value item.**
 2. **How the Topaz IP address is set and read** — no front panel menu, telnet
    or DIP setting for it is described. Possibly set in WinSetup and downloaded
    serially — unconfirmed.
